@@ -16,7 +16,8 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
 
     [SerializeField] InputController inputCursor;
     [SerializeField] ControlState controlState;
-    [SerializeField] ObjectInGrid targetObject;
+    [SerializeField] ObjectInGrid controlledObject;
+    bool hasCalculated = false;
 
     public Vector3Int positionOnGrid;
     public bool cursorNeeded;
@@ -59,11 +60,10 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
             highlight.gameObject.SetActive(true);
         }
 
-
         List<PathNode> transitableNodes = new List<PathNode>();
-        pathfinding.CalculateWalkableNodes(targetObject.positionInGrid.x, 
-                                           targetObject.positionInGrid.y, 
-                                           targetObject.positionInGrid.z, targetObject.movementPoints,
+        pathfinding.CalculateWalkableNodes(controlledObject.positionInGrid.x,
+                                           controlledObject.positionInGrid.y,
+                                           controlledObject.positionInGrid.z, controlledObject.movementPoints,
                                            ref transitableNodes);
         highlight.Highlight(transitableNodes);
 
@@ -83,10 +83,10 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
         {
             attackHighlight.gameObject.SetActive(true);
         }
-        Entity character = targetObject.GetComponent<Entity>();
+        Entity character = controlledObject.GetComponent<Entity>();
         int attackRange = character.attackRange;
         
-        Vector3Int origin = targetObject.positionInGrid;
+        Vector3Int origin = controlledObject.positionInGrid;
 
         attackPos = new List<Vector3Int>();
 
@@ -135,27 +135,46 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
             {
                 cursorNeeded = true;
                 ChangePositionOnGridMonitor(hit);
+                if (inputCursor.IsConfirmPressed()) 
+                {
+                    path = pathfinding.TraceBackPath(positionOnGrid.x, positionOnGrid.y, positionOnGrid.z);
+                    if (path == null || path.Count == 0)
+                    {
+                        Debug.Log("Path is Null or Empty");
+                        return;
+                    }
+                    controlledObject.Move(path);
+                    hasCalculated = false;
+                }
             }
             else
             {
                 cursorNeeded = false;
             }
-
         }
-        else 
+        else if (controlState == ControlState.Attack)
         {
             if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
             {
                 cursorNeeded = true;
                 ChangePositionOnGridMonitor(hit);
+                if (inputCursor.IsConfirmPressed())
+                {
+                    if (attackPos.Contains(positionOnGrid))
+                    {
+                        ObjectInGrid gridTarget = targetGrid.GetPlacedObject(positionOnGrid);
+                        if (gridTarget == null || gridTarget.GetAliance() == controlledObject.GetAliance()) { return; }
+                        controlledObject.Attack(positionOnGrid);
+                        //Rest of AttackBehaviour
+
+                    }
+                }
             }
-            else 
+            else
             {
                 cursorNeeded = false;
             }
         }
-
-
         //if (controlState == ControlState.Move && inputCursor.IsConfirmPressed())
         //{
         //    if (Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
@@ -166,7 +185,7 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
         //        //path = pathfinding.FindPath(targetObject.positionInGrid.x, targetObject.positionInGrid.y, targetObject.positionInGrid.z,
         //        //                           gridPosition.x, gridPosition.y, gridPosition.z);
         //        path = pathfinding.TraceBackPath(gridPosition.x, gridPosition.y, gridPosition.z);
-        //        if (path == null || path.Count == 0) 
+        //        if (path == null || path.Count == 0)
         //        {
         //            Debug.Log("Path is Null or Empty");
         //            return;
@@ -179,7 +198,7 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
         //    if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
         //    {
         //        Vector3Int gridPosition = targetGrid.GetGridPosition(hit.point);
-        //        if (attackPos.Contains(gridPosition)) 
+        //        if (attackPos.Contains(gridPosition))
         //        {
         //            ObjectInGrid gridTarget = targetGrid.GetPlacedObject(gridPosition);
         //            if (gridTarget == null || gridTarget.GetAliance() == targetObject.GetAliance()) { return; }
@@ -191,14 +210,16 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
         //}
     }
 
-    private void ChangePositionOnGridMonitor(RaycastHit hit)
+    private bool ChangePositionOnGridMonitor(RaycastHit hit)
     {
         cursorNeeded = true;
         Vector3Int gridPosition = targetGrid.GetGridPosition(hit.point);
         if (gridPosition != positionOnGrid)
         {
             positionOnGrid = gridPosition;
+            return true;
         }
+        return false;   
     }
 
     private void OnDrawGizmos()
@@ -224,7 +245,8 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
     }
     public void MoveButtonControlState() 
     {
-        ChangeControlState(ControlState.Move); 
+        ChangeControlState(ControlState.Move);
+        hasCalculated = false;
     }
     public void AttackButtonControlState()
     {

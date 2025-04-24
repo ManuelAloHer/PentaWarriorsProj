@@ -37,21 +37,23 @@ public class GridHighlight : MonoBehaviour
         return go;
     }
 
-    public void Highlight(List<Vector3Int> positions)
+    public bool Highlight(List<Vector3Int> positions)
     {
         for (int i = 0; i < positions.Count; i++)
         {
             Highlight(positions[i].x, positions[i].y, positions[i].z, GetPointGo(i));
         }
         DeactivateUnusedHighlights(positions.Count);
+        return true;
     }
-    public void Highlight(List<PathNode> positions)
+    public bool Highlight(List<PathNode> positions)
     {
         for (int i = 0; i < positions.Count; i++)
         {
             Highlight(positions[i].pos_x, positions[i].pos_y, positions[i].pos_z, GetPointGo(i));
         }
         DeactivateUnusedHighlights(positions.Count);
+        return true;
     }
 
     private GameObject GetPointGo(int i) 

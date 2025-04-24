@@ -262,6 +262,7 @@ public class Pathfinding : MonoBehaviour
         PathNode currentNode = pathNodes[x, y, z];
         while (currentNode.parentNode != null)
         {
+            if (path.Contains(currentNode)) { continue; }
             path.Add(currentNode);
             currentNode = currentNode.parentNode;
         }
