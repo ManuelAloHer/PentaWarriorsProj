@@ -40,25 +40,30 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
         {
             Debug.LogError("InputController not set");
         }
-        InvokeRepeating("CheckTransitableTerrain",0,1);
+        CheckTransitableTerrain();
         InvokeRepeating("CalculateAttackAreaRepeat", 0, 1);
     }
 
     private void FixedUpdate()
     {
-        
+        CheckActivation();
     }
-    private void CheckTransitableTerrain()
+    private void CheckActivation() 
     {
         if (controlState != ControlState.Move)
         {
             if (highlight.gameObject.activeSelf) { highlight.gameObject.SetActive(false); }
             return;
         }
-        else if(!highlight.gameObject.activeSelf)
+        else if (!highlight.gameObject.activeSelf)
         {
             highlight.gameObject.SetActive(true);
         }
+
+
+    }
+    private void CheckTransitableTerrain()
+    {
 
         List<PathNode> transitableNodes = new List<PathNode>();
         pathfinding.CalculateWalkableNodes(controlledObject.positionInGrid.x,
@@ -66,7 +71,7 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
                                            controlledObject.positionInGrid.z, controlledObject.movementPoints,
                                            ref transitableNodes);
         highlight.Highlight(transitableNodes);
-
+        CheckActivation();
     }
     private void CalculateAttackAreaRepeat() 
     {
