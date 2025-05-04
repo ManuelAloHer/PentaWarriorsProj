@@ -51,18 +51,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "CameraDisplaceButton",
+                    "name": "CancelAction",
                     "type": "Button",
-                    "id": "2cadcf42-934c-4501-a219-ecd17e2ec625",
+                    "id": "46dd3650-75ae-45e5-ada1-920afd757e22",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "New action",
+                    "name": "CameraDisplaceButton",
                     "type": "Button",
-                    "id": "46dd3650-75ae-45e5-ada1-920afd757e22",
+                    "id": "2cadcf42-934c-4501-a219-ecd17e2ec625",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -238,11 +238,22 @@
                 {
                     "name": "",
                     "id": "0118a6e1-f2b0-41fb-afd5-f0886f02d660",
-                    "path": "",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "New action",
+                    "action": "CancelAction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ec5bbd18-0e92-42ff-a1de-62b9f083170f",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CancelAction",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

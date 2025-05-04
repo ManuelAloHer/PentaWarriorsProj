@@ -1,11 +1,22 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 public class MovementInGrid : MonoBehaviour // Script that controls the movementof a character 
 {
     public List<Vector3> pathWorldPositions;
+   
+    public bool IsMoving 
+    { 
+        get 
+        {  
+            if (pathWorldPositions == null) { return false; }
+            return pathWorldPositions.Count > 0; 
+        } 
+    }
+
     [SerializeField] float moveSpeed = 3f;
     CharacterAnimator characterAnimator;
     public bool isCharacter = false;
@@ -28,7 +39,7 @@ public class MovementInGrid : MonoBehaviour // Script that controls the movement
             pathWorldPositions.RemoveAt(0);
             if (pathWorldPositions.Count > 0)
             {
-                RotateCharacter();
+                RotateCharacter(transform.position, pathWorldPositions[0]);
             }
             else if (characterAnimator != null)
             {
@@ -37,10 +48,10 @@ public class MovementInGrid : MonoBehaviour // Script that controls the movement
         }
     }
 
-    public void RotateCharacter()
+    public void RotateCharacter(Vector3 origin, Vector3 destination)
     {
         if (!isCharacter) { return; }
-        Vector3 direction = (pathWorldPositions[0] - transform.position);
+        Vector3 direction = (destination - origin);
         transform.rotation = Quaternion.LookRotation(direction);
     }
 

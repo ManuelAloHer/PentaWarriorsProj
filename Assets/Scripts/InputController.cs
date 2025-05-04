@@ -12,19 +12,15 @@ public interface ICursorInputProvider
     bool IsConfirmPressed();           // e.g. left click or gamepad A
     bool WasConfirmPressed();          // Just pressed this frame
     bool WasConfirmReleased();         // Just released
+    bool IsCancelPressed();           // e.g. left click or gamepad A
+    bool WasCancelPressed();          // Just pressed this frame
+    bool WasCancelReleased();         // Just released
 }
 public class InputController : MonoBehaviour, ICursorInputProvider
 {
     [SerializeField] Camera mainCamera;
 
-    [SerializeField] GridMap targetGrid;
-    [SerializeField] LayerMask terrainLayerMask;
-    [SerializeField] LayerMask entityLayerMask;
-
-    Vector3Int currentGridPos;
-
     public static InputController Instance { get; private set; }
-
     
     private Vector2 simulatedCursorPosition;
     private bool usingGamepad;
@@ -35,6 +31,7 @@ public class InputController : MonoBehaviour, ICursorInputProvider
     private InputAction cursorPosition;
     private InputAction cursorDelta;
     private InputAction confirmAction;
+    private InputAction cancelAction;
 
     private void Awake()
     {
@@ -58,6 +55,7 @@ public class InputController : MonoBehaviour, ICursorInputProvider
         cursorPosition = inputActions.MainCombatMap.CursorMovement;
         cursorDelta = inputActions.MainCombatMap.CursorDelta;
         confirmAction = inputActions.MainCombatMap.ConfirmAction;
+        cancelAction = inputActions.MainCombatMap.CancelAction;
     }
 
     private void OnDisable()
@@ -97,5 +95,8 @@ public class InputController : MonoBehaviour, ICursorInputProvider
     public bool IsConfirmPressed() => confirmAction.IsPressed();
     public bool WasConfirmPressed() => confirmAction.WasPressedThisFrame();
     public bool WasConfirmReleased() => confirmAction.WasReleasedThisFrame();
+    public bool IsCancelPressed() => cancelAction.IsPressed();
+    public bool WasCancelPressed() => cancelAction.WasPressedThisFrame();
+    public bool WasCancelReleased() => cancelAction.WasReleasedThisFrame();
     public bool IsUsingGamepad() => usingGamepad;
 }

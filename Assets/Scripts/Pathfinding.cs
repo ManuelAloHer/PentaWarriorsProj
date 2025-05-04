@@ -29,6 +29,12 @@ public class PathNode
     
     }
 
+    public void Clear()
+    {
+        gValue = 0f;
+        hValue = 0f;
+        parentNode = null;
+    }
 }
 
 [RequireComponent(typeof(GridMap))]
@@ -268,5 +274,19 @@ public class Pathfinding : MonoBehaviour
         }
         path.Reverse();
         return path;
+    }
+
+    public void Clear()
+    {
+        for (int x = 0; x < gridMap.Width; x++)
+        {
+            for (int y = 0; y < gridMap.Lenght; y++)
+            {
+                for (int z = 0; z < gridMap.Height; z++)
+                {
+                    pathNodes[x, y, z].Clear();
+                }
+            }
+        }
     }
 }

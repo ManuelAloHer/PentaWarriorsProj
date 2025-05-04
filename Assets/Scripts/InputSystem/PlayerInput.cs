@@ -73,18 +73,18 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""CameraDisplaceButton"",
+                    ""name"": ""CancelAction"",
                     ""type"": ""Button"",
-                    ""id"": ""2cadcf42-934c-4501-a219-ecd17e2ec625"",
+                    ""id"": ""46dd3650-75ae-45e5-ada1-920afd757e22"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""New action"",
+                    ""name"": ""CameraDisplaceButton"",
                     ""type"": ""Button"",
-                    ""id"": ""46dd3650-75ae-45e5-ada1-920afd757e22"",
+                    ""id"": ""2cadcf42-934c-4501-a219-ecd17e2ec625"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -260,11 +260,22 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""0118a6e1-f2b0-41fb-afd5-f0886f02d660"",
-                    ""path"": """",
+                    ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""New action"",
+                    ""action"": ""CancelAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ec5bbd18-0e92-42ff-a1de-62b9f083170f"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CancelAction"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -308,8 +319,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_MainCombatMap_CursorMovement = m_MainCombatMap.FindAction("CursorMovement", throwIfNotFound: true);
         m_MainCombatMap_CameraMovement = m_MainCombatMap.FindAction("CameraMovement", throwIfNotFound: true);
         m_MainCombatMap_ConfirmAction = m_MainCombatMap.FindAction("ConfirmAction", throwIfNotFound: true);
+        m_MainCombatMap_CancelAction = m_MainCombatMap.FindAction("CancelAction", throwIfNotFound: true);
         m_MainCombatMap_CameraDisplaceButton = m_MainCombatMap.FindAction("CameraDisplaceButton", throwIfNotFound: true);
-        m_MainCombatMap_Newaction = m_MainCombatMap.FindAction("New action", throwIfNotFound: true);
         // New action map
         m_Newactionmap = asset.FindActionMap("New action map", throwIfNotFound: true);
         m_Newactionmap_Newaction = m_Newactionmap.FindAction("New action", throwIfNotFound: true);
@@ -385,8 +396,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_MainCombatMap_CursorMovement;
     private readonly InputAction m_MainCombatMap_CameraMovement;
     private readonly InputAction m_MainCombatMap_ConfirmAction;
+    private readonly InputAction m_MainCombatMap_CancelAction;
     private readonly InputAction m_MainCombatMap_CameraDisplaceButton;
-    private readonly InputAction m_MainCombatMap_Newaction;
     public struct MainCombatMapActions
     {
         private @PlayerInput m_Wrapper;
@@ -396,8 +407,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @CursorMovement => m_Wrapper.m_MainCombatMap_CursorMovement;
         public InputAction @CameraMovement => m_Wrapper.m_MainCombatMap_CameraMovement;
         public InputAction @ConfirmAction => m_Wrapper.m_MainCombatMap_ConfirmAction;
+        public InputAction @CancelAction => m_Wrapper.m_MainCombatMap_CancelAction;
         public InputAction @CameraDisplaceButton => m_Wrapper.m_MainCombatMap_CameraDisplaceButton;
-        public InputAction @Newaction => m_Wrapper.m_MainCombatMap_Newaction;
         public InputActionMap Get() { return m_Wrapper.m_MainCombatMap; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -422,12 +433,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ConfirmAction.started += instance.OnConfirmAction;
             @ConfirmAction.performed += instance.OnConfirmAction;
             @ConfirmAction.canceled += instance.OnConfirmAction;
+            @CancelAction.started += instance.OnCancelAction;
+            @CancelAction.performed += instance.OnCancelAction;
+            @CancelAction.canceled += instance.OnCancelAction;
             @CameraDisplaceButton.started += instance.OnCameraDisplaceButton;
             @CameraDisplaceButton.performed += instance.OnCameraDisplaceButton;
             @CameraDisplaceButton.canceled += instance.OnCameraDisplaceButton;
-            @Newaction.started += instance.OnNewaction;
-            @Newaction.performed += instance.OnNewaction;
-            @Newaction.canceled += instance.OnNewaction;
         }
 
         private void UnregisterCallbacks(IMainCombatMapActions instance)
@@ -447,12 +458,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ConfirmAction.started -= instance.OnConfirmAction;
             @ConfirmAction.performed -= instance.OnConfirmAction;
             @ConfirmAction.canceled -= instance.OnConfirmAction;
+            @CancelAction.started -= instance.OnCancelAction;
+            @CancelAction.performed -= instance.OnCancelAction;
+            @CancelAction.canceled -= instance.OnCancelAction;
             @CameraDisplaceButton.started -= instance.OnCameraDisplaceButton;
             @CameraDisplaceButton.performed -= instance.OnCameraDisplaceButton;
             @CameraDisplaceButton.canceled -= instance.OnCameraDisplaceButton;
-            @Newaction.started -= instance.OnNewaction;
-            @Newaction.performed -= instance.OnNewaction;
-            @Newaction.canceled -= instance.OnNewaction;
         }
 
         public void RemoveCallbacks(IMainCombatMapActions instance)
@@ -523,8 +534,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnCursorMovement(InputAction.CallbackContext context);
         void OnCameraMovement(InputAction.CallbackContext context);
         void OnConfirmAction(InputAction.CallbackContext context);
+        void OnCancelAction(InputAction.CallbackContext context);
         void OnCameraDisplaceButton(InputAction.CallbackContext context);
-        void OnNewaction(InputAction.CallbackContext context);
     }
     public interface INewactionmapActions
     {

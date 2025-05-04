@@ -6,21 +6,14 @@ using UnityEngine;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.UIElements;
 
-public enum ControlState { None, Move, Attack}
+
 public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movement controls
 {
-    [SerializeField] GridMap targetGrid;
-    [SerializeField] LayerMask terrainLayerMask;
-    [SerializeField] LayerMask entityLayerMask;
+    public GridMap targetGrid;
     Pathfinding pathfinding;
 
-    [SerializeField] InputController inputCursor;
-    [SerializeField] ControlState controlState;
-    [SerializeField] ObjectInGrid controlledObject;
-    bool hasCalculated = false;
+    //public Vector3Int positionOnGrid;
 
-    public Vector3Int positionOnGrid;
-    public bool cursorNeeded;
 
     List<PathNode> path = new List<PathNode>();
     List<Vector3Int> attackPos;
@@ -34,198 +27,211 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
         pathfinding = targetGrid.GetComponent<Pathfinding>();
     }
 
-    private void Start()
-    {
-        if (inputCursor == null)
-        {
-            Debug.LogError("InputController not set");
-        }
-        CheckTransitableTerrain();
-        InvokeRepeating("CalculateAttackAreaRepeat", 0, 1);
-    }
 
-    private void FixedUpdate()
-    {
-        CheckActivation();
-    }
-    private void CheckActivation() 
-    {
-        if (controlState != ControlState.Move)
-        {
-            if (highlight.gameObject.activeSelf) { highlight.gameObject.SetActive(false); }
-            return;
-        }
-        else if (!highlight.gameObject.activeSelf)
-        {
-            highlight.gameObject.SetActive(true);
-        }
-
-
-    }
-    private void CheckTransitableTerrain()
+    public void CheckTransitableTerrain(ObjectInGrid controlledObject)
     {
 
         List<PathNode> transitableNodes = new List<PathNode>();
+        pathfinding.Clear();
         pathfinding.CalculateWalkableNodes(controlledObject.positionInGrid.x,
                                            controlledObject.positionInGrid.y,
                                            controlledObject.positionInGrid.z, controlledObject.movementPoints,
                                            ref transitableNodes);
+        highlight.Hide();
         highlight.Highlight(transitableNodes);
-        CheckActivation();
-    }
-    private void CalculateAttackAreaRepeat() 
-    {
-        CalculateAttackArea(false);
-    }
-    private void CalculateAttackArea(bool selfAlianceTargetable = false)
-    {
-        if (controlState != ControlState.Attack)
-        {
-            if (attackHighlight.gameObject.activeSelf) { attackHighlight.gameObject.SetActive(false); }
-            return;
-        }
-        else if (!attackHighlight.gameObject.activeSelf)
-        {
-            attackHighlight.gameObject.SetActive(true);
-        }
-        Entity character = controlledObject.GetComponent<Entity>();
-        int attackRange = character.attackRange;
         
-        Vector3Int origin = controlledObject.positionInGrid;
-
-        attackPos = new List<Vector3Int>();
-
-
-        for (int x = -attackRange; x <= attackRange; x++)
+    }
+    public List<PathNode> GetPath(Vector3Int from) 
+    {
+        path = pathfinding.TraceBackPath(from.x, from.y, from.z);
+        if (path == null || path.Count == 0)
         {
-            for (int y = -attackRange; y <= attackRange; y++)
+            Debug.Log("Path is Null or Empty");
+            return null;
+        }
+        return path;
+    }
+
+    public void CalculateAttackArea(Entity character, bool selfAlianceTargetable = false)
+    {
+        ObjectInGrid controlledCharacter = character.GetComponent<ObjectInGrid>();
+        
+        Vector3Int origin = controlledCharacter.positionInGrid;
+
+        if (attackPos == null)
+        {
+            attackPos = new List<Vector3Int>();
+        }
+        else 
+        {
+            attackPos.Clear();  
+        }
+
+        if (character.rangedBasedAttack)
+        {
+            int attackRange = character.attackRange;
+            for (int x = -attackRange; x <= attackRange; x++)
             {
-                for (int z = -attackRange; z <= attackRange; z++)
+                for (int y = -attackRange; y <= attackRange; y++)
                 {
-                    int distance = Mathf.Abs(x) + Mathf.Abs(y) + Mathf.Abs(z);
-                    if ( distance > attackRange) { continue; }
-                    
-                    Vector3Int pos = origin + new Vector3Int(x, y, z);
-                    if (selfAlianceTargetable == false) 
+                    for (int z = -attackRange; z <= attackRange; z++)
                     {
-                        //Check if sameAlince and leave
-                        if (x == 0 && y == 0){ continue; }
-                    }
-                    if (targetGrid.CheckBounderies(pos) == true) 
-                    {
-                        bool isTransitable = !targetGrid.GetNode(pos).onAir;
-                        bool hasEntity = targetGrid.CheckEntiyPresence(pos.x, pos.y, pos.z);
+                        int distance = Mathf.Abs(x) + Mathf.Abs(y) + Mathf.Abs(z);
+                        if (distance > attackRange) { continue; }
 
-                        if (isTransitable || hasEntity)
+                        Vector3Int pos = origin + new Vector3Int(x, y, z);
+                        if (selfAlianceTargetable == false)
                         {
-                            attackPos.Add(pos);
+                            //Check if sameAlince and leave
+                            if (x == 0 && y == 0) { continue; }
                         }
+                        if (targetGrid.CheckBounderies(pos) == true)
+                        {
+                            bool isTransitable = !targetGrid.GetNode(pos).onAir;
+                            bool hasEntity = targetGrid.CheckEntiyPresence(pos.x, pos.y, pos.z);
 
+                            if (isTransitable || hasEntity)
+                            {
+                                attackPos.Add(pos);
+                            }
+                        }
                     }
+                }
+            }
+        }
+        else
+        {
+            for (int x = -1; x <= 1; x++)
+            {
+                for (int y = -1; y <= 1; y++)
+                {
+                    for (int z = -1; z <= 1; z++)
+                    {
 
+                        Vector3Int pos = origin + new Vector3Int(x, y, z);
+                        if (selfAlianceTargetable == false)
+                        {
+                            //Check if sameAlince and leave
+                            if (x == 0 && y == 0) { continue; }
+                        }
+                        if (targetGrid.CheckBounderies(pos) == true)
+                        {
+                            bool isTransitable = !targetGrid.GetNode(pos).onAir;
+                            bool hasEntity = targetGrid.CheckEntiyPresence(pos.x, pos.y, pos.z);
+
+                            if (isTransitable || hasEntity)
+                            {
+                                attackPos.Add(pos);
+                            }
+                        }
+                    }
                 }
             }
         }
         attackHighlight.Highlight(attackPos);
     }
 
-    void Update()
-    {
-        Ray ray = Camera.main.ScreenPointToRay(inputCursor.GetCursorPosition());
-        RaycastHit hit;
+    #region Deprecated
+    //private void FixedUpdate()
+    //{
+    //    CheckActivation();
+    //}
 
-        if (controlState == ControlState.Move)
-        {
-            if (Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
-            {
-                cursorNeeded = true;
-                ChangePositionOnGridMonitor(hit);
-                if (inputCursor.IsConfirmPressed()) 
-                {
-                    path = pathfinding.TraceBackPath(positionOnGrid.x, positionOnGrid.y, positionOnGrid.z);
-                    if (path == null || path.Count == 0)
-                    {
-                        Debug.Log("Path is Null or Empty");
-                        return;
-                    }
-                    controlledObject.Move(path);
-                    hasCalculated = false;
-                }
-            }
-            else
-            {
-                cursorNeeded = false;
-            }
-        }
-        else if (controlState == ControlState.Attack)
-        {
-            if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
-            {
-                cursorNeeded = true;
-                ChangePositionOnGridMonitor(hit);
-                if (inputCursor.IsConfirmPressed())
-                {
-                    if (attackPos.Contains(positionOnGrid))
-                    {
-                        ObjectInGrid gridTarget = targetGrid.GetPlacedObject(positionOnGrid);
-                        if (gridTarget == null || gridTarget.GetAliance() == controlledObject.GetAliance()) { return; }
-                        controlledObject.Attack(positionOnGrid);
-                        //Rest of AttackBehaviour
+    //private void CheckActivation()
+    //{
+    //    highlight.gameObject.SetActive(true);
+    //    if (controlState != ControlState.Move)
+    //    {
+    //        if (highlight.gameObject.activeSelf) { highlight.gameObject.SetActive(false); }
+    //        return;
+    //    }
+    //    else if (!highlight.gameObject.activeSelf)
+    //    {
+    //        highlight.gameObject.SetActive(true);
+    //    }
+    //}
 
-                    }
-                }
-            }
-            else
-            {
-                cursorNeeded = false;
-            }
-        }
-        //if (controlState == ControlState.Move && inputCursor.IsConfirmPressed())
-        //{
-        //    if (Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
-        //    {
-        //        Vector3Int gridPosition = targetGrid.GetGridPosition(hit.point);
+    //void Update()
+    //{
+    //    if (controlState == ControlState.Move)
+    //    {
+    //        if (Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
+    //        {
+    //            cursorNeeded = true;
+    //            ChangePositionOnGridMonitor(hit);
+    //            if (inputCursor.IsConfirmPressed())
+    //            {
+    //                path = pathfinding.TraceBackPath(positionOnGrid.x, positionOnGrid.y, positionOnGrid.z);
+    //                if (path == null || path.Count == 0)
+    //                {
+    //                    Debug.Log("Path is Null or Empty");
+    //                    return;
+    //                }
+    //                controlledObject.Move(path);
+    //                hasCalculated = false;
+    //            }
+    //        }
+    //        else
+    //        {
+    //            cursorNeeded = false;
+    //        }
+    //    }
+    //    else if (controlState == ControlState.Attack)
+    //    {
+    //        if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
+    //        {
+    //            cursorNeeded = true;
+    //            ChangePositionOnGridMonitor(hit);
+    //            if (inputCursor.IsConfirmPressed())
+    //            {
+    //                if (attackPos.Contains(positionOnGrid))
+    //                {
+    //                    ObjectInGrid gridTarget = targetGrid.GetPlacedObject(positionOnGrid);
+    //                    //if (gridTarget == null || gridTarget.GetAliance() == controlledObject.GetAliance()) { return; }
+    //                    //controlledObject.Attack(positionOnGrid);
+    //                    //Rest of AttackBehaviour
+    //                }
+    //            }
+    //        }
+    //        else
+    //        {
+    //            cursorNeeded = false;
+    //        }
+    //    }
+    //    if (controlState == ControlState.Move && inputCursor.IsConfirmPressed())
+    //    {
+    //        if (Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
+    //        {
+    //            Vector3Int gridPosition = targetGrid.GetGridPosition(hit.point);
+    //            //This is for free of turn movement
+    //            //path = pathfinding.FindPath(targetObject.positionInGrid.x, targetObject.positionInGrid.y, targetObject.positionInGrid.z,
+    //            //                           gridPosition.x, gridPosition.y, gridPosition.z);
+    //            path = pathfinding.TraceBackPath(gridPosition.x, gridPosition.y, gridPosition.z);
+    //            if (path == null || path.Count == 0)
+    //            {
+    //                Debug.Log("Path is Null or Empty");
+    //                return;
+    //            }
+    //            targetObject.Move(path);
+    //        }
+    //    }
+    //    if (controlState == ControlState.Attack && inputCursor.IsConfirmPressed())
+    //    {
+    //        if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
+    //        {
+    //            Vector3Int gridPosition = targetGrid.GetGridPosition(hit.point);
+    //            if (attackPos.Contains(gridPosition))
+    //            {
+    //                ObjectInGrid gridTarget = targetGrid.GetPlacedObject(gridPosition);
+    //                if (gridTarget == null || gridTarget.GetAliance() == targetObject.GetAliance()) { return; }
+    //                targetObject.Attack(gridPosition);
+    //                //Rest of AttackBehaviour
+    //            }
+    //        }
+    //    }
+    //}
+    #endregion
 
-        //        //This is for free of turn movement
-        //        //path = pathfinding.FindPath(targetObject.positionInGrid.x, targetObject.positionInGrid.y, targetObject.positionInGrid.z,
-        //        //                           gridPosition.x, gridPosition.y, gridPosition.z);
-        //        path = pathfinding.TraceBackPath(gridPosition.x, gridPosition.y, gridPosition.z);
-        //        if (path == null || path.Count == 0)
-        //        {
-        //            Debug.Log("Path is Null or Empty");
-        //            return;
-        //        }
-        //        targetObject.Move(path);
-        //    }
-        //}
-        //if (controlState == ControlState.Attack && inputCursor.IsConfirmPressed())
-        //{
-        //    if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
-        //    {
-        //        Vector3Int gridPosition = targetGrid.GetGridPosition(hit.point);
-        //        if (attackPos.Contains(gridPosition))
-        //        {
-        //            ObjectInGrid gridTarget = targetGrid.GetPlacedObject(gridPosition);
-        //            if (gridTarget == null || gridTarget.GetAliance() == targetObject.GetAliance()) { return; }
-        //            targetObject.Attack(gridPosition);
-        //            //Rest of AttackBehaviour
-
-        //        }
-        //    }
-        //}
-    }
-
-    private bool ChangePositionOnGridMonitor(RaycastHit hit)
-    {
-        cursorNeeded = true;
-        Vector3Int gridPosition = targetGrid.GetGridPosition(hit.point);
-        if (gridPosition != positionOnGrid)
-        {
-            positionOnGrid = gridPosition;
-            return true;
-        }
-        return false;   
-    }
 
     private void OnDrawGizmos()
     {
@@ -239,22 +245,14 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
         }
 
     }
-    public void ChangeControlState(ControlState newState) 
-    {
-        if (controlState == newState) { controlState = ControlState.None; }
-        else 
-        {
-            controlState = newState;
 
-        }
-    }
-    public void MoveButtonControlState() 
+    public bool CheckPosibleAttack(Vector3Int positionOnGrid)
     {
-        ChangeControlState(ControlState.Move);
-        hasCalculated = false;
+        return attackPos.Contains(positionOnGrid);
     }
-    public void AttackButtonControlState()
+
+    public ObjectInGrid GetTarget(Vector3Int targetPosOnGrid) //returns intended target Object
     {
-        ChangeControlState(ControlState.Attack);
+        return targetGrid.GetPlacedObject(targetPosOnGrid);
     }
 }

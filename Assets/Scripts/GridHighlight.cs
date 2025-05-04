@@ -85,6 +85,7 @@ public class GridHighlight : MonoBehaviour
 
     private void Highlight(int x,int y,int z, GameObject highlightObject)
     {
+       highlightObject.SetActive(true);
        Vector3 position = grid.GetWorldPosition(x,y,z);
        position += highlightOffset;
        highlightObject.transform.position = position;
@@ -94,6 +95,14 @@ public class GridHighlight : MonoBehaviour
         for (int i = usedCount; i < highlightPointGOs.Count; i++)
         {
             highlightPointGOs[i].SetActive(false);
+        }
+    }
+
+    public void Hide()
+    {
+        for (int i = 0; i < highlightPointGOs.Count; i++) 
+        { 
+            highlightPointGOs [i].SetActive(false);
         }
     }
 }

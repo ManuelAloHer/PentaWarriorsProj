@@ -65,8 +65,10 @@ MonoBehaviour:
   modInstict: 0
   movementPoints: 50
   attackRange: 1
+  gridObject: {fileID: 3916443318286837851}
+  rangedBasedAttack: 0
   maxHp: 100
-  healthComponent: {fileID: 0}
+  healthComponent: {fileID: 6956266049069853151}
   damage: 100
   characterAliance: 0
 --- !u!114 &3916443318286837851

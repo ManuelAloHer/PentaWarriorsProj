@@ -26,14 +26,8 @@ public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Obje
     // Start is called before the first frame update
     void Start()
     {
-        if (entity != null) { movementPoints = entity.movementPoints; }
         Init();
         
-    }
-
-    private void FixedUpdate()
-    {
-        if (entity != null) { movementPoints = entity.movementPoints; }
     }
 
     private void Init() 
@@ -47,18 +41,33 @@ public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Obje
     public void Move(List<PathNode> path)
     {
         movement.pathWorldPositions = targetGrid.ConvertPathNodesToWorldPositions(path);
+        
+        targetGrid.RemoveObject(positionInGrid, this);
         positionInGrid.x = path[path.Count -1].pos_x;
         positionInGrid.y = path[path.Count - 1].pos_y;
         positionInGrid.z = path[path.Count - 1].pos_z;
-        movement.RotateCharacter();
+
+        targetGrid.PlaceObject(positionInGrid, this);
+        movement.RotateCharacter(transform.position, movement.pathWorldPositions[0]);
     }
-    public void Attack(Vector3Int attackinGridPosition) 
+
+    public void SkipMovementAnimation()
     {
+        if (movement.pathWorldPositions.Count < 2) { return; }
+        transform.position = movement.pathWorldPositions[movement.pathWorldPositions.Count - 1];
+        Vector3 originPos = movement.pathWorldPositions[movement.pathWorldPositions.Count - 2];
+        Vector3 destinationPos = movement.pathWorldPositions[movement.pathWorldPositions.Count - 1];
+        movement.RotateCharacter(originPos, destinationPos);
+    }
+
+    public void Attack(Vector3Int attackinGridPosition, ObjectInGrid target) 
+    {
+        Debug.Log("Cuantos Ataques");
         Vector3 attackPosition = targetGrid.GetWorldPosition(attackinGridPosition.x, attackinGridPosition.y, attackinGridPosition.z);
         attackComponent.AttackPosition(attackPosition);
     }
 
-    public Aliance GetAliance()
+    public Aliance GetAliance() // mustChange
     {
         if (entity == null) { return Aliance.None; }
         return entity.characterAliance;

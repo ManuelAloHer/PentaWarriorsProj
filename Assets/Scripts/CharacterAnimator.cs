@@ -6,6 +6,8 @@ public enum SpecialHability {None= 0,Hab1 = 1, Hab2 = 2, Hab3 = 3}
 public class CharacterAnimator : MonoBehaviour
 {
     public Animator _animator;
+    //public Animation attackA
+    
 
     public void UpdateMovement(float velocity)
     {
@@ -13,6 +15,7 @@ public class CharacterAnimator : MonoBehaviour
     }
     public void TriggerAttack()
     {
+        
         _animator.SetTrigger("Attack");
     }
     public void TriggerSpecialHab(SpecialHability specialHab) 

@@ -152,6 +152,7 @@ public class GridMap : MonoBehaviour
         if (CheckBounderies(positionInGrid))
         {
             grid[positionInGrid.x, positionInGrid.y, positionInGrid.z].objectInGrid = objectInGrid;
+            //ChangeNodeState
         }
         else 
         {
@@ -159,7 +160,23 @@ public class GridMap : MonoBehaviour
         
         }
     }
+    public void RemoveObject(Vector3Int positionInGrid, ObjectInGrid objectInGrid)
+    {
+        if (CheckBounderies(positionInGrid))
+        {
+            if(grid[positionInGrid.x, positionInGrid.y, positionInGrid.z].objectInGrid == objectInGrid)
+            { 
+                return; 
+            }
+            grid[positionInGrid.x, positionInGrid.y, positionInGrid.z].objectInGrid = null;
+            //EmptyNodeState
+        }
+        else
+        {
+            Debug.Log("You are trying to position the Object out of bounderies");
 
+        }
+    }
     public bool CheckBounderies(Vector3Int positionOnGrid) 
     {
         if (positionOnGrid.x < 0 || positionOnGrid.x >= width) 
@@ -233,4 +250,6 @@ public class GridMap : MonoBehaviour
        }
        return worldPositions;
     }
+
+
 }

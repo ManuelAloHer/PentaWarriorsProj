@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
+using static UnityEngine.EventSystems.EventTrigger;
 
 
 public enum Aliance {None,Player,Enemy}
@@ -28,6 +29,7 @@ public class Entity : MonoBehaviour
     public const float BaseMovementPoints = 30f;
     public float movementPoints = 30f;
     public int attackRange = 1;
+    public ObjectInGrid gridObject;
 
     public bool rangedBasedAttack = false;
 
@@ -41,8 +43,11 @@ public class Entity : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        
-        healthComponent = GetComponent<HealthComponent>();
+        if (gridObject == null) { gridObject = GetComponent<ObjectInGrid>(); }
+        if (healthComponent == null)
+        {
+            healthComponent = GetComponent<HealthComponent>();
+        }
         healthComponent.healthLost += Damaged;
         healthComponent.healthGained += Healed;
         healthComponent.hasDied += Dying;
@@ -57,6 +62,7 @@ public class Entity : MonoBehaviour
     private void UpdateMovementPoints()
     {
         movementPoints = BaseMovementPoints + 5 * (agility + modAgility);
+        gridObject.movementPoints = movementPoints;
     }
 
     void Update()
@@ -67,7 +73,7 @@ public class Entity : MonoBehaviour
 
     private void UpdateAttackRange()
     {
-        attackRange = rangedBasedAttack == true ? 1 : 4;
+        attackRange = rangedBasedAttack == true ? 4 : 1;
     }
 
     void Damaged() 
