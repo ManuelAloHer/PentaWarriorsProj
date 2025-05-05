@@ -164,11 +164,8 @@ public class GridMap : MonoBehaviour
     {
         if (CheckBounderies(positionInGrid))
         {
-            if(grid[positionInGrid.x, positionInGrid.y, positionInGrid.z].objectInGrid == objectInGrid)
-            { 
-                return; 
-            }
-            grid[positionInGrid.x, positionInGrid.y, positionInGrid.z].objectInGrid = null;
+            //if(grid[positionInGrid.x, positionInGrid.y, positionInGrid.z].objectInGrid == objectInGrid){ return; }
+            grid[positionInGrid.x, positionInGrid.y, positionInGrid.z].ClearNode();
             //EmptyNodeState
         }
         else

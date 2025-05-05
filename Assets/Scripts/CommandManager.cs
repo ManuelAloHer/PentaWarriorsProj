@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -31,7 +32,12 @@ public class Command
 public class CommandManager : MonoBehaviour
 {
     Command currentCommand;
+    ClearUtility clearUtility;
 
+    private void Awake()
+    {
+        if (clearUtility == null) { clearUtility = GetComponent<ClearUtility>(); }
+    }
     private void Update()
     {
         if (currentCommand != null) 
@@ -61,8 +67,14 @@ public class CommandManager : MonoBehaviour
     }
     public void ExecuteCommand()
     {
-        //ExecuteMoveCommand();
-        ExecuteAttackCommand();
+        if (currentCommand.commandType == CommandType.Move)
+        {
+            ExecuteMoveCommand();
+        }
+        else if (currentCommand.commandType == CommandType.Attack)
+        {
+            ExecuteAttackCommand();
+        }
     }
 
     private void ExecuteMoveCommand()
@@ -70,11 +82,18 @@ public class CommandManager : MonoBehaviour
         Entity receiver = currentCommand.character;
         receiver.gridObject.Move(currentCommand.path);
         currentCommand = null;
+        clearUtility.ClearPathfinding();
+        clearUtility.ClearGridHighlighter(0);
+       
     }
+
     private void ExecuteAttackCommand()
     {
         Entity receiver = currentCommand.character;
         receiver.gridObject.Attack(currentCommand.selectedGridPoint,currentCommand.target);
         currentCommand = null;
+        clearUtility.ClearGridHighlighter(1);
+        
     }
+
 }

@@ -2,41 +2,64 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
-public enum ReadyCommand { None, Move, Attack }
+
 public class CommandInput : MonoBehaviour
 {
     CommandManager commandManager;
     InputController inputCursor;
     [SerializeField] PlayerControl playerControl;
 
-    [SerializeField] Entity selectedEntity;
-    [SerializeField] ReadyCommand readyCommand;
+    CharacterSelector characterSelector;
+    //[SerializeField] Entity selectedEntity;
+    public CommandType readyCommand;
 
     public bool cursorNeeded;
 
     [SerializeField] LayerMask terrainLayerMask;
     [SerializeField] LayerMask entityLayerMask;
-    private Vector3Int positionOnGrid;
-    public Vector3Int PosOnGrid { get { return positionOnGrid; } }
+    private Dictionary<CommandType, Action> highlightActions;
+
+    public void SetCommandType(CommandType commandType) 
+    {
+        readyCommand = commandType;
+    }
+    public void InitCommand() 
+    {
+        if (highlightActions.TryGetValue(readyCommand, out var highlightAction))
+        {
+            if (readyCommand == CommandType.None) { return; }
+            highlightAction.Invoke();
+        }
+    }
 
     void Awake()
     {
         commandManager = GetComponent<CommandManager>();
+        characterSelector = GetComponent<CharacterSelector>();
         inputCursor = GetComponent<InputController>();
         playerControl = GetComponent<PlayerControl>();
     }
 
     private void Start()
     {
-        //HighlightWalkableTerrain();
-        playerControl.CalculateAttackArea(selectedEntity, false);
+        highlightActions = new Dictionary<CommandType, Action>
+        {
+            { CommandType.Move, () => HighlightWalkableTerrain() },
+            { CommandType.Attack, () => HighlightAttackArea()}
+        };
+    }
+
+    private void HighlightAttackArea()
+    {
+        playerControl.CalculateAttackArea(characterSelector.selectedEntity, false);
     }
 
     private void HighlightWalkableTerrain()
     {
-        playerControl.CheckTransitableTerrain(selectedEntity.gridObject);
+        playerControl.CheckTransitableTerrain(characterSelector.selectedEntity.gridObject);
     }
 
     // Update is called once per frame
@@ -45,13 +68,22 @@ public class CommandInput : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(inputCursor.GetCursorPosition());
         RaycastHit hit;
 
-        if (readyCommand == ReadyCommand.Move)
+
+        if (readyCommand == CommandType.Move)
         {
-            //MoveCommandInput(ray, out hit);
+            MoveCommandInput(ray, out hit);
         }
-        else if (readyCommand == ReadyCommand.Attack)
+        else if (readyCommand == CommandType.Attack)
         {
             AttackCommandInput(ray, out hit);
+        }
+        else
+        {
+            if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
+            {
+                cursorNeeded = true;
+                ChangePositionOnGridMonitor(hit);
+            }
         }
 
     }
@@ -64,13 +96,14 @@ public class CommandInput : MonoBehaviour
             ChangePositionOnGridMonitor(hit);
             if (inputCursor.IsConfirmPressed())
             {
-                List<PathNode> path = playerControl.GetPath(positionOnGrid);
+                List<PathNode> path = playerControl.GetPath(inputCursor.PosOnGrid);
                 if (path == null) { return; }
-                commandManager.AddMoveCommand(selectedEntity, positionOnGrid, path);
+                commandManager.AddMoveCommand(characterSelector.selectedEntity, inputCursor.PosOnGrid, path);
+                CashAction();
             }
-            else if (inputCursor.IsCancelPressed() && selectedEntity != null && selectedEntity.gridObject.movement.IsMoving)
+            else if (inputCursor.IsCancelPressed() && characterSelector.selectedEntity != null && characterSelector.selectedEntity.gridObject.movement.IsMoving)
             {
-                selectedEntity.gridObject.SkipMovementAnimation();
+                //characterSelector.selectedEntity.gridObject.SkipMovementAnimation();
             }
 
         }
@@ -88,13 +121,13 @@ public class CommandInput : MonoBehaviour
             ChangePositionOnGridMonitor(hit);
             if (inputCursor.IsConfirmPressed())
             {
-                if (playerControl.CheckPosibleAttack(positionOnGrid))
+                if (playerControl.CheckPosibleAttack(inputCursor.PosOnGrid))
                 {
-                    ObjectInGrid gridTarget = playerControl.GetTarget(positionOnGrid);
-                    if (gridTarget == null || gridTarget.GetAliance() == selectedEntity.gridObject.GetAliance()) { return; }
-                    commandManager.AddAttackCommand(selectedEntity,positionOnGrid, gridTarget);
+                    ObjectInGrid gridTarget = playerControl.GetTarget(inputCursor.PosOnGrid);
+                    if (gridTarget == null || gridTarget.GetAliance() == characterSelector.selectedEntity.gridObject.GetAliance()) { return; }
+                    commandManager.AddAttackCommand(characterSelector.selectedEntity, inputCursor.PosOnGrid, gridTarget);
                     // Rest of AttackBehaviour
-
+                    CashAction();
                 }
             }
         }
@@ -108,28 +141,19 @@ public class CommandInput : MonoBehaviour
     {
         cursorNeeded = true;
         Vector3Int gridPosition = playerControl.targetGrid.GetGridPosition(hit.point);
-        if (gridPosition != positionOnGrid)
+        if (gridPosition != inputCursor.PosOnGrid)
         {
-            positionOnGrid = gridPosition;
+            inputCursor.SetPosOnGrid = gridPosition;
             return true;
         }
         return false;
     }
-    public void ChangeControlState(ReadyCommand newCommand)
+    private void CashAction()
     {
-        if (readyCommand == newCommand) { readyCommand = ReadyCommand.None; }
-        else
-        {
-            readyCommand = newCommand;
+        characterSelector.Deselect();    
+        //substract form current actions
+        // if current actions <=0
+        //deselectcharacter
+    }
 
-        }
-    }
-    public void MoveButtonControlState()
-    {
-        ChangeControlState(ReadyCommand.Move);
-    }
-    public void AttackButtonControlState()
-    {
-        ChangeControlState(ReadyCommand.Attack);
-    }
 }

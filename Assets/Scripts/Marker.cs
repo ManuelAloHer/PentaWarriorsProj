@@ -7,7 +7,8 @@ public class Marker : MonoBehaviour
 {
     [SerializeField] Transform marker;
 
-    [SerializeField] CommandInput commandControl;
+    [SerializeField] CommandInput commandInput;
+    [SerializeField] InputController inputControl;
 
 
     Vector3Int currentPosition;
@@ -23,15 +24,15 @@ public class Marker : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (activeCursor != commandControl.cursorNeeded)
+        if (activeCursor != commandInput.cursorNeeded)
         {
-            activeCursor = commandControl.cursorNeeded;
+            activeCursor = commandInput.cursorNeeded;
             marker.gameObject.SetActive(activeCursor);
         }
         if(activeCursor == false) {return;}
-        if (currentPosition != commandControl.PosOnGrid) 
+        if (currentPosition != inputControl.PosOnGrid) 
         { 
-           currentPosition = commandControl.PosOnGrid;
+           currentPosition = inputControl.PosOnGrid;
            UpdateMarker();
         }
         

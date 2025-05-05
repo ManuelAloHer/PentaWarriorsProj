@@ -14,4 +14,11 @@ public class GridNode
     public NodeState currentNodeState;
     public ObjectInGrid objectInGrid;
     public float altitude;
+
+    public void ClearNode() 
+    {
+        entityOcupied = false;
+        obstructed = false;
+        objectInGrid = null;
+    }
 }

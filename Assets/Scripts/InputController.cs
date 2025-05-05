@@ -26,6 +26,10 @@ public class InputController : MonoBehaviour, ICursorInputProvider
     private bool usingGamepad;
     public Image simCursor;
 
+    private Vector3Int positionOnGrid;
+
+    public Vector3Int PosOnGrid { get { return positionOnGrid; } }
+    public Vector3Int SetPosOnGrid { set { positionOnGrid = value; } }
     private PlayerInput inputActions;
 
     private InputAction cursorPosition;

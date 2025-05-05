@@ -11,7 +11,7 @@ public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Obje
     public float movementPoints = 10f;
     public MovementInGrid movement;
     public AttackComponent attackComponent;
-    public Entity entity;
+    private Entity entity;
 
     private void Awake()
     {
@@ -67,6 +67,11 @@ public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Obje
         attackComponent.AttackPosition(attackPosition);
     }
 
+    public Entity GetEntity() 
+    {
+        if (entity == null) { return null; }
+        return entity;
+    }
     public Aliance GetAliance() // mustChange
     {
         if (entity == null) { return Aliance.None; }

@@ -10,7 +10,8 @@ public enum Aliance {None,Player,Enemy}
 [RequireComponent(typeof(ObjectInGrid), typeof(HealthComponent))]
 public class Entity : MonoBehaviour
 {
-    public string characterName = "Adam";
+    [SerializeField] string characterName = "Adam";
+    public string CharacterName { get {return characterName; } }
 
     [Header("CHARACTERISTICS")]
     [Range(1, 10)] public int strenght = 5;
@@ -40,7 +41,7 @@ public class Entity : MonoBehaviour
 
     public Aliance characterAliance = Aliance.None;
 
-    // Start is called before the first frame update
+
     void Awake()
     {
         if (gridObject == null) { gridObject = GetComponent<ObjectInGrid>(); }
