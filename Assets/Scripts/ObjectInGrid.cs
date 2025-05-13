@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(MovementInGrid))]
 public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Object to Move in the Grid
 {
     public GridMap targetGrid;
@@ -12,6 +13,8 @@ public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Obje
     public MovementInGrid movement;
     public AttackComponent attackComponent;
     private Entity entity;
+
+    public Vector3Int objectDimensions;
 
     private void Awake()
     {

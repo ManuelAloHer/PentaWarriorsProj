@@ -22,4 +22,12 @@ public class ClearUtility : MonoBehaviour
             gridHighlighters[highlighterIndex].Hide();
         }
     }
+    public void ClearAllHighLighters() 
+    {
+        foreach (GridHighlight highlight in gridHighlighters)
+        {
+            highlight.Hide();
+        }
+
+    }
 }

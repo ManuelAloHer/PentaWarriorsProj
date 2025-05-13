@@ -21,4 +21,19 @@ public class GridNode
         obstructed = false;
         objectInGrid = null;
     }
+    public void EntityOcupation()
+    {
+        entityOcupied = true;
+        obstructed = true;
+    }
+    public void ObjectOcupation()
+    {
+        entityOcupied = false;
+        obstructed = true;
+        
+    }
+    public void PlaceObjectInNode(ObjectInGrid ocupant)
+    {
+        objectInGrid = ocupant;
+    }
 }

@@ -7,7 +7,7 @@ using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.UIElements;
 
 
-public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movement controls
+public class PlayerControlChecker : MonoBehaviour // Conbines Character Atack and Movement controls
 {
     public GridMap targetGrid;
     Pathfinding pathfinding;
@@ -38,8 +38,9 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
                                            controlledObject.positionInGrid.z, controlledObject.movementPoints,
                                            ref transitableNodes);
         highlight.Hide();
-        highlight.Highlight(transitableNodes);
-        
+        highlight.Highlight(transitableNodes); 
+        attackHighlight.Hide();
+
     }
     public List<PathNode> GetPath(Vector3Int from) 
     {
@@ -128,7 +129,9 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
                 }
             }
         }
+        attackHighlight.Hide();
         attackHighlight.Highlight(attackPos);
+        highlight.Hide();
     }
 
     #region Deprecated
@@ -253,6 +256,8 @@ public class PlayerControl : MonoBehaviour // Conbines Character Atack and Movem
 
     public ObjectInGrid GetTarget(Vector3Int targetPosOnGrid) //returns intended target Object
     {
+        if (targetPosOnGrid == null) Debug.Log("No Target");
+        targetGrid.PrintNodeState(targetPosOnGrid);
         return targetGrid.GetPlacedObject(targetPosOnGrid);
     }
 }

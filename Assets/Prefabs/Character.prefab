@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 8403031779507580536}
   - component: {fileID: 4315007139244501430}
   - component: {fileID: 8863440126038678756}
-  - component: {fileID: 5637707542510701972}
   - component: {fileID: 1074597102438998203}
   - component: {fileID: 6956266049069853151}
+  - component: {fileID: 2414647051888568954}
   m_Layer: 6
   m_Name: Character
   m_TagString: Untagged
@@ -66,6 +66,7 @@ MonoBehaviour:
   movementPoints: 50
   attackRange: 1
   gridObject: {fileID: 3916443318286837851}
+  entityTurn: {fileID: 2414647051888568954}
   rangedBasedAttack: 0
   maxHp: 100
   healthComponent: {fileID: 6956266049069853151}
@@ -91,7 +92,6 @@ MonoBehaviour:
   movementPoints: 10
   movement: {fileID: 8863440126038678756}
   attackComponent: {fileID: 1074597102438998203}
-  entity: {fileID: 259753301736217168}
 --- !u!54 &8403031779507580536
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -147,18 +147,6 @@ MonoBehaviour:
   pathWorldPositions: []
   moveSpeed: 3
   isCharacter: 1
---- !u!114 &5637707542510701972
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4207929114571298979}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb9ac01d8a2532741afefd65e7ff6930, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1074597102438998203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -185,6 +173,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   health: 1
   maxHealth: 1
+--- !u!114 &2414647051888568954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4207929114571298979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be015e9e5315ef94295fe476de79b7be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  allowedTurnActions: 2
+  allowedCardTurnActions: 1
+  currentTurnActions: 0
+  currentCardTurnActions: 0
+  canWalk: 0
+  canAct: 0
 --- !u!1001 &949281394378909522
 PrefabInstance:
   m_ObjectHideFlags: 0

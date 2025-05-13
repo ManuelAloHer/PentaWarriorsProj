@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.TextCore.Text;
 
 
-public enum CommandType { None, Move, Attack }
+public enum CommandType { None = -1, Move = 0, Attack = 1, SpeHab1 = 2, SpeHab2 = 3, SpeHab3 = 4 }
 
 public class Command 
 { 
@@ -81,6 +81,7 @@ public class CommandManager : MonoBehaviour
     {
         Entity receiver = currentCommand.character;
         receiver.gridObject.Move(currentCommand.path);
+        receiver.ConsumeActions(false);
         currentCommand = null;
         clearUtility.ClearPathfinding();
         clearUtility.ClearGridHighlighter(0);
@@ -91,6 +92,7 @@ public class CommandManager : MonoBehaviour
     {
         Entity receiver = currentCommand.character;
         receiver.gridObject.Attack(currentCommand.selectedGridPoint,currentCommand.target);
+        receiver.ConsumeActions(false);
         currentCommand = null;
         clearUtility.ClearGridHighlighter(1);
         

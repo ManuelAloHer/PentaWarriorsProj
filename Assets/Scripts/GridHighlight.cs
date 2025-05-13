@@ -23,9 +23,7 @@ public class GridHighlight : MonoBehaviour
     }
     private void Start()
     {
-        //Highlight(testTargetPositions);
         highlightOffset = Vector3.up * pointOffset;
-
     }
 
     private GameObject CreatePointHighlight()

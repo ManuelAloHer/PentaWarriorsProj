@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.HID;
 using UnityEngine.UI;
@@ -92,7 +93,20 @@ public class InputController : MonoBehaviour, ICursorInputProvider
         return pos;
     }
 
-    // --- Public API ---
+    public static bool IsPointerOverUI()
+    {
+        PointerEventData pointerData = new PointerEventData(EventSystem.current)
+        {
+            position = InputController.Instance.GetCursorPosition()
+        };
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+
+        return results.Count > 0;
+    }
+
+    // Public Check Methods
 
     public Vector2 GetCursorPosition() => simulatedCursorPosition;
     public Vector2 GetCursorDelta() => cursorDelta.ReadValue<Vector2>();

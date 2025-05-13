@@ -12,6 +12,7 @@ public class GridMap : MonoBehaviour
     [SerializeField] int height = 1;
     [SerializeField] float cellSize = 1f;
     [SerializeField] LayerMask obstacleLayer;
+    [SerializeField] LayerMask interactiveObstacleLayer;
     [SerializeField] LayerMask entityLayer;
     [SerializeField] LayerMask terrainLayer;
 
@@ -38,7 +39,7 @@ public class GridMap : MonoBehaviour
                 }
             }
         }
-        CalculateNodeAltitude();
+        //CalculateNodeAltitude();
         CheckWalkableTerrain();
     }
 
@@ -71,10 +72,19 @@ public class GridMap : MonoBehaviour
                 {
                     Vector3 worldPos = GetWorldPosition(x, y, z);
                     bool entityOnIt = Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, entityLayer);
+                    bool objectInGridOnIt = Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, interactiveObstacleLayer);
                     bool clear = !Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, obstacleLayer)
                                 && !entityOnIt;
+
+                    if (entityOnIt || objectInGridOnIt) 
+                    {
+                        
+                        //grid[x, y, z].objectInGrid = Physics.OverlapBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, entityLayer).g;
+                    }
                     grid[x, y, z].obstructed = !clear;
                     grid[x, y, z].entityOcupied = entityOnIt;
+
+                    //grid[x, y, z].ObjectOcupation()
 
                     if (Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, terrainLayer))
                     {
@@ -151,8 +161,7 @@ public class GridMap : MonoBehaviour
     {
         if (CheckBounderies(positionInGrid))
         {
-            grid[positionInGrid.x, positionInGrid.y, positionInGrid.z].objectInGrid = objectInGrid;
-            //ChangeNodeState
+            ChangeAsociatedNodes(positionInGrid, objectInGrid); 
         }
         else 
         {
@@ -160,6 +169,34 @@ public class GridMap : MonoBehaviour
         
         }
     }
+
+    private void ChangeAsociatedNodes(Vector3Int positionInGrid, ObjectInGrid objectInGrid)
+    {
+        for (int x = 0; x < objectInGrid.objectDimensions.x; x++)
+        {
+            for (int y = 0; y < objectInGrid.objectDimensions.y; y++)
+            {
+                for (int z = 0; z < objectInGrid.objectDimensions.z; z++)
+                {
+
+                        grid[positionInGrid.x + x, positionInGrid.y + y, positionInGrid.z + z].PlaceObjectInNode(objectInGrid);
+
+                    if (objectInGrid.GetEntity() != null)
+                    {
+                        grid[positionInGrid.x + x, positionInGrid.y + y, positionInGrid.z + z].EntityOcupation();
+
+                    }
+                    else
+                    {
+                        grid[positionInGrid.x + x, positionInGrid.y + y, positionInGrid.z + z].ObjectOcupation();
+
+                    }
+                    
+                }
+            }
+        }
+    }
+
     public void RemoveObject(Vector3Int positionInGrid, ObjectInGrid objectInGrid)
     {
         if (CheckBounderies(positionInGrid))
@@ -207,6 +244,21 @@ public class GridMap : MonoBehaviour
             return gridObject;
         }
         return null;    
+    }
+    public void PrintNodeState(Vector3Int gridPosition) 
+    {
+        GridNode gridNode = null;
+        ObjectInGrid gridObject = null;
+        if (CheckBounderies(gridPosition))
+        {
+            gridNode = grid[gridPosition.x, gridPosition.y, gridPosition.z];
+            gridObject = grid[gridPosition.x, gridPosition.y, gridPosition.z].objectInGrid;
+            Debug.LogFormat("Node {0},{1},{2}: HasObjectInGrid {3}, Obstructed: {4}, isThereAnEntity: {5}, isOnAir: {6}, CurrentNodeState: {7} ",
+            gridPosition.x, gridPosition.y, gridPosition.z,
+            gridNode.objectInGrid != null, gridNode.obstructed, 
+            gridNode.entityOcupied, gridNode.onAir, gridNode.currentNodeState);
+        }
+        
     }
     public GridNode GetNode(Vector3Int Node)
     {

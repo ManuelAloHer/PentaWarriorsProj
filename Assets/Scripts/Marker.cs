@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.PlasticSCM.Editor.WebApi;
 using UnityEngine;
 
-public class Marker : MonoBehaviour
+public class Marker : MonoBehaviour // Añadir un posible circulo para controlar rendierizado tiene que salvar de no renderizar a entities Terrain y ¿VisibleObstacles?
 {
     [SerializeField] Transform marker;
 

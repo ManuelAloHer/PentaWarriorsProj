@@ -6,11 +6,11 @@ using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
 
-public class CommandInput : MonoBehaviour
+public class CommandInput : MonoBehaviour,IController // This Class functions as a 
 {
     CommandManager commandManager;
     InputController inputCursor;
-    [SerializeField] PlayerControl playerControl;
+    [SerializeField] PlayerControlChecker playerControl;
 
     CharacterSelector characterSelector;
     //[SerializeField] Entity selectedEntity;
@@ -40,7 +40,7 @@ public class CommandInput : MonoBehaviour
         commandManager = GetComponent<CommandManager>();
         characterSelector = GetComponent<CharacterSelector>();
         inputCursor = GetComponent<InputController>();
-        playerControl = GetComponent<PlayerControl>();
+        playerControl = GetComponent<PlayerControlChecker>();
     }
 
     private void Start()
@@ -65,9 +65,10 @@ public class CommandInput : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         Ray ray = Camera.main.ScreenPointToRay(inputCursor.GetCursorPosition());
         RaycastHit hit;
-
+        if (InputController.IsPointerOverUI()) { return; }
 
         if (readyCommand == CommandType.Move)
         {
@@ -94,7 +95,7 @@ public class CommandInput : MonoBehaviour
         {
             cursorNeeded = true;
             ChangePositionOnGridMonitor(hit);
-            if (inputCursor.IsConfirmPressed())
+            if (inputCursor.IsConfirmPressed() && characterSelector.selectedEntity != null) 
             {
                 List<PathNode> path = playerControl.GetPath(inputCursor.PosOnGrid);
                 if (path == null) { return; }
@@ -119,10 +120,11 @@ public class CommandInput : MonoBehaviour
         {
             cursorNeeded = true;
             ChangePositionOnGridMonitor(hit);
-            if (inputCursor.IsConfirmPressed())
+            if (inputCursor.IsConfirmPressed() && characterSelector.selectedEntity != null)
             {
                 if (playerControl.CheckPosibleAttack(inputCursor.PosOnGrid))
                 {
+                    if (characterSelector.selectedEntity == null) { return; }
                     ObjectInGrid gridTarget = playerControl.GetTarget(inputCursor.PosOnGrid);
                     if (gridTarget == null || gridTarget.GetAliance() == characterSelector.selectedEntity.gridObject.GetAliance()) { return; }
                     commandManager.AddAttackCommand(characterSelector.selectedEntity, inputCursor.PosOnGrid, gridTarget);
@@ -150,10 +152,28 @@ public class CommandInput : MonoBehaviour
     }
     private void CashAction()
     {
-        characterSelector.Deselect();    
+        if(readyCommand == CommandType.None) { return; }
+        Debug.Log("ConsumedAction");
+        readyCommand = CommandType.None;
+        //characterSelector.selectedEntity.ConsumeActions(false);
+        
+
         //substract form current actions
         // if current actions <=0
         //deselectcharacter
+    }
+    public void BeginTurn(Entity entity)
+    {
+        characterSelector.SelectCharacter(entity);
+        Debug.Log($"{entity.CharacterName} is now player-controlled.");
+        // Enable input, show UI, etc.
+    }
+
+    public void EndTurn(Entity entity)
+    {
+        Debug.Log($"{entity.CharacterName}'s player turn ends.");
+        characterSelector.UnselectCharacter();
+        // Disable input or cleanup
     }
 
 }

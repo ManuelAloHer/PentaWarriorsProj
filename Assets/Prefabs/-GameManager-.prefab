@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 9150192607570057617}
   - component: {fileID: 2639231640798078132}
   - component: {fileID: 3693729195755722250}
+  - component: {fileID: 444105606497935348}
   m_Layer: 0
   m_Name: -GameManager-
   m_TagString: Untagged
@@ -132,6 +133,7 @@ MonoBehaviour:
   selectedEntity: {fileID: 0}
   hoveredEntity: {fileID: 0}
   targetGrid: {fileID: 0}
+  clearUtility: {fileID: 3693729195755722250}
   selectedCharText: {fileID: 0}
 --- !u!114 &2639231640798078132
 MonoBehaviour:
@@ -146,7 +148,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 0}
+  buttons: []
   commandInput: {fileID: 2861193137560266248}
+  characterSelector: {fileID: 9150192607570057617}
 --- !u!114 &3693729195755722250
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -163,3 +167,17 @@ MonoBehaviour:
   gridHighlighters:
   - {fileID: 0}
   - {fileID: 0}
+--- !u!114 &444105606497935348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9094356219909466649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71e346edbd8df4049aa44910eb23cd8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentState: 0
+  allEntities: []

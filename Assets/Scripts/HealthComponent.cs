@@ -9,7 +9,7 @@ public class HealthComponent : MonoBehaviour
     [SerializeField][Range(1, 100)] private int health;
     [SerializeField][Range(1, 100)] private int maxHealth;
     private bool actorInmortal = false;
-
+    public bool IsDead { get { return health <= 0; } }
     public int Health { get { return health; } }
     public int MaxHealth { get { return maxHealth; } }
     public bool ActorInmortal { get { return actorInmortal; } set { actorInmortal = value; } }
