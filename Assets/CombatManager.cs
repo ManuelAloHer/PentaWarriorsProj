@@ -83,7 +83,8 @@ public class BattleManager : MonoBehaviour
         currentEntity = turnQueue.Dequeue();
         currentEntity.OnTurnEnded += HandleEntityEndTurn;
         Debug.Log($"{currentEntity.CharacterName}'s turn starts.");
-        charImage.color = currentEntity.color;
+        charImage.sprite = currentEntity.sprite;
+       
         //Set UI Turn
         currentEntity.StartTurn();  
 

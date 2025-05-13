@@ -43,27 +43,10 @@ public class GridMap : MonoBehaviour
         CheckWalkableTerrain();
     }
 
-    private void CalculateNodeAltitude()
-    {
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < lenght; y++)
-            {
-                for (int z = 0; z < height; z++)
-                {
-                    Ray ray = new Ray(GetWorldPosition(x, y, z) + Vector3.up * 1000f, Vector3.down);
-                    RaycastHit hit;
-                    if (Physics.Raycast(ray, out hit, float.MaxValue, terrainLayer))
-                    {
-                        grid[x, y, z].altitude = hit.point.y;
-                    }
-                }
-            }
-        }
-    }
-
     private void CheckWalkableTerrain()
     {
+        Vector3 halfExtents = Vector3.one * cellSize / 2f;
+
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < lenght; y++)
@@ -71,30 +54,179 @@ public class GridMap : MonoBehaviour
                 for (int z = 0; z < height; z++)
                 {
                     Vector3 worldPos = GetWorldPosition(x, y, z);
-                    bool entityOnIt = Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, entityLayer);
-                    bool objectInGridOnIt = Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, interactiveObstacleLayer);
-                    bool clear = !Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, obstacleLayer)
-                                && !entityOnIt;
 
-                    if (entityOnIt || objectInGridOnIt) 
+                    // Overlap for everything relevant at this cell
+                    Collider[] colliders = Physics.OverlapBox(worldPos, halfExtents, Quaternion.identity,
+                        entityLayer | obstacleLayer | interactiveObstacleLayer | terrainLayer);
+
+                    // Default: cell is empty
+                    grid[x, y, z].Reset(); // You define this to clear flags
+
+                    foreach (var col in colliders)
                     {
-                        
-                        //grid[x, y, z].objectInGrid = Physics.OverlapBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, entityLayer).g;
-                    }
-                    grid[x, y, z].obstructed = !clear;
-                    grid[x, y, z].entityOcupied = entityOnIt;
+                        int colLayer = col.gameObject.layer;
 
-                    //grid[x, y, z].ObjectOcupation()
+                        if (((1 << colLayer) & entityLayer) != 0)
+                        {
+                            grid[x, y, z].entityOcupied = true;
+                            grid[x, y, z].obstructed = true;
+                            ObjectInGrid obj = col.transform.root.GetComponent<ObjectInGrid>(); // Checks root of hierarchy
+                            if (obj == null)
+                            {
+                                Debug.Log("ObjectInGridNotFound");
+                                continue;   
+                            }
+                            grid[x, y, z].objectInGrid = obj;
+                        }
+                        else if (((1 << colLayer) & obstacleLayer) != 0)
+                        {
+                            grid[x, y, z].obstructed = true;
+                        }
+                        else if (((1 << colLayer) & interactiveObstacleLayer) != 0)
+                        {
+                            grid[x, y, z].obstructed = true;
 
-                    if (Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, terrainLayer))
-                    {
-                        grid[x, y, z].onAir = false;
+                            // Assign actual object in grid
+                            ObjectInGrid obj = col.GetComponent<ObjectInGrid>();
+                            if (obj == null)
+                            {
+                                Debug.Log("ObjectInGridNotFound");
+                                continue;
+                            }
+                            grid[x, y, z].objectInGrid = obj;
+                        }
+                        else if (((1 << colLayer) & terrainLayer) != 0)
+                        {
+                            grid[x, y, z].onAir = false;
+                        }
                     }
                 }
             }
-            
         }
     }
+
+    //private void CalculateNodeAltitude() // Deprecated
+    //{
+    //    for (int x = 0; x < width; x++)
+    //    {
+    //        for (int y = 0; y < lenght; y++)
+    //        {
+    //            for (int z = 0; z < height; z++)
+    //            {
+    //                Ray ray = new Ray(GetWorldPosition(x, y, z) + Vector3.up * 1000f, Vector3.down);
+    //                RaycastHit hit;
+    //                if (Physics.Raycast(ray, out hit, float.MaxValue, terrainLayer))
+    //                {
+    //                    grid[x, y, z].altitude = hit.point.y;
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
+    //private void CheckWalkableTerrain()
+    //{
+    //    // Pre-clear all grid data (recommended)
+    //    for (int x = 0; x < width; x++)
+    //    {
+    //        for (int y = 0; y < lenght; y++)
+    //        {
+    //            for (int z = 0; z < height; z++)
+    //            {
+    //                grid[x, y, z].Reset(); // You define this method to reset flags
+    //            }
+    //        }
+    //    }
+
+    //    // Process all 4 layers efficiently
+    //    ProcessLayer(entityLayer, (cell, col) =>
+    //    {
+    //        cell.entityOcupied = true;
+    //        cell.obstructed = true;
+    //    });
+
+    //    ProcessLayer(obstacleLayer, (cell, col) =>
+    //    {
+    //        cell.obstructed = true;
+    //    });
+
+    //    ProcessLayer(interactiveObstacleLayer, (cell, col) =>
+    //    {
+    //        cell.obstructed = true;
+    //        var objInGrid = col.GetComponent<ObjectInGrid>();
+    //        if (objInGrid == null)
+    //        {
+    //            objInGrid = col.gameObject.AddComponent<ObjectInGrid>(); // Optional fallback
+    //        }
+    //        cell.objectInGrid = objInGrid;
+    //    });
+
+    //    ProcessLayer(terrainLayer, (cell, col) =>
+    //    {
+    //        cell.onAir = false;
+    //    });
+    //}
+    //private void ProcessLayer(LayerMask layer, System.Action<GridNode, Collider> handleCollider)
+    //{
+    //    // The grid starts at transform.position — that's the world origin of the grid
+    //    Vector3 origin = transform.position;
+
+    //    // Half extents represent the size of the whole grid volume
+    //    Vector3 fullSize = new Vector3(width * cellSize, height * cellSize, lenght * cellSize);
+    //    Vector3 center = origin + fullSize / 2f;
+    //    Vector3 halfExtents = fullSize / 2f;
+
+    //    // Use OverlapBox to get all colliders in this layer within the grid volume
+    //    Collider[] colliders = Physics.OverlapBox(center, halfExtents, Quaternion.identity, layer);
+
+    //    foreach (var col in colliders)
+    //    {
+    //        Vector3Int gridPos = GetGridPosition(col.transform.position);
+
+    //        if (CheckBounderies(gridPos.x, gridPos.y, gridPos.z))
+    //        {
+    //            GridNode cell = grid[gridPos.x, gridPos.y, gridPos.z];
+    //            handleCollider(cell, col);
+    //        }
+    //    }
+
+    //}
+    //private void CheckWalkableTerrain()
+    //{
+    //    for (int x = 0; x < width; x++)
+    //    {
+    //        for (int y = 0; y < lenght; y++)
+    //        {
+    //            for (int z = 0; z < height; z++)
+    //            {
+    //                Vector3 worldPos = GetWorldPosition(x, y, z);
+    //                bool entityOnIt = Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, entityLayer);
+    //                bool objectInGridOnIt = Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, interactiveObstacleLayer);
+    //                bool clear = !Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, obstacleLayer)
+    //                            && !entityOnIt;
+
+    //                if (entityOnIt)
+    //                {
+
+
+    //                }
+    //                else if ( objectInGridOnIt) 
+    //                { 
+
+    //                }
+    //                grid[x, y, z].obstructed = !clear;
+    //                grid[x, y, z].entityOcupied = entityOnIt;
+
+    //                //grid[x, y, z].ObjectOcupation()
+
+    //                if (Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, terrainLayer))
+    //                {
+    //                    grid[x, y, z].onAir = false;
+    //                }
+    //            }
+    //        }
+
+    //    }
+    //}
     public Vector3Int GetGridPosition (Vector3 worldPosition) 
     {
         //This are for game in witch the grid is no places at 0,0,0 position

@@ -42,7 +42,7 @@ public class Entity : MonoBehaviour
     public int damage = 100;
 
     public Aliance characterAliance = Aliance.None;
-    public Color color;
+    public Sprite sprite;
 
     public IController Controller;
 

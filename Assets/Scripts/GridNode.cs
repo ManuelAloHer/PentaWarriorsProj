@@ -13,7 +13,6 @@ public class GridNode
     public bool onAir = true;
     public NodeState currentNodeState;
     public ObjectInGrid objectInGrid;
-    public float altitude;
 
     public void ClearNode() 
     {
@@ -35,5 +34,11 @@ public class GridNode
     public void PlaceObjectInNode(ObjectInGrid ocupant)
     {
         objectInGrid = ocupant;
+    }
+
+    internal void Reset()
+    {
+        ClearNode();
+        onAir = true;
     }
 }
