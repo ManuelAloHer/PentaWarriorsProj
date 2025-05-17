@@ -7,6 +7,7 @@ using UnityEngine;
 public class GridHighlight : MonoBehaviour
 {
     GridMap grid;
+    [SerializeField] bool isAdEHighlight = false;
     [SerializeField] GameObject highlightPoint;
     List<GameObject> highlightPointGOs;
     [SerializeField] GameObject highlightPointContainer;
@@ -17,7 +18,15 @@ public class GridHighlight : MonoBehaviour
 
     private void Awake()
     {
-        grid = GetComponentInParent<GridMap>();
+        if (isAdEHighlight == true)
+        {
+            grid = GetComponentInParent<GridMap>();
+        }
+        else 
+        {
+            grid = FindObjectOfType<GridMap>();
+        }
+        
         highlightPointGOs = new List<GameObject>();
 
     }

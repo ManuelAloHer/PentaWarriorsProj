@@ -77,7 +77,6 @@ public class Pathfinding : MonoBehaviour
     }
     public void CalculateWalkableNodes(int startX, int startY, int startZ, float range ,ref List<PathNode> toHighLight) 
     {
-        Debug.Log("Calculando");
         PathNode startNode = pathNodes[startX, startY, startZ];
 
         List<PathNode> OpenList = new List<PathNode>();

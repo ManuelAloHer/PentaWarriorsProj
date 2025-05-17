@@ -10,32 +10,38 @@ public class EntityTurn : MonoBehaviour
     [Header("CURRENT ACTIONS")]
     public int currentTurnActions;
     public int currentCardTurnActions;
+    public bool turnEnded = false;
 
+    
 
     public void AllowTurn() 
-    { 
+    {
+        turnEnded = false;
         currentTurnActions = allowedTurnActions;
         currentCardTurnActions = allowedCardTurnActions;
     }
 
     public void ConsumeAction() 
     {
+        if (currentTurnActions <= 0) 
+        {
+            currentTurnActions = 0;
+            return; 
+        }
         currentTurnActions--;
     }
     public void ConsumeCardAction()
     {
-        currentTurnActions--;
+        if (currentCardTurnActions <= 0) 
+        {
+            currentCardTurnActions = 0;
+            return; 
+        }
+        currentCardTurnActions--;
     }
-
-    // Start is called before the first frame update
-    void Start()
+    public void ConsumeAllActions()
     {
-        AllowTurn();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        currentTurnActions = 0;
+        currentCardTurnActions = 0;
     }
 }

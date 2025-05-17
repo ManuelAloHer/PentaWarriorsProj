@@ -9,7 +9,7 @@ public class Marker : MonoBehaviour // Añadir un posible circulo para controlar 
 
     [SerializeField] CommandInput commandInput;
     [SerializeField] InputController inputControl;
-
+    [SerializeField] GridHighlight AdEHighLighter;
 
     Vector3Int currentPosition;
     bool activeCursor;

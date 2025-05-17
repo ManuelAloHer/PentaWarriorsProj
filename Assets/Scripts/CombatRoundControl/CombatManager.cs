@@ -58,7 +58,6 @@ public class BattleManager : MonoBehaviour
 
     private void StartBattle()
     {
-        Debug.Log("Battle begins!");
         currentState = BattleState.RoundStart;
     }
 
@@ -82,7 +81,7 @@ public class BattleManager : MonoBehaviour
         if (currentEntity != null && currentEntity.TurnEnded() == false) { return; }
         currentEntity = turnQueue.Dequeue();
         currentEntity.OnTurnEnded += HandleEntityEndTurn;
-        Debug.Log($"{currentEntity.CharacterName}'s turn starts.");
+        Debug.Log($"{currentEntity.CharacterName}'s turn starts. He has a Controller? {currentEntity.Controller != null}");
         charImage.sprite = currentEntity.sprite;
        
         //Set UI Turn

@@ -7,9 +7,10 @@ using Random = UnityEngine.Random;
 
 public enum Aliance {None,Player,Enemy}
 
-[RequireComponent(typeof(ObjectInGrid), typeof(HealthComponent), typeof(EntityTurn))]
+[RequireComponent(typeof(ObjectInGrid), typeof(HealthConcentComp), typeof(EntityTurn))]
 public class Entity : MonoBehaviour
 {
+    public InputToCommandMap[] InputToCommand;
     [SerializeField] string characterName = "Adam";
     public string CharacterName { get {return characterName; } }
 
@@ -26,9 +27,15 @@ public class Entity : MonoBehaviour
     [Range(-5, 5)] public int modConviction = 0;
     [Range(-5, 5)] public int modInstict = 0;
 
-
+    public DiceLaucher diceLaucher;
+   
     public float movementPoints = 30f;
-    public int attackRange = 1;
+    public int maxAtkRange = 4;
+    private int attackRange = 1;
+    public int AttackRange { get { return attackRange; } }
+
+
+    public int baseDefValue = 8;
     public int initiative;
 
     public ObjectInGrid gridObject;
@@ -37,9 +44,7 @@ public class Entity : MonoBehaviour
     public bool rangedBasedAttack = false;
 
     public int maxHp = 100;
-    public HealthComponent healthComponent;
-
-    public int damage = 100;
+    public HealthConcentComp healthComponent;
 
     public Aliance characterAliance = Aliance.None;
     public Sprite sprite;
@@ -53,7 +58,10 @@ public class Entity : MonoBehaviour
     
     public event Action<Entity> OnTurnEnded;
 
-
+    public InputToCommandMap GetInputToCommand(int index) 
+    {
+        return InputToCommand[index];
+    }
 
     void Awake()
     {
@@ -61,7 +69,7 @@ public class Entity : MonoBehaviour
         if (entityTurn == null) { entityTurn = GetComponent<EntityTurn>(); }
         if (healthComponent == null)
         {
-            healthComponent = GetComponent<HealthComponent>();
+            healthComponent = GetComponent<HealthConcentComp>();
         }
         healthComponent.healthLost += Damaged;
         healthComponent.healthGained += Healed;
@@ -91,7 +99,7 @@ public class Entity : MonoBehaviour
 
     private void UpdateAttackRange()
     {
-        attackRange = rangedBasedAttack == true ? 4 : 1;
+        attackRange = rangedBasedAttack == true ? maxAtkRange : 1;
     }
 
     void Damaged() 
@@ -106,13 +114,9 @@ public class Entity : MonoBehaviour
     {
     
     }
-    virtual public void SpecialHability1() 
+    virtual public void SetSpecialHabilities() 
     { 
     
-    }
-    virtual public void SpecialHability2()
-    {
-
     }
 
     public virtual void CalculateInitiative()
@@ -121,6 +125,7 @@ public class Entity : MonoBehaviour
     }
     public void CheckAndMaybeEndTurn()
     {
+        if (entityTurn.turnEnded) { return; }
         if (TurnEnded())
         {
             EndTurn(); // Delegates to controller logic, then notifies the system
@@ -138,6 +143,12 @@ public class Entity : MonoBehaviour
         }
         CheckAndMaybeEndTurn();
     }
+    public void ConsumeAllActions()
+    {
+        entityTurn.ConsumeAllActions();
+      
+        CheckAndMaybeEndTurn();
+    }
     public bool TurnEnded() 
     {
         bool ended = entityTurn.currentTurnActions <= 0 && entityTurn.currentCardTurnActions <= 0;
@@ -151,17 +162,76 @@ public class Entity : MonoBehaviour
     }
     public void StartTurn()
     {
+        
         entityTurn.AllowTurn();
+        if (Controller == null) 
+        { 
+            Debug.Log(characterName + "  has not a controller now");
+            return;
+        }
         Controller.BeginTurn(this);
     }
 
     public void EndTurn()
     {
+        if (entityTurn.turnEnded)
+        {
+            Debug.LogWarning($"{name} tried to end turn again. Skipping...");
+            return;
+        }
+
+        entityTurn.turnEnded = true;
         Debug.LogFormat("{0} EndTurn() called. TurnEnded: {1} | Current Actions: {2}, Card Actions: {3}",CharacterName, TurnEnded(), entityTurn.currentTurnActions, entityTurn.currentCardTurnActions);
         Debug.LogFormat("{0} is ending their turn. Event has {1}.", CharacterName, (OnTurnEnded != null ? "subscribers" : "no subscribers"));
+       
         Controller.EndTurn(this);
         OnTurnEnded.Invoke(this);
-
+    }
+    public int CheckAttackTrow() // Uses 0.5 to divide by 2 since I need more perfonce than precision and multiplication is cheaper
+    { 
+        float baseModifier = rangedBasedAttack ? dexterity + modDexterity :  strenght + modStrenght;
+        int atkModifiers = (int)Mathf.Floor((baseModifier) * 0.5f);
+        return diceLaucher.BaseDiceLaunch(atkModifiers);
     }
 
+    public int GetDefenseValue()
+    {
+        float baseModifier = agility + modAgility;
+        int defModifiers = (int)Mathf.Floor((baseModifier) * 0.5f);
+        return baseDefValue + defModifiers;
+    }
+
+    public int CheckMainDmgTrow()
+    {
+        int dmg = diceLaucher.d6DiceTrow(strenght + modStrenght);
+        return dmg; 
+    }
+
+    public int GetResistance(AttackNature attacknature) // Uses 0.5 to divide by 2 since I need more perfonce than precision and multiplication is cheaper
+    {
+        float resistanceBase = 0f;
+
+        if (attacknature == AttackNature.Neutral) 
+        {
+            resistanceBase = conviction + modStrenght + conviction + modConviction;
+            resistanceBase *= 0.5f;
+        }
+        if (attacknature == AttackNature.Physical) 
+        {
+            resistanceBase = strenght + modStrenght;
+        }
+        else 
+        {
+            resistanceBase = conviction + modConviction;
+        }
+
+        int resistance = (int)Mathf.Floor((resistanceBase) *0.5f);
+        return resistance;
+    }
+
+    public int GetFinalDmg(int damageRoll, AttackNature attackNature)
+    {
+        int finalDamage = damageRoll-GetResistance(attackNature);
+        return finalDamage = finalDamage <= 0 ? 1 : finalDamage;
+    }
 }

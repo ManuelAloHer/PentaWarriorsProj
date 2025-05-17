@@ -65,9 +65,10 @@ public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Obje
 
     public void Attack(Vector3Int attackinGridPosition, ObjectInGrid target) 
     {
-        Debug.Log("Cuantos Ataques");
-        Vector3 attackPosition = targetGrid.GetWorldPosition(attackinGridPosition.x, attackinGridPosition.y, attackinGridPosition.z);
-        attackComponent.AttackPosition(attackPosition);
+        int atkThrowValue = entity.CheckAttackTrow();
+        int dmgThrowValue = entity.CheckMainDmgTrow();
+        Debug.LogFormat("AtK done by {0} Atk: {1} Dmg Base: {2}",entity.CharacterName, atkThrowValue,dmgThrowValue);
+        attackComponent.AttackGridTarget(target, atkThrowValue,dmgThrowValue);
     }
 
     public Entity GetEntity() 

@@ -3,9 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Unity.IO.LowLevel.Unsafe;
+using UnityEditor.Search;
 using UnityEngine;
 
-
+[System.Serializable]
+public class InputToCommandMap
+{
+    public CommandInputType inputType;
+    public CommandType commandType;
+}
 public class CommandInput : MonoBehaviour,IController // This Class functions as a 
 {
     CommandManager commandManager;
@@ -13,19 +19,17 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
     [SerializeField] PlayerControlChecker playerControl;
 
     CharacterSelector characterSelector;
-    //[SerializeField] Entity selectedEntity;
+
     public CommandType readyCommand;
+    public CommandInputType currentMenuCommand;
 
     public bool cursorNeeded;
+    public bool showSpecialHighlight = false;
 
     [SerializeField] LayerMask terrainLayerMask;
     [SerializeField] LayerMask entityLayerMask;
     private Dictionary<CommandType, Action> highlightActions;
 
-    public void SetCommandType(CommandType commandType) 
-    {
-        readyCommand = commandType;
-    }
     public void InitCommand() 
     {
         if (highlightActions.TryGetValue(readyCommand, out var highlightAction))
@@ -34,7 +38,11 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
             highlightAction.Invoke();
         }
     }
-
+    public void InitEndTurnCommand()
+    {
+        EndTurnCommandInput();
+        readyCommand = CommandType.None;
+    }
     void Awake()
     {
         commandManager = GetComponent<CommandManager>();
@@ -54,7 +62,7 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
 
     private void HighlightAttackArea()
     {
-        playerControl.CalculateAttackArea(characterSelector.selectedEntity, false);
+        playerControl.CalculateSingleTargetArea(characterSelector.selectedEntity, false);
     }
 
     private void HighlightWalkableTerrain()
@@ -78,12 +86,16 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
         {
             AttackCommandInput(ray, out hit);
         }
+        else if (readyCommand == CommandType.AtkOnArea) 
+        {
+            AttackOnAreaCommandInput(ray, out hit);
+        }
         else
         {
             if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
             {
                 cursorNeeded = true;
-                ChangePositionOnGridMonitor(hit);
+                ChangePositionOnGridMonitor(hit,false);
             }
         }
 
@@ -94,7 +106,7 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
         if (Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
         {
             cursorNeeded = true;
-            ChangePositionOnGridMonitor(hit);
+            ChangePositionOnGridMonitor(hit, false);
             if (inputCursor.IsConfirmPressed() && characterSelector.selectedEntity != null) 
             {
                 List<PathNode> path = playerControl.GetPath(inputCursor.PosOnGrid);
@@ -119,7 +131,7 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
         if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
         {
             cursorNeeded = true;
-            ChangePositionOnGridMonitor(hit);
+            ChangePositionOnGridMonitor(hit, false);
             if (inputCursor.IsConfirmPressed() && characterSelector.selectedEntity != null)
             {
                 if (playerControl.CheckPosibleAttack(inputCursor.PosOnGrid))
@@ -128,7 +140,6 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
                     ObjectInGrid gridTarget = playerControl.GetTarget(inputCursor.PosOnGrid);
                     if (gridTarget == null || gridTarget.GetAliance() == characterSelector.selectedEntity.gridObject.GetAliance()) { return; }
                     commandManager.AddAttackCommand(characterSelector.selectedEntity, inputCursor.PosOnGrid, gridTarget);
-                    // Rest of AttackBehaviour
                     CashAction();
                 }
             }
@@ -138,11 +149,40 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
             cursorNeeded = false;
         }
     }
-
-    private bool ChangePositionOnGridMonitor(RaycastHit hit)
+    private void AttackOnAreaCommandInput(Ray ray, out RaycastHit hit)
+    {
+        if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
+        {
+            cursorNeeded = true;
+            ChangePositionOnGridMonitor(hit,true);
+            if (inputCursor.IsConfirmPressed() && characterSelector.selectedEntity != null)
+            {
+                if (playerControl.CheckPosibleAttack(inputCursor.PosOnGrid))
+                {
+                    if (characterSelector.selectedEntity == null) { return; }
+                    ObjectInGrid gridTarget = playerControl.GetTarget(inputCursor.PosOnGrid);
+                    if (gridTarget == null || gridTarget.GetAliance() == characterSelector.selectedEntity.gridObject.GetAliance()) { return; }
+                    commandManager.AddAttackOnAreaCommand(characterSelector.selectedEntity, inputCursor.PosOnGrid, gridTarget);
+                    CashAction();
+                }
+            }
+        }
+        else
+        {
+            cursorNeeded = false;
+        }
+    }
+    public void EndTurnCommandInput()
+    {
+        
+        commandManager.AddFinishTurnCommand(characterSelector.selectedEntity);
+        
+    }
+    private bool ChangePositionOnGridMonitor(RaycastHit hit, bool showAdE)
     {
         cursorNeeded = true;
         Vector3Int gridPosition = playerControl.targetGrid.GetGridPosition(hit.point);
+        showSpecialHighlight = showAdE;
         if (gridPosition != inputCursor.PosOnGrid)
         {
             inputCursor.SetPosOnGrid = gridPosition;
@@ -152,12 +192,11 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
     }
     private void CashAction()
     {
-        if(readyCommand == CommandType.None) { return; }
+        if(readyCommand == CommandType.None || currentMenuCommand == CommandInputType.None) { return; }
         Debug.Log("ConsumedAction");
         readyCommand = CommandType.None;
+        currentMenuCommand = CommandInputType.None;
         //characterSelector.selectedEntity.ConsumeActions(false);
-        
-
         //substract form current actions
         // if current actions <=0
         //deselectcharacter
@@ -171,9 +210,14 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
 
     public void EndTurn(Entity entity)
     {
+        if (entity == null) 
+        {
+            Debug.LogWarning("No Entity");
+        }
         Debug.Log($"{entity.CharacterName}'s player turn ends.");
         characterSelector.UnselectCharacter();
         // Disable input or cleanup
     }
+
 
 }

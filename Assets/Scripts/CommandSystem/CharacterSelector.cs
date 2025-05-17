@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CharacterSelector : MonoBehaviour
 {
@@ -17,7 +18,12 @@ public class CharacterSelector : MonoBehaviour
     Vector3Int positionOnGrid = new Vector3Int(-1, -1, -1);
     [SerializeField] GridMap targetGrid;
     [SerializeField] ClearUtility clearUtility;
+    public event Action changeCharacter;
+
+    [Header("UI FIELDS")]
     [SerializeField] TMP_Text selectedCharText;
+    [SerializeField] Image selectedCharPortrait;
+    [SerializeField] Sprite portraitDefaultImage;
 
     void Awake()
     {
@@ -55,6 +61,8 @@ public class CharacterSelector : MonoBehaviour
     public void SelectCharacter(Entity characterToSelect)
     {
         selectedEntity = characterToSelect;
+        ChangePortraitAndNameState();
+        changeCharacter();
         //if (inputController.IsConfirmPressed())
         //{
         //    if (hoveredEntity != null && selectedEntity == null && hoveredEntity.characterAliance == Aliance.Player) 
@@ -94,19 +102,34 @@ public class CharacterSelector : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (selectedCharText == null || selectedEntity == null) 
+        //ChangePortraitAndNameState();
+    }
+
+    private void ChangePortraitAndNameState()
+    {
+        if (selectedCharText == null || selectedEntity == null)
         {
             selectedCharText.text = "Not Selected";
+            if (selectedCharPortrait != null)
+            {
+                selectedCharPortrait.sprite = portraitDefaultImage;
+            }
         }
         else
         {
             selectedCharText.text = selectedEntity.CharacterName;
+            if (selectedCharPortrait != null)
+            {
+                selectedCharPortrait.sprite = selectedEntity.sprite;
+            }
         }
     }
 
     private void Deselect()
     {
         selectedEntity = null;
+        changeCharacter();
         commandInput.readyCommand = CommandType.None;
+        ChangePortraitAndNameState();
     }
 }

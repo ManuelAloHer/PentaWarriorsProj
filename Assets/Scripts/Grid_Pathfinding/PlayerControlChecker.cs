@@ -16,7 +16,7 @@ public class PlayerControlChecker : MonoBehaviour // Conbines Character Atack an
 
 
     List<PathNode> path = new List<PathNode>();
-    List<Vector3Int> attackPos;
+    List<Vector3Int> targetPos;
 
     [SerializeField] GridHighlight highlight;
     [SerializeField] GridHighlight attackHighlight;
@@ -53,24 +53,24 @@ public class PlayerControlChecker : MonoBehaviour // Conbines Character Atack an
         return path;
     }
 
-    public void CalculateAttackArea(Entity character, bool selfAlianceTargetable = false)
+    public void CalculateSingleTargetArea(Entity character, bool selfAlianceTargetable = false)
     {
         ObjectInGrid controlledCharacter = character.GetComponent<ObjectInGrid>();
         
         Vector3Int origin = controlledCharacter.positionInGrid;
 
-        if (attackPos == null)
+        if (targetPos == null)
         {
-            attackPos = new List<Vector3Int>();
+            targetPos = new List<Vector3Int>();
         }
         else 
         {
-            attackPos.Clear();  
+            targetPos.Clear();  
         }
 
         if (character.rangedBasedAttack)
         {
-            int attackRange = character.attackRange;
+            int attackRange = character.AttackRange;
             for (int x = -attackRange; x <= attackRange; x++)
             {
                 for (int y = -attackRange; y <= attackRange; y++)
@@ -93,7 +93,7 @@ public class PlayerControlChecker : MonoBehaviour // Conbines Character Atack an
 
                             if (isTransitable || hasEntity)
                             {
-                                attackPos.Add(pos);
+                                targetPos.Add(pos);
                             }
                         }
                     }
@@ -122,7 +122,7 @@ public class PlayerControlChecker : MonoBehaviour // Conbines Character Atack an
 
                             if (isTransitable || hasEntity)
                             {
-                                attackPos.Add(pos);
+                                targetPos.Add(pos);
                             }
                         }
                     }
@@ -130,7 +130,7 @@ public class PlayerControlChecker : MonoBehaviour // Conbines Character Atack an
             }
         }
         attackHighlight.Hide();
-        attackHighlight.Highlight(attackPos);
+        attackHighlight.Highlight(targetPos);
         highlight.Hide();
     }
 
@@ -251,7 +251,7 @@ public class PlayerControlChecker : MonoBehaviour // Conbines Character Atack an
 
     public bool CheckPosibleAttack(Vector3Int positionOnGrid)
     {
-        return attackPos.Contains(positionOnGrid);
+        return targetPos.Contains(positionOnGrid);
     }
 
     public ObjectInGrid GetTarget(Vector3Int targetPosOnGrid) //returns intended target Object

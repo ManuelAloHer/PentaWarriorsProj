@@ -52,6 +52,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0fcd9083f8f217499db3ed4c3880c8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  InputToCommand:
+  - inputType: 2
+    commandType: 0
+  - inputType: 3
+    commandType: 0
+  - inputType: 4
+    commandType: 0
   characterName: Adam
   strenght: 5
   agility: 5
@@ -63,15 +70,19 @@ MonoBehaviour:
   modDexterity: 0
   modConviction: 0
   modInstict: 0
+  diceLaucher: {fileID: 0}
   movementPoints: 50
-  attackRange: 1
+  attackRange: 4
+  baseDefValue: 8
+  initiative: 0
   gridObject: {fileID: 3916443318286837851}
   entityTurn: {fileID: 2414647051888568954}
   rangedBasedAttack: 0
   maxHp: 100
   healthComponent: {fileID: 6956266049069853151}
-  damage: 100
   characterAliance: 0
+  sprite: {fileID: 0}
+  originallyPlayerControlled: 1
 --- !u!114 &3916443318286837851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -92,6 +103,7 @@ MonoBehaviour:
   movementPoints: 10
   movement: {fileID: 8863440126038678756}
   attackComponent: {fileID: 1074597102438998203}
+  objectDimensions: {x: 0, y: 0, z: 0}
 --- !u!54 &8403031779507580536
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -159,6 +171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d5a425d7ad22354d883ae493e926d9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainAttackNature: 2
 --- !u!114 &6956266049069853151
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189,8 +202,7 @@ MonoBehaviour:
   allowedCardTurnActions: 1
   currentTurnActions: 0
   currentCardTurnActions: 0
-  canWalk: 0
-  canAct: 0
+  turnEnded: 0
 --- !u!1001 &949281394378909522
 PrefabInstance:
   m_ObjectHideFlags: 0
