@@ -293,7 +293,7 @@ public class GridMap : MonoBehaviour
     {
         if (CheckBounderies(positionInGrid))
         {
-            ChangeAsociatedNodes(positionInGrid, objectInGrid); 
+            ChangeAsociatedNodes(positionInGrid, objectInGrid,true); 
         }
         else 
         {
@@ -302,7 +302,7 @@ public class GridMap : MonoBehaviour
         }
     }
 
-    private void ChangeAsociatedNodes(Vector3Int positionInGrid, ObjectInGrid objectInGrid)
+    private void ChangeAsociatedNodes(Vector3Int positionInGrid, ObjectInGrid objectInGrid,bool IsPlacing)
     {
         for (int x = 0; x < objectInGrid.objectDimensions.x; x++)
         {
@@ -310,19 +310,27 @@ public class GridMap : MonoBehaviour
             {
                 for (int z = 0; z < objectInGrid.objectDimensions.z; z++)
                 {
-
+                    if (IsPlacing)
+                    {
                         grid[positionInGrid.x + x, positionInGrid.y + y, positionInGrid.z + z].PlaceObjectInNode(objectInGrid);
 
-                    if (objectInGrid.GetEntity() != null)
+                        if (objectInGrid.GetEntity() != null)
+                        {
+                            grid[positionInGrid.x + x, positionInGrid.y + y, positionInGrid.z + z].EntityOcupation();
+
+                        }
+                        else
+                        {
+                            grid[positionInGrid.x + x, positionInGrid.y + y, positionInGrid.z + z].ObjectOcupation();
+
+                        }
+                    }
+                    else 
                     {
-                        grid[positionInGrid.x + x, positionInGrid.y + y, positionInGrid.z + z].EntityOcupation();
+                        grid[positionInGrid.x + x, positionInGrid.y + y, positionInGrid.z + z].ClearNode();
 
                     }
-                    else
-                    {
-                        grid[positionInGrid.x + x, positionInGrid.y + y, positionInGrid.z + z].ObjectOcupation();
 
-                    }
                     
                 }
             }
@@ -331,11 +339,10 @@ public class GridMap : MonoBehaviour
 
     public void RemoveObject(Vector3Int positionInGrid, ObjectInGrid objectInGrid)
     {
+        
         if (CheckBounderies(positionInGrid))
         {
-            //if(grid[positionInGrid.x, positionInGrid.y, positionInGrid.z].objectInGrid == objectInGrid){ return; }
-            grid[positionInGrid.x, positionInGrid.y, positionInGrid.z].ClearNode();
-            //EmptyNodeState
+            ChangeAsociatedNodes(positionInGrid, objectInGrid,false);
         }
         else
         {
