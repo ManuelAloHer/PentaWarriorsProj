@@ -10,6 +10,7 @@ public class GridNode
 {
     public bool obstructed;
     public bool entityOcupied = false;
+    public bool isObjectRoot = false;
     public bool onAir = true;
     public NodeState currentNodeState;
     public ObjectInGrid objectInGrid;
@@ -18,6 +19,7 @@ public class GridNode
     {
         entityOcupied = false;
         obstructed = false;
+        isObjectRoot = false;
         objectInGrid = null;
     }
     public void EntityOcupation()

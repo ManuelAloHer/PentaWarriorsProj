@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
-public class MovementInGrid : MonoBehaviour // Script that controls the movementof a character 
+public class MovementInGrid : MonoBehaviour, IActionEffect// Script that controls the movementof a character 
 {
     public List<Vector3> pathWorldPositions;
    
@@ -21,6 +21,8 @@ public class MovementInGrid : MonoBehaviour // Script that controls the movement
     CharacterAnimator characterAnimator;
     public bool isCharacter = false;
 
+    Action onComplete;
+
     private void Awake()
     {
         characterAnimator = GetComponent<CharacterAnimator>();
@@ -30,7 +32,12 @@ public class MovementInGrid : MonoBehaviour // Script that controls the movement
     void Update()
     {
         if (pathWorldPositions == null) { return; }
-        if (pathWorldPositions.Count == 0) { return; }
+        if (pathWorldPositions.Count == 0) 
+        {
+            
+            return; 
+        
+        }
         if (characterAnimator != null) { characterAnimator.UpdateMovement(3); }
         transform.position = Vector3.MoveTowards(transform.position, pathWorldPositions[0], moveSpeed* Time.deltaTime);
 
@@ -45,6 +52,12 @@ public class MovementInGrid : MonoBehaviour // Script that controls the movement
             {
                 characterAnimator.UpdateMovement(0);
             }
+            if (pathWorldPositions.Count == 0)
+            {
+                CompleteEffect();
+                return;
+
+            }
         }
     }
 
@@ -58,5 +71,15 @@ public class MovementInGrid : MonoBehaviour // Script that controls the movement
     private void LateUpdate()
     {
         
+    }
+
+    public void Play(Action onComplete)
+    {
+        this.onComplete = onComplete;
+    }
+
+    public void CompleteEffect()
+    {
+        onComplete?.Invoke();
     }
 }

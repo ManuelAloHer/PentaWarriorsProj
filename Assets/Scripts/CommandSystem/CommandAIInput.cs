@@ -10,7 +10,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
 {
     CommandManager commandManager;
     InputController inputCursor;
-    [SerializeField] PlayerControlChecker playerControl;
+    [SerializeField] ControlChecker controlChecker;
 
     public Entity selectedEntity;
     public CommandType readyCommand;
@@ -37,7 +37,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     {
         commandManager = GetComponent<CommandManager>();
         inputCursor = GetComponent<InputController>();
-        playerControl = GetComponent<PlayerControlChecker>();
+        controlChecker = GetComponent<ControlChecker>();
     }
 
     private void Start()
@@ -51,12 +51,12 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
 
     private void HighlightAttackArea()
     {
-        playerControl.CalculateSingleTargetArea(selectedEntity, false);
+        controlChecker.CalculateSingleTargetArea(selectedEntity, Aliance.Player);
     }
 
     private void HighlightWalkableTerrain()
     {
-        playerControl.CheckTransitableTerrain(selectedEntity.gridObject);
+        controlChecker.CheckTransitableTerrain(selectedEntity.gridObject);
     }
 
     // Update is called once per frame
@@ -92,7 +92,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
             ChangePositionOnGridMonitor(hit);
             if (inputCursor.IsConfirmPressed() && selectedEntity != null)
             {
-                List<PathNode> path = playerControl.GetPath(inputCursor.PosOnGrid);
+                List<PathNode> path = controlChecker.GetPath(inputCursor.PosOnGrid);
                 if (path == null) { return; }
                 commandManager.AddMoveCommand(selectedEntity, inputCursor.PosOnGrid, path);
                 CashAction();
@@ -112,10 +112,10 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
             ChangePositionOnGridMonitor(hit);
             if (inputCursor.IsConfirmPressed() && selectedEntity != null)
             {
-                if (playerControl.CheckPosibleAttack(inputCursor.PosOnGrid))
+                if (controlChecker.CheckPosibleAttack(inputCursor.PosOnGrid))
                 {
                     if (selectedEntity == null) { return; }
-                    ObjectInGrid gridTarget = playerControl.GetTarget(inputCursor.PosOnGrid);
+                    ObjectInGrid gridTarget = controlChecker.GetTarget(inputCursor.PosOnGrid);
                     if (gridTarget == null || gridTarget.GetAliance() == selectedEntity.gridObject.GetAliance()) { return; }
                     commandManager.AddAttackCommand(selectedEntity, inputCursor.PosOnGrid, gridTarget);
                     CashAction();
@@ -127,7 +127,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
 
     private bool ChangePositionOnGridMonitor(RaycastHit hit)
     {
-        Vector3Int gridPosition = playerControl.targetGrid.GetGridPosition(hit.point);
+        Vector3Int gridPosition = controlChecker.targetGrid.GetGridPosition(hit.point);
         if (gridPosition != inputCursor.PosOnGrid)
         {
             inputCursor.SetPosOnGrid = gridPosition;

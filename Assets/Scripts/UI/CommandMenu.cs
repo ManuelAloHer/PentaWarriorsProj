@@ -60,9 +60,13 @@ public class CommandMenu : MonoBehaviour
 
     private void Update()
     {
-        if (characterSelector.selectedEntity != null) 
+        if (characterSelector.selectedEntity != null && !characterSelector.selectedEntity.IsBusy)
         {
             EnablePanelButtons();
+        }
+        else if (characterSelector.selectedEntity != null && characterSelector.selectedEntity.IsBusy)
+        {
+            DisablePanelButtons();
         }
     }
     public void SetMappedCommandType() // I know exactly what are the values of in 0,1 and 6 imn exact order Move, Attack and EndTurn I didn't want to Add More complexity and Don't use above 6
@@ -161,7 +165,7 @@ public class CommandMenu : MonoBehaviour
 
     public void DisablePanelButtons()
     {
-        if (commandInput.currentMenuCommand == CommandInputType.None)
+        if (commandInput.currentMenuCommand == CommandInputType.None || characterSelector.selectedEntity.IsBusy)
         {
             for (int i = 0; i < buttons.Length; i++)
                 buttons[i].interactable = false;

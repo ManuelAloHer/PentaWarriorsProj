@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class GridMap : MonoBehaviour
 {
@@ -39,13 +40,12 @@ public class GridMap : MonoBehaviour
                 }
             }
         }
-        //CalculateNodeAltitude();
         CheckWalkableTerrain();
     }
 
     private void CheckWalkableTerrain()
     {
-        Vector3 halfExtents = Vector3.one * cellSize / 2f;
+        Vector3 halfExtents = Vector3.one * cellSize / 4f;
 
         for (int x = 0; x < width; x++)
         {
@@ -76,6 +76,7 @@ public class GridMap : MonoBehaviour
                                 Debug.Log("ObjectInGridNotFound");
                                 continue;   
                             }
+                            if (obj.positionInGrid == new Vector3Int(x, y, z)) { grid[x, y, z].isObjectRoot = true; }
                             grid[x, y, z].objectInGrid = obj;
                         }
                         else if (((1 << colLayer) & obstacleLayer) != 0)
@@ -105,128 +106,6 @@ public class GridMap : MonoBehaviour
         }
     }
 
-    //private void CalculateNodeAltitude() // Deprecated
-    //{
-    //    for (int x = 0; x < width; x++)
-    //    {
-    //        for (int y = 0; y < lenght; y++)
-    //        {
-    //            for (int z = 0; z < height; z++)
-    //            {
-    //                Ray ray = new Ray(GetWorldPosition(x, y, z) + Vector3.up * 1000f, Vector3.down);
-    //                RaycastHit hit;
-    //                if (Physics.Raycast(ray, out hit, float.MaxValue, terrainLayer))
-    //                {
-    //                    grid[x, y, z].altitude = hit.point.y;
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
-    //private void CheckWalkableTerrain()
-    //{
-    //    // Pre-clear all grid data (recommended)
-    //    for (int x = 0; x < width; x++)
-    //    {
-    //        for (int y = 0; y < lenght; y++)
-    //        {
-    //            for (int z = 0; z < height; z++)
-    //            {
-    //                grid[x, y, z].Reset(); // You define this method to reset flags
-    //            }
-    //        }
-    //    }
-
-    //    // Process all 4 layers efficiently
-    //    ProcessLayer(entityLayer, (cell, col) =>
-    //    {
-    //        cell.entityOcupied = true;
-    //        cell.obstructed = true;
-    //    });
-
-    //    ProcessLayer(obstacleLayer, (cell, col) =>
-    //    {
-    //        cell.obstructed = true;
-    //    });
-
-    //    ProcessLayer(interactiveObstacleLayer, (cell, col) =>
-    //    {
-    //        cell.obstructed = true;
-    //        var objInGrid = col.GetComponent<ObjectInGrid>();
-    //        if (objInGrid == null)
-    //        {
-    //            objInGrid = col.gameObject.AddComponent<ObjectInGrid>(); // Optional fallback
-    //        }
-    //        cell.objectInGrid = objInGrid;
-    //    });
-
-    //    ProcessLayer(terrainLayer, (cell, col) =>
-    //    {
-    //        cell.onAir = false;
-    //    });
-    //}
-    //private void ProcessLayer(LayerMask layer, System.Action<GridNode, Collider> handleCollider)
-    //{
-    //    // The grid starts at transform.position — that's the world origin of the grid
-    //    Vector3 origin = transform.position;
-
-    //    // Half extents represent the size of the whole grid volume
-    //    Vector3 fullSize = new Vector3(width * cellSize, height * cellSize, lenght * cellSize);
-    //    Vector3 center = origin + fullSize / 2f;
-    //    Vector3 halfExtents = fullSize / 2f;
-
-    //    // Use OverlapBox to get all colliders in this layer within the grid volume
-    //    Collider[] colliders = Physics.OverlapBox(center, halfExtents, Quaternion.identity, layer);
-
-    //    foreach (var col in colliders)
-    //    {
-    //        Vector3Int gridPos = GetGridPosition(col.transform.position);
-
-    //        if (CheckBounderies(gridPos.x, gridPos.y, gridPos.z))
-    //        {
-    //            GridNode cell = grid[gridPos.x, gridPos.y, gridPos.z];
-    //            handleCollider(cell, col);
-    //        }
-    //    }
-
-    //}
-    //private void CheckWalkableTerrain()
-    //{
-    //    for (int x = 0; x < width; x++)
-    //    {
-    //        for (int y = 0; y < lenght; y++)
-    //        {
-    //            for (int z = 0; z < height; z++)
-    //            {
-    //                Vector3 worldPos = GetWorldPosition(x, y, z);
-    //                bool entityOnIt = Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, entityLayer);
-    //                bool objectInGridOnIt = Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, interactiveObstacleLayer);
-    //                bool clear = !Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, obstacleLayer)
-    //                            && !entityOnIt;
-
-    //                if (entityOnIt)
-    //                {
-
-
-    //                }
-    //                else if ( objectInGridOnIt) 
-    //                { 
-
-    //                }
-    //                grid[x, y, z].obstructed = !clear;
-    //                grid[x, y, z].entityOcupied = entityOnIt;
-
-    //                //grid[x, y, z].ObjectOcupation()
-
-    //                if (Physics.CheckBox(worldPos, Vector3.one / 2 * cellSize, Quaternion.identity, terrainLayer))
-    //                {
-    //                    grid[x, y, z].onAir = false;
-    //                }
-    //            }
-    //        }
-
-    //    }
-    //}
     public Vector3Int GetGridPosition (Vector3 worldPosition) 
     {
         //This are for game in witch the grid is no places at 0,0,0 position
@@ -274,6 +153,10 @@ public class GridMap : MonoBehaviour
                         {
                             Gizmos.color = Color.magenta;
                         }
+                        if (grid[x, y, z].isObjectRoot)
+                        {
+                            Gizmos.color = Color.cyan;
+                        }
                         Gizmos.DrawCube(pos, Vector3.one / 4);
                     }
                 }
@@ -281,6 +164,13 @@ public class GridMap : MonoBehaviour
         }
     }
 
+    public Vector3 GetWorldPosition(Vector3Int position)
+    {
+        //This are for game in witch the grid is no places at 0,0,0 position
+        return new Vector3(transform.position.x + (position.x * cellSize), transform.position.y + (position.z * cellSize), transform.position.z + (position.y * cellSize));
+
+        //return new Vector4(x * cellSize, elevation == true ? grid[x,y,z].altitude : 0, y * cellSize);
+    }
     public Vector3 GetWorldPosition(int x, int y, int z)
     {
         //This are for game in witch the grid is no places at 0,0,0 position
@@ -298,7 +188,6 @@ public class GridMap : MonoBehaviour
         else 
         {
             Debug.Log("You are trying to position the Object out of bounderies");
-        
         }
     }
 
@@ -312,17 +201,16 @@ public class GridMap : MonoBehaviour
                 {
                     if (IsPlacing)
                     {
+                        if (x == 0 && y == 0 && z == 0) { grid[positionInGrid.x + x, positionInGrid.y + y, positionInGrid.z + z].isObjectRoot = true; }
                         grid[positionInGrid.x + x, positionInGrid.y + y, positionInGrid.z + z].PlaceObjectInNode(objectInGrid);
 
                         if (objectInGrid.GetEntity() != null)
                         {
                             grid[positionInGrid.x + x, positionInGrid.y + y, positionInGrid.z + z].EntityOcupation();
-
                         }
                         else
                         {
                             grid[positionInGrid.x + x, positionInGrid.y + y, positionInGrid.z + z].ObjectOcupation();
-
                         }
                     }
                     else 
@@ -330,8 +218,6 @@ public class GridMap : MonoBehaviour
                         grid[positionInGrid.x + x, positionInGrid.y + y, positionInGrid.z + z].ClearNode();
 
                     }
-
-                    
                 }
             }
         }
@@ -419,14 +305,28 @@ public class GridMap : MonoBehaviour
         return transitable;
 
     }
-    public bool CheckEntiyPresence(int pos_x, int pos_y, int pos_z)
+    public Aliance CheckObjectAliance(ObjectInGrid objectToTest)
+    {
+
+        if (objectToTest == null) { return Aliance.None; }
+        return objectToTest.GetAliance();
+    }
+
+    public Aliance GetAlianceInNode(Vector3Int pos)
+    {
+        GridNode gridToTry = grid[pos.x, pos.y, pos.z];
+        if (gridToTry == null || gridToTry.objectInGrid == null) { return Aliance.None; }
+        return gridToTry.objectInGrid.GetAliance();
+
+    }
+
+    public bool CheckEntityRootPresence(int pos_x, int pos_y, int pos_z)
     {
         bool isEntity = false;
         GridNode gridToTry = grid[pos_x, pos_y, pos_z];
         if (gridToTry == null) { return isEntity; }
-        isEntity = gridToTry.entityOcupied;
+        isEntity = gridToTry.entityOcupied && gridToTry.isObjectRoot;
         return isEntity;
-
     }
 
     public List<Vector3> ConvertPathNodesToWorldPositions(List<PathNode> path)
@@ -438,6 +338,5 @@ public class GridMap : MonoBehaviour
        }
        return worldPositions;
     }
-
 
 }

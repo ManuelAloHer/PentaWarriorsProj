@@ -7,7 +7,7 @@ public class CharacterAnimator : MonoBehaviour
 {
     public Animator _animator;
     //public Animation attackA
-    
+
 
     public void UpdateMovement(float velocity)
     {
@@ -15,7 +15,6 @@ public class CharacterAnimator : MonoBehaviour
     }
     public void TriggerAttack()
     {
-        
         _animator.SetTrigger("Attack");
     }
     public void TriggerSpecialHab(SpecialHability specialHab) 

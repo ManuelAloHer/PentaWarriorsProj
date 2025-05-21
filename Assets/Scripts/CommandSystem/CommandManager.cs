@@ -1,12 +1,6 @@
-using JetBrains.Annotations;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data;
-using Unity.VisualScripting;
-using Unity.VisualScripting.ReorderableList.Element_Adder_Menu;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
+using UnityEngine.InputSystem.LowLevel;
 
 
 public enum CommandType
@@ -24,16 +18,21 @@ public class Command
     public Entity character;
     public Vector3Int selectedGridPoint;
     public CommandType commandType;
+    public IActionEffect effect;
+    //public ICommandInputStage inputStage;
 
     //Specific variables of one or more Commands
     public List<PathNode> path = null;
-    public ObjectInGrid target;
+    public List<ObjectInGrid> target = new List<ObjectInGrid>();
 
-    public Command(Entity character, Vector3Int selectedGridPoint, CommandType commandType)
+    public Command(Entity character, Vector3Int selectedGridPoint, CommandType commandType, IActionEffect effect)
+                    // IActionEffect effect, ICommandInputStage inputStage = null)
     {
         this.character = character;
         this.selectedGridPoint = selectedGridPoint;
         this.commandType = commandType;
+        this.effect = effect;
+        //this.inputStage = inputStage;
     }
 }
 public class CommandManager : MonoBehaviour
@@ -55,29 +54,29 @@ public class CommandManager : MonoBehaviour
 
     public void AddMoveCommand(Entity character, Vector3Int selectedGridPoint, List<PathNode> path)
     {
-        currentCommand = new Command(character, selectedGridPoint, CommandType.Move);
+        currentCommand = new Command(character, selectedGridPoint, CommandType.Move, character.gridObject.movement);
         currentCommand.path = path;
     }
     public void AddAttackCommand(Entity attacker, Vector3Int selectedGridPoint, ObjectInGrid target)// List<PathNode> path) // It could be necesary to calculate a path for the proyectile if we go that far
     {
-        currentCommand = new Command(attacker, selectedGridPoint, CommandType.Attack);
-        currentCommand.target = target;
+        currentCommand = new Command(attacker, selectedGridPoint, CommandType.Attack,null);
+        currentCommand.target.Add(target);
         //currentCommand.path = path;
     }
-    public void AddAttackOnAreaCommand(Entity attacker, Vector3Int selectedGridPoint, ObjectInGrid target)
+    public void AddAttackOnAreaCommand(Entity attacker, Vector3Int selectedGridPoint, List<ObjectInGrid> targets)
     {
-        currentCommand = new Command(attacker, selectedGridPoint, CommandType.AtkOnArea);
-        currentCommand.target = target;
+        currentCommand = new Command(attacker, selectedGridPoint, CommandType.AtkOnArea, null);
+        currentCommand.target = targets;
 
     }
     public void AddFinishTurnCommand(Entity character)
     {
         Vector3Int charactPos = character.gridObject.positionInGrid;
-        currentCommand = new Command(character, charactPos, CommandType.EndTurn);
+        currentCommand = new Command(character, charactPos, CommandType.EndTurn, null);
     }
     public void AddCommand(Entity character, Vector3Int selectedGridPoint, CommandType commandType)
     {
-        currentCommand = new Command(character, selectedGridPoint, commandType);
+        currentCommand = new Command(character, selectedGridPoint, commandType, null);
     }
     public CommandType GetCurrentCommandType()
     {
@@ -111,9 +110,10 @@ public class CommandManager : MonoBehaviour
 
     private void ExecuteMoveCommand()
     {
-        Entity receiver = currentCommand.character;
-        receiver.gridObject.Move(currentCommand.path);
-        receiver.ConsumeActions(false);
+        Entity caster = currentCommand.character;
+        caster.SetIsBusy(true);
+        caster.gridObject.Move(currentCommand.path);
+        currentCommand.effect.Play(caster.ConsumeNormalAction);
         currentCommand = null;
         clearUtility.ClearPathfinding();
         clearUtility.ClearGridHighlighter(0);
@@ -122,9 +122,9 @@ public class CommandManager : MonoBehaviour
 
     private void ExecuteAttackCommand()
     {
-        Entity receiver = currentCommand.character;
-        receiver.gridObject.Attack(currentCommand.selectedGridPoint, currentCommand.target);
-        receiver.ConsumeActions(false);
+        Entity caster = currentCommand.character;
+        caster.gridObject.Attack(currentCommand.selectedGridPoint, currentCommand.target[0]);
+        caster.ConsumeActions(false);
         currentCommand = null;
         clearUtility.ClearGridHighlighter(1);
 
@@ -132,6 +132,12 @@ public class CommandManager : MonoBehaviour
     private void ExecuteAttackOnAreaCommand()
     {
         Entity receiver = currentCommand.character;
+        foreach (ObjectInGrid target in currentCommand.target) 
+        {
+            Entity victim = target.GetEntity();
+            if (victim != null) { Debug.Log(victim.CharacterName + " is afected"); }
+
+        }
         //receiver notifies gridObject the AdE Action
         receiver.ConsumeActions(false);
         currentCommand = null;
@@ -141,7 +147,7 @@ public class CommandManager : MonoBehaviour
     private void ExecuteAddStatusCommand()
     {
         Entity receiver = currentCommand.character;
-        Entity targetEntity = currentCommand.target.GetEntity();
+        Entity targetEntity = currentCommand.target[0].GetEntity();
         //AddStatus in Entity     receiver.gridObject.Attack(currentCommand.selectedGridPoint, currentCommand.target);
         receiver.ConsumeActions(false);
         currentCommand = null;
@@ -150,7 +156,7 @@ public class CommandManager : MonoBehaviour
     private void ExecuteEndStatusCommand()
     {
         Entity receiver = currentCommand.character;
-        Entity targetEntity = currentCommand.target.GetEntity();
+        Entity targetEntity = currentCommand.target[0].GetEntity();
         //EndAllStatus in Entity     receiver.gridObject.Attack(currentCommand.selectedGridPoint, currentCommand.target);
         receiver.ConsumeActions(false);
         currentCommand = null;

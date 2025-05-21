@@ -49,6 +49,9 @@ public class Entity : MonoBehaviour
     public Aliance characterAliance = Aliance.None;
     public Sprite sprite;
 
+    private bool isBusy = false;
+    public bool IsBusy { get { return isBusy; } }
+
     public IController Controller;
 
     [Header("Command Input for PlayerCharacters, Comand Input Enemies for Enemies")]
@@ -58,6 +61,10 @@ public class Entity : MonoBehaviour
     
     public event Action<Entity> OnTurnEnded;
 
+    public void SetIsBusy(bool getBusy) 
+    { 
+        isBusy = getBusy;
+    }
     public InputToCommandMap GetInputToCommand(int index) 
     {
         return InputToCommand[index];
@@ -130,6 +137,13 @@ public class Entity : MonoBehaviour
         {
             EndTurn(); // Delegates to controller logic, then notifies the system
         }
+    }
+    public void ConsumeNormalAction()
+    {
+        entityTurn.ConsumeAction();
+        SetIsBusy(false);
+        Debug.Log("Action Consumed");
+        CheckAndMaybeEndTurn();
     }
     public void ConsumeActions(bool isCardAction) 
     {

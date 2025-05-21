@@ -81,4 +81,20 @@ public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Obje
         if (entity == null) { return Aliance.None; }
         return entity.characterAliance;
     }
+    public bool OccupiesGridCell(Vector3Int cell)
+    {
+        for (int x = 0; x < objectDimensions.x; x++)
+        {
+            for (int y = 0; y < objectDimensions.y; y++)
+            {
+                for (int z = 0; z < objectDimensions.z; z++)
+                {
+                    Vector3Int occupied = positionInGrid + new Vector3Int(x, y, z);
+                    if (occupied == cell)
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
 }

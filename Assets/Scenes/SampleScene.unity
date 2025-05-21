@@ -209,9 +209,13 @@ PrefabInstance:
       propertyPath: rangedBasedAttack
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
+      propertyPath: InputToCommand.Array.data[0].commandType
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2414647051888568954, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: allowedTurnActions
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2414647051888568954, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: allowedCardTurnActions
@@ -219,7 +223,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2926817116464106401, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 11
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 2926817116464106401, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: m_LocalPosition.y
@@ -691,7 +695,7 @@ Transform:
   m_GameObject: {fileID: 341097947}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.38268343, z: -0, w: 0.92387956}
-  m_LocalPosition: {x: 11.73, y: 0.15, z: 12.17}
+  m_LocalPosition: {x: 11.73, y: 0.514, z: 12.17}
   m_LocalScale: {x: 2, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1041,7 +1045,7 @@ Transform:
   m_GameObject: {fileID: 603262528}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 9.5, y: 0.43, z: 7.71}
+  m_LocalPosition: {x: 12, y: 0, z: 7}
   m_LocalScale: {x: 1, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1634,6 +1638,17 @@ MonoBehaviour:
   continuosScrolling: 1
   bottomLeftBorder: {fileID: 1470485557}
   upperRightBorder: {fileID: 1829857667}
+--- !u!114 &977446714 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3079856262570969930, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
+  m_PrefabInstance: {fileID: 3605781862464706095}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dba7ad9ac26dd3d419f5ddb3c536074b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1164704198
 GameObject:
   m_ObjectHideFlags: 0
@@ -1905,11 +1920,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2926817116464106401, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2926817116464106401, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 2926817116464106401, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2627,7 +2642,7 @@ MonoBehaviour:
     m_Bits: 768
   entityLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 1088
   terrainLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -2955,6 +2970,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 656906868}
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
+      propertyPath: maxAtkRange
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: modDexterity
       value: 5
       objectReference: {fileID: 0}
@@ -2967,8 +2986,12 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
+      propertyPath: InputToCommand.Array.data[0].commandType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[1].commandType
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[2].commandType
@@ -2976,7 +2999,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2414647051888568954, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: allowedTurnActions
-      value: 2
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2414647051888568954, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: currentTurnActions
@@ -3115,6 +3138,10 @@ PrefabInstance:
       propertyPath: targetGrid
       value: 
       objectReference: {fileID: 2027303477}
+    - target: {fileID: 1648945160915423557, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
+      propertyPath: AdEHighLighter
+      value: 
+      objectReference: {fileID: 1851556496}
     - target: {fileID: 2041028074737582089, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
       propertyPath: simCursor
       value: 
@@ -3188,9 +3215,17 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2861193137560266248, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
+      propertyPath: cursorNeeded
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2861193137560266248, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
       propertyPath: readyCommand
       value: -1
       objectReference: {fileID: 0}
+    - target: {fileID: 2861193137560266248, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
+      propertyPath: controlChecker
+      value: 
+      objectReference: {fileID: 977446714}
     - target: {fileID: 2861193137560266248, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
       propertyPath: selectedEntity
       value: 
@@ -3198,6 +3233,10 @@ PrefabInstance:
     - target: {fileID: 2861193137560266248, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
       propertyPath: currentMenuCommand
       value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2861193137560266248, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
+      propertyPath: entityLayerMask.m_Bits
+      value: 1024
       objectReference: {fileID: 0}
     - target: {fileID: 3079856262570969930, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
       propertyPath: highlight
