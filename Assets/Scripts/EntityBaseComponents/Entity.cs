@@ -180,9 +180,10 @@ public class Entity : MonoBehaviour
         entityTurn.AllowTurn();
         if (Controller == null) 
         { 
-            Debug.Log(characterName + "  has not a controller now");
+            Debug.Log(characterName + "  has not a controller now " + Controller);
             return;
         }
+        if (characterName == "Dude") { Debug.Log("Is AI Controlled" + Controller.IsAI()); }
         Controller.BeginTurn(this);
     }
 

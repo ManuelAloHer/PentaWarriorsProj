@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2041028074737582089}
   - component: {fileID: 8274903195296455035}
   - component: {fileID: 2861193137560266248}
+  - component: {fileID: 5893573642488775090}
   - component: {fileID: 1648945160915423557}
   - component: {fileID: 3079856262570969930}
   - component: {fileID: 9150192607570057617}
@@ -78,16 +79,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c74d0aebf0874ff479bb2d43dee88607, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerControl: {fileID: 3079856262570969930}
+  controlChecker: {fileID: 0}
   readyCommand: -1
   currentMenuCommand: -1
   cursorNeeded: 1
+  showSpecialHighlight: 0
   terrainLayerMask:
     serializedVersion: 2
     m_Bits: 128
   entityLayerMask:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &5893573642488775090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9094356219909466649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a26cf1375fe448949bfb49f61bb5b2a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controlChecker: {fileID: 0}
+  selectedEntity: {fileID: 0}
+  readyCommand: 0
+  terrainLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  entityLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &1648945160915423557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -103,6 +129,7 @@ MonoBehaviour:
   marker: {fileID: 0}
   commandInput: {fileID: 2861193137560266248}
   inputControl: {fileID: 2041028074737582089}
+  AdEHighLighter: {fileID: 0}
   targetGrid: {fileID: 0}
 --- !u!114 &3079856262570969930
 MonoBehaviour:
@@ -156,7 +183,7 @@ MonoBehaviour:
   commandInput: {fileID: 2861193137560266248}
   clearUtility: {fileID: 3693729195755722250}
   characterSelector: {fileID: 9150192607570057617}
-  currentSpecHabImpToCommand: []
+  currentImpToCommand: []
 --- !u!114 &3693729195755722250
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,24 +1,29 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
-
 
 public class CommandAIInput : MonoBehaviour, IController // This Class functions as a 
 {
+    private enum AIActionState
+    {
+        WaitingForEnemyInput,
+        TakingTurn,
+        Busy,
+    }
+    bool firstExecution = true;
+    private float executionTimer = 1f;
+
+    private AIActionState aiExecutionState;
     CommandManager commandManager;
-    InputController inputCursor;
     [SerializeField] ControlChecker controlChecker;
 
     public Entity selectedEntity;
+    public Entity targetedEntity;
     public CommandType readyCommand;
 
     [SerializeField] LayerMask terrainLayerMask;
     [SerializeField] LayerMask entityLayerMask;
     [SerializeField] LayerMask obstacleLayers;
-    private Dictionary<CommandType, Action> highlightActions;
 
     public void SetCommandType(CommandType commandType)
     {
@@ -26,27 +31,14 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     }
     public void InitCommand()
     {
-        if (highlightActions.TryGetValue(readyCommand, out var highlightAction))
-        {
-            if (readyCommand == CommandType.None) { return; }
-            highlightAction.Invoke();
-        }
+        controlChecker.CheckTransitableTerrain(selectedEntity.gridObject);
     }
 
     void Awake()
     {
         commandManager = GetComponent<CommandManager>();
-        inputCursor = GetComponent<InputController>();
         controlChecker = GetComponent<ControlChecker>();
-    }
-
-    private void Start()
-    {
-        highlightActions = new Dictionary<CommandType, Action>
-        {
-            { CommandType.Move, () => HighlightWalkableTerrain() },
-            { CommandType.Attack, () => HighlightAttackArea()}
-        };
+        aiExecutionState = AIActionState.WaitingForEnemyInput;
     }
 
     private void HighlightAttackArea()
@@ -62,79 +54,81 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     // Update is called once per frame
     void Update()
     {
-
-        Ray ray = Camera.main.ScreenPointToRay(inputCursor.GetCursorPosition());
-        RaycastHit hit;
-        if (InputController.IsPointerOverUI()) { return; }
-
-        if (readyCommand == CommandType.Move)
+        if (selectedEntity == null) { return; }
+        switch (aiExecutionState)
         {
-            MoveCommandInput(ray, out hit);
+            case AIActionState.WaitingForEnemyInput:
+                if (firstExecution) 
+                {
+                    controlChecker.SetPossibleNodesToNull();
+                    SetCommandType(CommandType.Move);
+                    InitCommand();
+                    firstExecution = false;
+                }
+                if (controlChecker.possibleNodes!= null)
+                {
+                    firstExecution = true;
+                    aiExecutionState = AIActionState.TakingTurn;
+                }
+                break;
+            case AIActionState.TakingTurn:
+                if (firstExecution)
+                {
+                    if (readyCommand == CommandType.Move)
+                    {
+                        MoveCommandInput();
+                    }
+                }
+                executionTimer -= Time.deltaTime;
+                if (executionTimer <= 0f)
+                {
+  
+                }
+                break;
+            case AIActionState.Busy:
+                break;
         }
-        else if (readyCommand == CommandType.Attack)
+        
+        if (readyCommand == CommandType.None) 
         {
-            AttackCommandInput(ray, out hit);
-        }
-        else
-        {
-            if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
-            {
-                ChangePositionOnGridMonitor(hit);
-            }
+            EndTurnCommandInput();
+            //ObjectiveSelection
+            //SetCommandType(CommandType.Move);
+            //InitCommand();
         }
 
     }
 
-    private void MoveCommandInput(Ray ray, out RaycastHit hit)
+    private void MoveCommandInput()
     {
-        if (Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
-        {
-            ChangePositionOnGridMonitor(hit);
-            if (inputCursor.IsConfirmPressed() && selectedEntity != null)
-            {
-                List<PathNode> path = controlChecker.GetPath(inputCursor.PosOnGrid);
-                if (path == null) { return; }
-                commandManager.AddMoveCommand(selectedEntity, inputCursor.PosOnGrid, path);
-                CashAction();
-            }
-            else if (inputCursor.IsCancelPressed() && selectedEntity != null && selectedEntity.gridObject.movement.IsMoving)
-            {
-                //characterSelector.selectedEntity.gridObject.SkipMovementAnimation();
-            }
+        Vector3Int PlaceToMove = targetedEntity.gridObject.positionInGrid;
+        PlaceToMove += new Vector3Int(0, 1, 0);
+        //controlChecker.CheckForNodeInPossibleNodes(PlaceToMove);
 
-        }
+        List<PathNode> path = controlChecker.GetPath(PlaceToMove);
+        if (path == null) { return; }
+        commandManager.AddMoveCommand(selectedEntity, PlaceToMove,  path);
+        CashAction();
     }
+    public void EndTurnCommandInput()
+    {
 
+        commandManager.AddFinishTurnCommand(selectedEntity);
+
+    }
     private void AttackCommandInput(Ray ray, out RaycastHit hit)
     {
         if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
         {
-            ChangePositionOnGridMonitor(hit);
-            if (inputCursor.IsConfirmPressed() && selectedEntity != null)
-            {
-                if (controlChecker.CheckPosibleAttack(inputCursor.PosOnGrid))
-                {
                     if (selectedEntity == null) { return; }
-                    ObjectInGrid gridTarget = controlChecker.GetTarget(inputCursor.PosOnGrid);
-                    if (gridTarget == null || gridTarget.GetAliance() == selectedEntity.gridObject.GetAliance()) { return; }
-                    commandManager.AddAttackCommand(selectedEntity, inputCursor.PosOnGrid, gridTarget);
+                    //ObjectInGrid gridTarget = controlChecker.GetTarget(inputCursor.PosOnGrid);
+                    //if (gridTarget == null || gridTarget.GetAliance() == selectedEntity.gridObject.GetAliance()) { return; }
+                    //commandManager.AddAttackCommand(selectedEntity, inputCursor.PosOnGrid, gridTarget);
                     CashAction();
-                }
-            }
         }
 
     }
 
-    private bool ChangePositionOnGridMonitor(RaycastHit hit)
-    {
-        Vector3Int gridPosition = controlChecker.targetGrid.GetGridPosition(hit.point);
-        if (gridPosition != inputCursor.PosOnGrid)
-        {
-            inputCursor.SetPosOnGrid = gridPosition;
-            return true;
-        }
-        return false;
-    }
     private void CashAction()
     {
         if (readyCommand == CommandType.None) { return; }
@@ -150,9 +144,13 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
 
     public void EndTurn(Entity entity)
     {
-        Debug.Log($"{entity.CharacterName}'s player turn ends.");
+        Debug.Log($"{entity.CharacterName}'s turn ends.");
         selectedEntity = null;
         // Disable input or cleanup
     }
 
+    public bool IsAI()
+    {
+        return true;
+    }
 }

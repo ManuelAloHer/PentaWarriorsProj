@@ -1046,7 +1046,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 12, y: 0, z: 7}
-  m_LocalScale: {x: 1, y: 3, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2027303478}
@@ -1649,6 +1649,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dba7ad9ac26dd3d419f5ddb3c536074b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &977446720 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5893573642488775090, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
+  m_PrefabInstance: {fileID: 3605781862464706095}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a26cf1375fe448949bfb49f61bb5b2a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1164704198
 GameObject:
   m_ObjectHideFlags: 0
@@ -1696,6 +1707,8 @@ MonoBehaviour:
   isAdEHighlight: 0
   highlightPoint: {fileID: 7464360497783390404, guid: 0c37973dea0196a47a105aa0102efa65, type: 3}
   highlightPointContainer: {fileID: 1164704198}
+  highlightMaterial: {fileID: 0}
+  highlightMaterialSecund: {fileID: 0}
 --- !u!1 &1173859725
 GameObject:
   m_ObjectHideFlags: 0
@@ -2534,6 +2547,8 @@ MonoBehaviour:
   isAdEHighlight: 1
   highlightPoint: {fileID: 7464360497783390404, guid: f0f8290d99d92e948bb84d97645cf94f, type: 3}
   highlightPointContainer: {fileID: 1851556494}
+  highlightMaterial: {fileID: 0}
+  highlightMaterialSecund: {fileID: 0}
 --- !u!1 &1912102151
 GameObject:
   m_ObjectHideFlags: 0
@@ -2876,6 +2891,8 @@ MonoBehaviour:
   isAdEHighlight: 0
   highlightPoint: {fileID: 7464360497783390404, guid: d223dfd0216cb1a46ac5ce376c4ac5c3, type: 3}
   highlightPointContainer: {fileID: 2135288883}
+  highlightMaterial: {fileID: 2100000, guid: 6d8364f4859f5ce47912a2302e956c05, type: 2}
+  highlightMaterialSecund: {fileID: 2100000, guid: f9d82ebf6d673bb498e77eee145fba82, type: 2}
 --- !u!1001 &115543957937996919
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3111,6 +3128,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2088769440}
     - target: {fileID: 444105606497935348, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
+      propertyPath: enemyInputController
+      value: 
+      objectReference: {fileID: 977446720}
+    - target: {fileID: 444105606497935348, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
       propertyPath: playerInputController
       value: 
       objectReference: {fileID: 590505992}
@@ -3302,6 +3323,34 @@ PrefabInstance:
       propertyPath: gridHighlighters.Array.data[1]
       value: 
       objectReference: {fileID: 2135288885}
+    - target: {fileID: 5893573642488775090, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
+      propertyPath: readyCommand
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5893573642488775090, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
+      propertyPath: controlChecker
+      value: 
+      objectReference: {fileID: 977446714}
+    - target: {fileID: 5893573642488775090, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
+      propertyPath: selectedEntity
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5893573642488775090, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
+      propertyPath: targetedEntity
+      value: 
+      objectReference: {fileID: 259358988}
+    - target: {fileID: 5893573642488775090, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
+      propertyPath: obstacleLayers.m_Bits
+      value: 776
+      objectReference: {fileID: 0}
+    - target: {fileID: 5893573642488775090, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
+      propertyPath: entityLayerMask.m_Bits
+      value: 1024
+      objectReference: {fileID: 0}
+    - target: {fileID: 5893573642488775090, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
+      propertyPath: terrainLayerMask.m_Bits
+      value: 128
+      objectReference: {fileID: 0}
     - target: {fileID: 9094356219909466649, guid: 36f24d3d413f7cf4c9415e70ca1ae472, type: 3}
       propertyPath: m_Name
       value: -GameManager-

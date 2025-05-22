@@ -19,19 +19,27 @@ public class BattleManager : MonoBehaviour
     public List<Entity> allEntities = new List<Entity>();
     private Queue<Entity> turnQueue = new Queue<Entity>();
     public CommandInput playerInputController;
+    public CommandAIInput enemyInputController;
     public Entity currentEntity;
     public Image charImage;
     private int roundNumber = 1;
 
-    private void Awake()
+    private void Start()
     {
         foreach (Entity entity in allEntities)
         {
+            //Debug.Log(entity.CharacterName + "  " + entity.characterAliance);
             if (entity.characterAliance.Equals(Aliance.Player)) 
             {
+                Debug.Log(entity.CharacterName + "  " + "Player");
                 entity.AssignController(playerInputController);
             }
-        
+            else if (entity.characterAliance.Equals(Aliance.Enemy))
+            {
+                Debug.Log(entity.CharacterName + "  " + "Enemy");
+                entity.AssignController(enemyInputController);
+            }
+
         }
     }
     void Update()
@@ -81,7 +89,7 @@ public class BattleManager : MonoBehaviour
         if (currentEntity != null && currentEntity.TurnEnded() == false) { return; }
         currentEntity = turnQueue.Dequeue();
         currentEntity.OnTurnEnded += HandleEntityEndTurn;
-        Debug.Log($"{currentEntity.CharacterName}'s turn starts. He has a Controller? {currentEntity.Controller != null}");
+        Debug.Log($"{currentEntity.CharacterName}'s turn starts. Has a controller? {currentEntity.Controller != null}");
         charImage.sprite = currentEntity.sprite;
        
         //Set UI Turn

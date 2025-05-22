@@ -220,7 +220,6 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
     public void BeginTurn(Entity entity)
     {
         characterSelector.SelectCharacter(entity);
-        Debug.Log($"{entity.CharacterName} is now player-controlled.");
         // Enable input, show UI, etc.
     }
 
@@ -234,6 +233,9 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
         characterSelector.UnselectCharacter();
         // Disable input or cleanup
     }
-
+    public bool IsAI() 
+    { 
+        return false;
+    }
 
 }

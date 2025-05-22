@@ -11,6 +11,8 @@ public class GridHighlight : MonoBehaviour
     [SerializeField] GameObject highlightPoint;
     List<GameObject> highlightPointGOs;
     [SerializeField] GameObject highlightPointContainer;
+    [SerializeField] Material highlightMaterial;
+    [SerializeField] Material highlightMaterialSecund;
     private List<Vector3Int> previousHighlightPositions = new List<Vector3Int>();
 
     float pointOffset = 0.2f;
@@ -44,6 +46,15 @@ public class GridHighlight : MonoBehaviour
         return go;
     }
 
+    public bool Highlight(List<LineOfSightResult> listed)
+    {
+        for (int i = 0; i < listed.Count; i++)
+        {
+            Highlight(listed[i].target.x, listed[i].target.y, listed[i].target.z, GetPointGo(i, listed[i].cover));
+        }
+        DeactivateUnusedHighlights(listed.Count);
+        return true;
+    }
     public bool Highlight(List<Vector3Int> positions)
     {
         for (int i = 0; i < positions.Count; i++)
@@ -62,7 +73,40 @@ public class GridHighlight : MonoBehaviour
         DeactivateUnusedHighlights(positions.Count);
         return true;
     }
+    private GameObject GetPointGo(int i, CoverLevel cover)
+    {
+        if (i < highlightPointGOs.Count)
+        {
+            // Reuse existing
+            GameObject newHighlightObject = highlightPointGOs[i];
+            newHighlightObject.SetActive(true); // Make sure it's visible again
+            return newHighlightObject;
+        }
 
+        // Create and add until we have enough
+        while (highlightPointGOs.Count <= i)
+        {
+            CreatePointHighlight(); // Adds to highlightPointGOs inside
+        }
+        if (cover == CoverLevel.None)
+        {
+            highlightPointGOs[i].GetComponentInChildren<MeshRenderer>().material = highlightMaterial;
+        }
+        else if (cover == CoverLevel.Partial)
+        {
+            highlightPointGOs[i].GetComponentInChildren<MeshRenderer>().material = highlightMaterial;
+        }
+        return highlightPointGOs[i];
+
+        //if (highlightPointGOs.Count < i) 
+        //{
+        //    highlightPointGOs[i].SetActive(true);
+        //    return highlightPointGOs[i];
+        //}
+        //GameObject newHighlightObject = CreatePointHighlight();
+        //newHighlightObject.SetActive(true);
+        //return newHighlightObject;
+    }
     private GameObject GetPointGo(int i) 
     {
         if (i < highlightPointGOs.Count)

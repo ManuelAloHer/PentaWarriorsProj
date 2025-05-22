@@ -1,16 +1,18 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem.LowLevel;
-using UnityEngine.SocialPlatforms;
-using UnityEngine.UIElements;
-using static UnityEditor.PlayerSettings;
 using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.UI.Image;
 
 
+public enum CoverLevel { Full, Partial, None }
+public class LineOfSightResult
+{
+    public Vector3Int target;
+    public CoverLevel cover;
+}
 public class ControlChecker : MonoBehaviour // Conbines Character Atack and Movement controls
 {
     public GridMap targetGrid;
@@ -20,6 +22,7 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
 
 
     List<PathNode> path = new List<PathNode>();
+    public List<PathNode> possibleNodes = new List<PathNode>();
     List<Vector3Int> targetPos;
     Vector3Int origin;
 
@@ -31,7 +34,10 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
     {
         pathfinding = targetGrid.GetComponent<Pathfinding>();
     }
-
+    public void SetPossibleNodesToNull() 
+    {
+        possibleNodes = null;
+    }
     public void CheckTransitableTerrain(ObjectInGrid controlledObject)
     {
         List<PathNode> transitableNodes = new List<PathNode>();
@@ -41,8 +47,8 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
                                            controlledObject.positionInGrid.z, controlledObject.movementPoints,
                                            ref transitableNodes);
         if (!controlledObject.GetAliance().Equals(Aliance.Player)) 
-        { 
-            // AI possible routs
+        {
+            possibleNodes = transitableNodes;
             return;
         }
         highlight.Hide();
@@ -60,93 +66,6 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
         return path;
     }
 
-    //public void CalculateSingleTargetArea(Entity character, Aliance targetAliance)
-    //{
-    //    ObjectInGrid controlledCharacter = character.GetComponent<ObjectInGrid>();
-
-    //    if (targetPos == null)
-    //    {
-    //        targetPos = new List<Vector3Int>();
-    //    }
-    //    else
-    //    {
-    //        targetPos.Clear();
-    //    }
-
-    //    Queue<(Vector3Int pos, int dist)> frontier = new Queue<(Vector3Int, int)>();
-    //    HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
-
-    //    Vector3Int origin = controlledCharacter.positionInGrid;
-    //    frontier.Enqueue((origin, 0));
-    //    visited.Add(origin);
-
-    //    Vector3Int[] directions = new Vector3Int[]
-    //{
-    //    new Vector3Int(1, 0, 0),
-    //    new Vector3Int(-1, 0, 0),
-    //    new Vector3Int(0, 1, 0),
-    //    new Vector3Int(0, -1, 0),
-    //    new Vector3Int(0, 0, 1),
-    //    new Vector3Int(0, 0, -1),
-    //};
-    //    while (frontier.Count > 0)
-    //    {
-    //        var (current, distance) = frontier.Dequeue();
-    //        if (distance > character.AttackRange)
-    //            continue;
-
-    //        if (!targetGrid.CheckBounderies(current))
-    //            continue;
-
-    //        var node = targetGrid.GetNode(current);
-    //        bool isObstacle = node.onAir || node.obstructed;
-    //        bool hasAnyEntity = targetGrid.CheckEntityRootPresence(current.x, current.y, current.z); // not just root
-    //        bool isSelfOccupied = controlledCharacter.OccupiesGridCell(current);
-
-    //        Determine if this tile should stop the spread
-    //        bool blocksSpread = (isObstacle || hasAnyEntity) && !isSelfOccupied;
-
-    //        Handle targeting
-    //        if (hasAnyEntity)
-    //        {
-    //            Aliance entityAliance = targetGrid.GetAlianceInNode(current);
-
-    //            if (targetAliance != Aliance.None && entityAliance == targetAliance)
-    //            {
-    //                targetPos.Add(current); // Valid target
-    //            }
-    //        }
-    //        else if (!isObstacle)
-    //        {
-    //            targetPos.Add(current); // Empty walkable space
-    //        }
-
-    //        if (blocksSpread)
-    //        {
-    //            Stop the flood here
-    //            continue;
-    //        }
-
-    //        Spread to neighbors
-    //        foreach (var dir in directions)
-    //        {
-    //            Vector3Int neighbor = current + dir;
-    //            if (!visited.Contains(neighbor))
-    //            {
-    //                visited.Add(neighbor);
-    //                frontier.Enqueue((neighbor, distance + 1));
-    //            }
-    //        }
-    //    }
-    //    if (!character.characterAliance.Equals(Aliance.Player))
-    //    {
-    //        AI possible attackPositions
-    //        return;
-    //    }
-    //    attackHighlight.Hide();
-    //    attackHighlight.Highlight(targetPos);
-    //    highlight.Hide();
-    //}
     public void CalculateSingleTargetArea(Entity character, Aliance targetAliance)
     {
         ObjectInGrid controlledCharacter = character.GetComponent<ObjectInGrid>();
@@ -233,6 +152,7 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
             }
         }
         targetPos = FilterLineOfSightTargets(character, targetPos);
+        //List<LineOfSightResult> lineOfSight = FilterLineOfSightWithCover(character,targetPos);
         if (!character.characterAliance.Equals(Aliance.Player))
         {
             //AI possible attackPositions
@@ -248,6 +168,9 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
         ObjectInGrid controlledCharacter = character.GetComponent<ObjectInGrid>();
 
         Vector3 casterOriginWorld = targetGrid.GetWorldPosition(controlledCharacter.positionInGrid); // Start point
+        // Adjust layer mask as needed (e.g., walls, entities, environment)
+        int obstacleMask = LayerMask.GetMask("Obstacle", "VisibleObstacle", "InteractableObstacle","Entity", "EntityBase");
+
 
         foreach (Vector3Int target in targets)
         {
@@ -256,22 +179,122 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
             Vector3 direction = (targetWorld - casterOriginWorld).normalized;
             float distance = Vector3.Distance(casterOriginWorld, targetWorld);
 
-            // Adjust layer mask as needed (e.g., walls, entities, environment)
-            int obstacleMask = LayerMask.GetMask("Obstacle", "VisibleObstacle", "InteractableObstacle");
+            bool blocked = false;
 
-            // Perform the raycast
-            if (!Physics.Raycast(casterOriginWorld, direction, distance, obstacleMask))
+            RaycastHit[] hits = Physics.RaycastAll(casterOriginWorld, direction, distance, obstacleMask);
+            foreach (var hit in hits)
             {
-                // No hit = clear line of sight
-                filtered.Add(target);
+                // Check if hit is your own character — ignore it
+                ObjectInGrid hitObject = hit.collider.GetComponentInParent<ObjectInGrid>();
+                if (hitObject != null && hitObject == controlledCharacter)
+                {
+                    continue; // ignore self
+                }
+
+                // Hit something that blocks LOS
+                blocked = true;
+                Debug.DrawLine(casterOriginWorld, targetWorld, Color.red, 1f);
+                break;
             }
-            else
+
+            if (!blocked)
             {
-                Debug.DrawLine(casterOriginWorld, targetWorld, Color.red, 1f); // Optional debug line
+                filtered.Add(target);
+                Debug.DrawLine(casterOriginWorld, targetWorld, Color.green, 1f);
             }
         }
 
         return filtered;
+    }
+  
+    private List<Vector3> GetTargetHitPoints(Vector3Int gridPos)
+    {
+        Vector3 center = targetGrid.GetWorldPosition(gridPos);
+
+        // Assuming 1x1x3 character — adjust Z offsets accordingly
+        return new List<Vector3>
+        {
+        center + new Vector3(0, 0, 0),     // center
+        center + new Vector3(0, 0, 1),     // mid-height
+        center + new Vector3(0, 0, 2),     // top of head
+        //center + new Vector3(0.4f, 0, 1),  // right shoulder
+        //center + new Vector3(-0.4f, 0, 1), // left shoulder
+        };
+    }
+    public List<LineOfSightResult> FilterLineOfSightWithCover(Entity character, List<Vector3Int> targets)
+    {
+        List<LineOfSightResult> results = new List<LineOfSightResult>();
+
+        ObjectInGrid controlledCharacter = character.GetComponent<ObjectInGrid>();
+        Vector3 casterOriginWorld = targetGrid.GetWorldPosition(controlledCharacter.positionInGrid);
+
+        int losMask = LayerMask.GetMask("Obstacle", "VisibleObstacle", "InteractableObstacle", "Entity", "EntityBase");
+
+        foreach (Vector3Int target in targets)
+        {
+            Vector3 targetWorld = targetGrid.GetWorldPosition(target);
+            ObjectInGrid objectToTest = targetGrid.GetPlacedObject(target);
+
+            List<Vector3> points;
+            if (objectToTest != null)
+            {
+                points = GetTargetHitPoints(target);
+            }
+            else
+            {
+                points = new List<Vector3>();
+                points.Add(target);
+            }
+            int blockedCount = 0;
+
+            foreach (var point in points)
+            {
+                Vector3 dir = (point - casterOriginWorld).normalized;
+                float dist = Vector3.Distance(casterOriginWorld, point);
+
+                RaycastHit[] hits = Physics.RaycastAll(casterOriginWorld, dir, dist, losMask);
+                bool thisRayBlocked = false;
+
+                foreach (var hit in hits)
+                {
+                    ObjectInGrid hitObject = hit.collider.GetComponentInParent<ObjectInGrid>();
+                    if (hitObject != null && hitObject == controlledCharacter)
+                        continue; // ignore self
+
+                    // Any hit = this ray is blocked
+                    thisRayBlocked = true;
+                    break;
+                }
+
+                if (thisRayBlocked)
+                {
+                    blockedCount++;
+                    Debug.DrawRay(casterOriginWorld, dir * dist, Color.red, 1f);
+                }
+                else
+                {
+                    Debug.DrawRay(casterOriginWorld, dir * dist, Color.green, 1f);
+                }
+            }
+
+            CoverLevel cover = CoverLevel.None;
+            if (blockedCount == points.Count)
+                cover = CoverLevel.Full;
+            else if (blockedCount > 0)
+                cover = CoverLevel.Partial;
+
+            results.Add(new LineOfSightResult
+            {
+                target = target,
+                cover = cover
+            });
+            if(targetGrid.GetPlacedObject(target) != null)
+            {
+                Debug.Log(target + "  " + cover);
+            }
+        }
+
+        return results;
     }
     public void CalculateMultipleTargetArea(Entity character, Aliance targetAliance)
     {
@@ -499,4 +522,16 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
         targetGrid.PrintNodeState(targetPosOnGrid);
         return targetGrid.GetNode(targetPosOnGrid);
     }
+
+    //public bool CheckForNodeInPossibleNodes(Vector3Int placeToMove)
+    //{
+    //    GridNode node = GetTargetNode(placeToMove);
+    //    if (node == null) { return false; }
+    //    foreach (PathNode possible in possibleNodes) 
+    //    {
+    //        Vector3Int corrdinatesToTest ()
+    //        if (possibleNode.)
+    //    }
+    //    if(possibleNodes.Contains(node))
+    //}
 }

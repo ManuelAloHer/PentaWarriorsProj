@@ -60,6 +60,7 @@ public class CharacterSelector : MonoBehaviour
 
     public void SelectCharacter(Entity characterToSelect)
     {
+        if (characterToSelect.characterAliance != Aliance.Player) { return; }
         selectedEntity = characterToSelect;
         ChangePortraitAndNameState();
         changeCharacter();
