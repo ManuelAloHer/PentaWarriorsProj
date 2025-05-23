@@ -8,12 +8,12 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     {
         WaitingForEnemyInput,
         TakingTurn,
-        Busy,
+        FinalTurnTunning,
     }
     bool firstExecution = true;
     private float executionTimer = 1f;
 
-    private AIActionState aiExecutionState;
+    [SerializeField] AIActionState aiExecutionState;
     CommandManager commandManager;
     [SerializeField] ControlChecker controlChecker;
 
@@ -77,34 +77,40 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
                     if (readyCommand == CommandType.Move)
                     {
                         MoveCommandInput();
+                        firstExecution= false;
                     }
                 }
-                executionTimer -= Time.deltaTime;
-                if (executionTimer <= 0f)
-                {
+                aiExecutionState=AIActionState.FinalTurnTunning;
+                //executionTimer -= Time.deltaTime;
+                //if (executionTimer <= 0f)
+                //{
   
-                }
+                //}
                 break;
-            case AIActionState.Busy:
+            case AIActionState.FinalTurnTunning:
+                if (!selectedEntity.IsBusy) 
+                {
+                    firstExecution = true;
+                    aiExecutionState = AIActionState.WaitingForEnemyInput;
+
+                }
                 break;
         }
         
-        if (readyCommand == CommandType.None) 
-        {
-            EndTurnCommandInput();
-            //ObjectiveSelection
-            //SetCommandType(CommandType.Move);
-            //InitCommand();
-        }
+        //if (readyCommand == CommandType.None) 
+        //{
+        //    EndTurnCommandInput();
+        //    //ObjectiveSelection
+        //    //SetCommandType(CommandType.Move);
+        //    //InitCommand();
+        //}
 
     }
 
     private void MoveCommandInput()
     {
         Vector3Int PlaceToMove = targetedEntity.gridObject.positionInGrid;
-        PlaceToMove += new Vector3Int(0, 1, 0);
-        //controlChecker.CheckForNodeInPossibleNodes(PlaceToMove);
-
+        PlaceToMove = controlChecker.CheckForNodeNearestPointInPossibleNodes(PlaceToMove, selectedEntity.gridObject.positionInGrid);
         List<PathNode> path = controlChecker.GetPath(PlaceToMove);
         if (path == null) { return; }
         commandManager.AddMoveCommand(selectedEntity, PlaceToMove,  path);

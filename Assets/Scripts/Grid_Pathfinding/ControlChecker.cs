@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
@@ -523,15 +524,30 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
         return targetGrid.GetNode(targetPosOnGrid);
     }
 
-    //public bool CheckForNodeInPossibleNodes(Vector3Int placeToMove)
-    //{
-    //    GridNode node = GetTargetNode(placeToMove);
-    //    if (node == null) { return false; }
-    //    foreach (PathNode possible in possibleNodes) 
-    //    {
-    //        Vector3Int corrdinatesToTest ()
-    //        if (possibleNode.)
-    //    }
-    //    if(possibleNodes.Contains(node))
-    //}
+    public Vector3Int CheckForNodeNearestPointInPossibleNodes(Vector3Int placeToMove,Vector3Int originPoint)
+    {
+        List<Vector3Int> positionsToCheck = new List<Vector3Int>();
+        foreach (PathNode possible in possibleNodes)
+        {
+            positionsToCheck.Add(new Vector3Int(possible.pos_x, possible.pos_y, possible.pos_z));
+        }
+        if (positionsToCheck.Contains(placeToMove))
+        {
+            return placeToMove;
+        }
+        Vector3Int closest = placeToMove;
+        float minDistance = float.MaxValue;
+        foreach (Vector3Int pos in positionsToCheck)
+        {
+            float distance = Vector3Int.Distance(placeToMove, pos);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closest = pos;
+            }
+        }
+        return closest;
+
+    }
+
 }
