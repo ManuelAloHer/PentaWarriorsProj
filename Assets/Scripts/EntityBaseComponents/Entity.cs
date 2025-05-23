@@ -176,14 +176,18 @@ public class Entity : MonoBehaviour
     }
     public void StartTurn()
     {
-        
+        if (healthComponent.IsDead) 
+        {
+            Controller.EndTurn(this);
+            return;
+        }
         entityTurn.AllowTurn();
+        if (healthComponent.IsDead) { }
         if (Controller == null) 
         { 
             Debug.Log(characterName + "  has not a controller now " + Controller);
             return;
         }
-        if (characterName == "Dude") { Debug.Log("Is AI Controlled" + Controller.IsAI()); }
         Controller.BeginTurn(this);
     }
 

@@ -24,6 +24,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     [SerializeField] LayerMask terrainLayerMask;
     [SerializeField] LayerMask entityLayerMask;
     [SerializeField] LayerMask obstacleLayers;
+    [SerializeField] ClearUtility clearUtility;
 
     public void SetCommandType(CommandType commandType)
     {
@@ -152,6 +153,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     {
         Debug.Log($"{entity.CharacterName}'s turn ends.");
         selectedEntity = null;
+        //clearUtility.ClearAllHighLighters();
         // Disable input or cleanup
     }
 

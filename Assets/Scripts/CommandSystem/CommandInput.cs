@@ -209,7 +209,6 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
     private void CashAction()
     {
         if(readyCommand == CommandType.None || currentMenuCommand == CommandInputType.None) { return; }
-        Debug.Log("UI Reactivated");
         readyCommand = CommandType.None;
         currentMenuCommand = CommandInputType.None;
         //characterSelector.selectedEntity.ConsumeActions(false);

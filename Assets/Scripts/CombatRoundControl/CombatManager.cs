@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 public class BattleManager : MonoBehaviour
 {
@@ -22,6 +24,7 @@ public class BattleManager : MonoBehaviour
     public CommandAIInput enemyInputController;
     public Entity currentEntity;
     public Image charImage;
+    public TMP_Text roundText;
     private int roundNumber = 1;
 
     private void Start()
@@ -60,29 +63,71 @@ public class BattleManager : MonoBehaviour
 
             case BattleState.BattleEnd:
                 Debug.Log("Battle ended.");
+                SceneManager.LoadScene(0);
                 break;
         }
     }
 
     private void StartBattle()
     {
+        roundNumber = 0;
         currentState = BattleState.RoundStart;
+        
     }
 
     private void StartRound()
     {
         //Debug.Log($"-- ROUND {roundNumber} --");
         roundNumber++;
-        var ordered = TurnOrderSystem.CalculateTurnOrder(allEntities);
+        roundText.text = "Round " + roundNumber;
+        // Only include alive entities
+        var ordered = TurnOrderSystem.CalculateTurnOrder(
+            allEntities.Where(e => e.IsAlive()).ToList()
+        );
+
         turnQueue = new Queue<Entity>(ordered);
         currentState = BattleState.TurnStart;
     }
 
+    //private void BeginTurn()
+    //{
+    //    if (IsBattleOver())
+    //    {
+    //        currentState = BattleState.BattleEnd;
+    //        Debug.Log("Battle ended during turn loop.");
+    //        return;
+    //    }
+
+    //    if (turnQueue.Count == 0)
+    //    {
+    //        Debug.Log("Turn queue exhausted.");
+    //        currentState = BattleState.RoundStart;
+    //        return;
+    //    }
+
+    //    if (currentEntity != null && !currentEntity.TurnEnded()) { return; }
+
+    //    currentEntity = turnQueue.Dequeue();
+
+    //    if (!currentEntity.IsAlive())
+    //    {
+    //        Debug.Log($"{currentEntity.CharacterName} is dead, skipping turn.");
+    //        currentState = BattleState.TurnStart;
+    //        return;
+    //    }
+
+    //    currentEntity.OnTurnEnded += HandleEntityEndTurn;
+    //    Debug.Log($"{currentEntity.CharacterName}'s turn starts.");
+    //    charImage.sprite = currentEntity.sprite;
+
+    //}
     private void BeginTurn()
     {
-        
-        if (turnQueue.Count == 0)
+        bool itsOver = IsBattleOver();
+
+        if (turnQueue.Count == 0 || itsOver)
         {
+            Debug.Log("Turn ended");
             currentState = IsBattleOver() ? BattleState.BattleEnd : BattleState.RoundStart;
             return;
         }
@@ -91,9 +136,9 @@ public class BattleManager : MonoBehaviour
         currentEntity.OnTurnEnded += HandleEntityEndTurn;
         Debug.Log($"{currentEntity.CharacterName}'s turn starts. Has a controller? {currentEntity.Controller != null}");
         charImage.sprite = currentEntity.sprite;
-       
+
         //Set UI Turn
-        currentEntity.StartTurn();  
+        currentEntity.StartTurn();
 
     }
 
@@ -108,7 +153,9 @@ public class BattleManager : MonoBehaviour
     {
         bool playersAlive = allEntities.Any(e => e.PlayerCharacter == true && e.IsAlive());
         bool enemiesAlive = allEntities.Any(e => e.characterAliance.Equals(Aliance.Enemy) && e.PlayerCharacter != true && e.IsAlive());
-        return !(playersAlive && enemiesAlive);
+        Debug.Log("Combat in place is: "+(playersAlive && enemiesAlive));
+        return !playersAlive || !enemiesAlive;
+
     }
     //public List<Entity> allEntities = new List<Entity>();
     //private Queue<Entity> turnQueue = new Queue<Entity>();
