@@ -9,10 +9,11 @@ public class HealthAndConcenUI : MonoBehaviour
 {
     [Header("CharacterSelector can be null")]
     [SerializeField] CharacterSelector characterSelector;
-    private Entity chechedEntity;
+    private Entity checkedEntity;
     [SerializeField] HealthConcentComp healthConcentComp;
     [SerializeField] Slider healthSlider,concSlider;
     [SerializeField] TMP_Text healthText, concenText;
+    [SerializeField] bool hovereable = false;
     private void Awake()
     {
         if (characterSelector == null && healthConcentComp != null) 
@@ -35,20 +36,28 @@ public class HealthAndConcenUI : MonoBehaviour
         {
             return;
         }
-        if (characterSelector.selectedEntity == null && chechedEntity != null) 
+        if (checkedEntity != null && ( !hovereable && characterSelector.selectedEntity == null) || (hovereable && characterSelector.hoveredEntity)  ) 
         {
             UnknownCurrentBarsValues();
-            chechedEntity = null;
+            checkedEntity = null;
             return;
         }
-        if (characterSelector.selectedEntity != chechedEntity) 
+        if (!hovereable && characterSelector.selectedEntity != checkedEntity) 
         {
             healthConcentComp = characterSelector.selectedEntity.GetComponent<HealthConcentComp>();
             healthConcentComp.healthGained += ActualizeCurrentBars;
             healthConcentComp.healthLost += ActualizeCurrentBars;
             ActualizeCurrentBars();
-            chechedEntity = characterSelector.selectedEntity;
+            checkedEntity = characterSelector.selectedEntity;
 
+        }
+        if (hovereable && characterSelector.hoveredEntity != checkedEntity)
+        {
+            healthConcentComp = characterSelector.hoveredEntity.GetComponent<HealthConcentComp>();
+            healthConcentComp.healthGained += ActualizeCurrentBars;
+            healthConcentComp.healthLost += ActualizeCurrentBars;
+            ActualizeCurrentBars();
+            checkedEntity = characterSelector.hoveredEntity;
         }
     }
     private void ActualizeCurrentBars() 
