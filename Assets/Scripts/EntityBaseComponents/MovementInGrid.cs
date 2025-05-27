@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
-public class MovementInGrid : MonoBehaviour, IActionEffect// Script that controls the movementof a character 
+public class MovementInGrid : MonoBehaviour, IActionEffect// Script that controls the movement of a character or movable Object
 {
     public List<Vector3> pathWorldPositions;
-   
+    public ActionState State { get; set; }
     public bool IsMoving 
     { 
         get 
@@ -25,7 +25,7 @@ public class MovementInGrid : MonoBehaviour, IActionEffect// Script that control
 
     private void Awake()
     {
-        characterAnimator = GetComponent<CharacterAnimator>();
+        characterAnimator = GetComponentInChildren<CharacterAnimator>();
     }
 
     // Update is called once per frame

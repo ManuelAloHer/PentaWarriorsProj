@@ -278,10 +278,10 @@ public class GridMap : MonoBehaviour
         {
             gridNode = grid[gridPosition.x, gridPosition.y, gridPosition.z];
             gridObject = grid[gridPosition.x, gridPosition.y, gridPosition.z].objectInGrid;
-            Debug.LogFormat("Node {0},{1},{2}: HasObjectInGrid {3}, Obstructed: {4}, isThereAnEntity: {5}, isOnAir: {6}, CurrentNodeState: {7} ",
-            gridPosition.x, gridPosition.y, gridPosition.z,
-            gridNode.objectInGrid != null, gridNode.obstructed, 
-            gridNode.entityOcupied, gridNode.onAir, gridNode.currentNodeState);
+            //Debug.LogFormat("Node {0},{1},{2}: HasObjectInGrid {3}, Obstructed: {4}, isThereAnEntity: {5}, isOnAir: {6}, CurrentNodeState: {7} ",
+            //gridPosition.x, gridPosition.y, gridPosition.z,
+            //gridNode.objectInGrid != null, gridNode.obstructed, 
+            //gridNode.entityOcupied, gridNode.onAir, gridNode.currentNodeState);
         }
         
     }

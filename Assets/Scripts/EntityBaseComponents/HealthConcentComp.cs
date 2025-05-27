@@ -9,8 +9,8 @@ public class HealthConcentComp : MonoBehaviour
 {
     [SerializeField][Range(0, 100)] private int health;
     [SerializeField][Range(1, 100)] private int maxHealth;
-    [SerializeField][Range(0, 100)] private int concentration;
-    [SerializeField][Range(1, 100)] private int maxConcentration;
+    [SerializeField][Range(0, 50)] private int concentration;
+    [SerializeField][Range(1, 50)] private int maxConcentration;
     private bool actorInmortal = false;
     public bool IsDead { get { return health <= 0; } }
     public int Health { get { return health; } }
@@ -39,6 +39,13 @@ public class HealthConcentComp : MonoBehaviour
         Debug.Log("Current Health: " + health + " " + maxHealth);
         healthGained();
     }
+    public void ConcentrationGain(int concentToGain)
+    {
+        int newConcentration = concentration + concentToGain;
+        concentration = newConcentration >= 50 ? 50 : newConcentration;
+        Debug.Log("Current Concentration: " + concentration + " " + maxConcentration);
+        healthGained();
+    }
     private void DyingBehaviour()
     {
         hasDied();
@@ -61,7 +68,7 @@ public class HealthConcentComp : MonoBehaviour
     }
     public void SetMaxConcentration(int newMax)
     {
-        newMax = newMax >= 100 ? 100 : newMax;
+        newMax = newMax >= 50 ? 50: newMax;
         maxHealth = newMax;
     }
 

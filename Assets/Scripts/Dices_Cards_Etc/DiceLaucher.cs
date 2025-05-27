@@ -5,7 +5,13 @@ using Random = UnityEngine.Random;
 
 public class DiceLaucher : MonoBehaviour
 {
-    public int BaseDiceLaunch(int modifier) 
+    public int BaseDiceLaunch()
+    {
+        int result = DiceTrow(2, 8);
+        return result;
+    }
+
+    public int BaseDiceLaunchModified(int modifier) 
     {
         int result = DiceTrow(2, 8);
         return result + modifier;

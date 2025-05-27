@@ -48,6 +48,7 @@ public class Entity : MonoBehaviour
 
     public Aliance characterAliance = Aliance.None;
     public Sprite sprite;
+    public CharacterAnimator characterAnimator;
 
     private bool isBusy = false;
     public bool IsBusy { get { return isBusy; } }
@@ -210,7 +211,10 @@ public class Entity : MonoBehaviour
     { 
         float baseModifier = rangedBasedAttack ? dexterity + modDexterity :  strenght + modStrenght;
         int atkModifiers = (int)Mathf.Floor((baseModifier) * 0.5f);
-        return diceLaucher.BaseDiceLaunch(atkModifiers);
+        int result = diceLaucher.BaseDiceLaunch();
+        if (result == 16) { healthComponent.ConcentrationGain(1); }
+        result += atkModifiers;
+        return result;
     }
 
     public int GetDefenseValue()

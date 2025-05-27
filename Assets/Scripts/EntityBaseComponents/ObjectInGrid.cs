@@ -67,7 +67,7 @@ public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Obje
     {
         int atkThrowValue = entity.CheckAttackTrow();
         int dmgThrowValue = entity.CheckMainDmgTrow();
-        Debug.LogFormat("AtK done by {0} Atk: {1} Dmg Base: {2}",entity.CharacterName, atkThrowValue,dmgThrowValue);
+        //Debug.LogFormat("AtK done by {0} Atk: {1} Dmg Base: {2}",entity.CharacterName, atkThrowValue,dmgThrowValue);
         attackComponent.AttackGridTarget(target, atkThrowValue,dmgThrowValue);
     }
 

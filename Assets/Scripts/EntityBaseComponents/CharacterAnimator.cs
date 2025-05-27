@@ -1,14 +1,28 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public enum SpecialHability {None= 0,Hab1 = 1, Hab2 = 2, Hab3 = 3}
+
 public class CharacterAnimator : MonoBehaviour
 {
     public Animator _animator;
+    public List<GameObject> projectiles;
+    public GameObject shootingPoint;
     //public Animation attackA
 
+    public Action onAnimationComplete;
+    public event Action OnHitComplete;
+    public event Action OnHurtComplete;
+    public bool isDead = false;
 
+    private void Awake()
+    {
+        onAnimationComplete += AnimationCompleteGeneric;
+        OnHitComplete += AnimationCompleteGeneric;
+        OnHurtComplete += AnimationCompleteGeneric;
+    }
     public void UpdateMovement(float velocity)
     {
         _animator.SetFloat("Speed",velocity);
@@ -17,6 +31,14 @@ public class CharacterAnimator : MonoBehaviour
     {
         _animator.SetTrigger("Attack");
     }
+    public void ShootBullet() 
+    {
+        Instantiate(projectiles[0], shootingPoint.transform.position,Quaternion.identity);
+    }
+    public void ShootFireProyectil()
+    {
+
+    }
     public void TriggerSpecialHab(SpecialHability specialHab) 
     {
         _animator.SetFloat("SpecialHabSelected", (float)specialHab);
@@ -24,16 +46,58 @@ public class CharacterAnimator : MonoBehaviour
     }
     public void TriggerHurtAndDeath(bool hitLanded, bool isDeadAnimation)
     {
-        _animator.SetTrigger("Hurt");
-
-        if (hitLanded && isDeadAnimation) 
+        if (hitLanded) 
         {
-            _animator.SetBool("Die", isDeadAnimation);
+            _animator.SetTrigger("Hurt");
+            if (hitLanded && isDeadAnimation)
+            {
+                _animator.SetBool("Die", isDeadAnimation);
+            }
+            return;
         }
-
     }
     public void ReviveAnimation(bool isDeadAnimation)
     {
         _animator.SetBool("Die", isDeadAnimation);
     }
+    public void OnAnimationComplete()
+    {
+        Debug.Log("Animation Finished!");
+        onAnimationComplete();
+        // Notify other components or perform logic here
+    }
+    //public void OnHitAnimationComplete()
+    //{
+    //    Debug.Log("Hit Animation Finished!");
+    //    onHitAnimation();
+    //    // Notify other components or perform logic here
+    //}
+    public void OnDeadAnimationComplete()
+    {
+        Debug.Log("Dead Animation Finished!");
+        onAnimationComplete();
+        // Notify other components or perform logic here
+    }
+    public void AnimationHitComplete()
+    {
+        onAnimationComplete();
+        // Notify other components or perform logic here
+    }
+    public void AnimationCompleteGeneric()
+    { 
+    
+    }
+
+    public void TriggerHurt()
+    {
+        Debug.Log("Animation Triggered");
+        _animator.SetTrigger("Hurt");
+    }
+
+    public void TriggerHit()
+    {
+        _animator.SetTrigger("Hit");
+    }
+    public void NotifyHitComplete() => OnHitComplete?.Invoke();
+    public void NotifyHurtComplete() => OnHurtComplete?.Invoke();
 }

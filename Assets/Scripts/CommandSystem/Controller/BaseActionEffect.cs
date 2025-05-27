@@ -3,6 +3,7 @@ using UnityEngine;
 
 public abstract class BaseActionEffect : MonoBehaviour, IActionEffect
 {
+    public ActionState State { get; set; } = ActionState.NotInActionYet;
     protected Action onComplete;
 
     public void Play(Action onComplete)

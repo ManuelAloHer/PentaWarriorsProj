@@ -34,12 +34,10 @@ public class BattleManager : MonoBehaviour
             //Debug.Log(entity.CharacterName + "  " + entity.characterAliance);
             if (entity.characterAliance.Equals(Aliance.Player)) 
             {
-                Debug.Log(entity.CharacterName + "  " + "Player");
                 entity.AssignController(playerInputController);
             }
             else if (entity.characterAliance.Equals(Aliance.Enemy))
             {
-                Debug.Log(entity.CharacterName + "  " + "Enemy");
                 entity.AssignController(enemyInputController);
             }
 
@@ -134,7 +132,7 @@ public class BattleManager : MonoBehaviour
         if (currentEntity != null && currentEntity.TurnEnded() == false) { return; }
         currentEntity = turnQueue.Dequeue();
         currentEntity.OnTurnEnded += HandleEntityEndTurn;
-        Debug.Log($"{currentEntity.CharacterName}'s turn starts. Has a controller? {currentEntity.Controller != null}");
+        //Debug.Log($"{currentEntity.CharacterName}'s turn starts. Has a controller? {currentEntity.Controller != null}");
         charImage.sprite = currentEntity.sprite;
 
         //Set UI Turn
