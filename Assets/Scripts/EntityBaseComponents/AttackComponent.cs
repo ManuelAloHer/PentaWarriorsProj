@@ -14,12 +14,15 @@ public class AttackComponent : MonoBehaviour, IActionEffect
     public List<Entity> targetedEntities;
     public int attackRoll, damageRoll;
     private Dictionary<Entity, bool> entityWasHurt = new();
+    private Dictionary<Entity, Action> hurtHandlers = new();
+    private Dictionary<Entity, Action> hitHandlers = new();
 
     public ActionState State { get; set; } = ActionState.NotInActionYet;
     public ActionState DebugState;
+    public bool isRangedAttack = false;
     bool stateStarted = false;
 
-    private int pendingSignals = 0;
+    [SerializeField] private int pendingSignals = 0;
     protected Action onComplete;
 
     private void Awake()
@@ -51,6 +54,10 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                     Debug.Log("EnteringCalculousState");
                     stateStarted = true;
                     WhichAttacksSucessful();
+                    if (isRangedAttack) 
+                    { 
+                        characterAnimator.ShootBullet();
+                    }
                     TransitionTo(ActionState.WaitForAnimationCompletion);
                 }
                 break;
@@ -84,22 +91,25 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                                 if (wasHurt)
                                 {
                                     Debug.Log("My man was Hurt");
-                                    animator.OnHurtComplete += () => OnHurtComplete(entity);
+                                    Action handler = () => OnHurtComplete(entity);
+                                    hurtHandlers[entity] = handler;
+
+                                    animator.OnHurtComplete += handler;
                                     animator.TriggerHurt();
                                 }
                                 else
                                 {
                                     Debug.Log("Not Even a Scratck");
-                                    animator.OnHitComplete += () => OnHitComplete(entity);
+                                    Action handler = () => OnHitComplete(entity);
+                                    hitHandlers[entity] = handler;
+
+                                    animator.OnHitComplete += handler;
                                     animator.TriggerHit();
                                 }
                             }
                         }
                     }
-
-                    // Optional VFX
-                    WaitForSignal();
-                    //PlayImpactVFX(() => SignalComplete());
+                    
                 }
 
                 if (pendingSignals == 0)
@@ -183,12 +193,13 @@ public class AttackComponent : MonoBehaviour, IActionEffect
         transform.rotation = Quaternion.LookRotation(direction);
     }
 
-    public void AttackGridTarget(ObjectInGrid target, int attackThrowValue, int damageRoll)
+    public void AttackGridTarget(ObjectInGrid target, int attackThrowValue, int damageRoll, bool rangedAttack)
     {
         RotateCharacter(target.transform.position);
         State = ActionState.WaitingAnimation;
         DebugState = State;
         targetedObjectsInGrid.Add(target);
+        isRangedAttack = rangedAttack;
         attackRoll = attackThrowValue;
         this.damageRoll = damageRoll;
     }
@@ -206,8 +217,6 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                     entityWasHurt.Add(entity, true);
                 }
             }
-
-
         }
     }
     public void WasSingleAttackSucessful()
@@ -259,15 +268,26 @@ public class AttackComponent : MonoBehaviour, IActionEffect
     private void OnHurtComplete(Entity entity)
     {
         Debug.Log("Hurt Complete");
+
         var animator = entity.GetComponentInChildren<CharacterAnimator>();
-        animator.OnHurtComplete -= () => OnHurtComplete(entity);
+        if (hurtHandlers.TryGetValue(entity, out var handler))
+        {
+            animator.OnHurtComplete -= handler;
+            hurtHandlers.Remove(entity);
+        }
         SignalComplete();
     }
     private void OnHitComplete(Entity entity)
     {
         Debug.Log("Miss Complete");
+
         var animator = entity.GetComponentInChildren<CharacterAnimator>();
-        animator.OnHitComplete -= () => OnHitComplete(entity);
+        if (hitHandlers.TryGetValue(entity, out var handler))
+        {
+            animator.OnHitComplete -= handler;
+            hitHandlers.Remove(entity);
+        }
+
         SignalComplete();
     }
     public void ResetAttack()
@@ -275,6 +295,8 @@ public class AttackComponent : MonoBehaviour, IActionEffect
         entityWasHurt.Clear();
         targetedEntities.Clear();
         targetedObjectsInGrid.Clear();
+        hurtHandlers.Clear();
+        hitHandlers.Clear();
         attackRoll = 0;
         damageRoll = 0;
 

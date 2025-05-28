@@ -44,25 +44,25 @@ public class CharacterAnimator : MonoBehaviour
         _animator.SetFloat("SpecialHabSelected", (float)specialHab);
         _animator.SetTrigger("SpecialHabTrigger");
     }
-    public void TriggerHurtAndDeath(bool hitLanded, bool isDeadAnimation)
-    {
-        if (hitLanded) 
-        {
-            _animator.SetTrigger("Hurt");
-            if (hitLanded && isDeadAnimation)
-            {
-                _animator.SetBool("Die", isDeadAnimation);
-            }
-            return;
-        }
-    }
+    //public void TriggerHurtAndDeath(bool hitLanded, bool isDeadAnimation)
+    //{
+    //    if (hitLanded) 
+    //    {
+    //        _animator.SetTrigger("Hurt");
+    //        if (hitLanded && isDeadAnimation)
+    //        {
+    //            _animator.SetBool("Die", isDeadAnimation);
+    //        }
+    //        return;
+    //    }
+    //}
     public void ReviveAnimation(bool isDeadAnimation)
     {
         _animator.SetBool("Die", isDeadAnimation);
     }
     public void OnAnimationComplete()
     {
-        Debug.Log("Animation Finished!");
+        //Debug.Log("Animation Finished!");
         onAnimationComplete();
         // Notify other components or perform logic here
     }
@@ -76,24 +76,25 @@ public class CharacterAnimator : MonoBehaviour
     {
         Debug.Log("Dead Animation Finished!");
         onAnimationComplete();
-        // Notify other components or perform logic here
     }
-    public void AnimationHitComplete()
+    public void HitComplete()
     {
-        onAnimationComplete();
-        // Notify other components or perform logic here
+        Debug.Log("Hit Finished");
+        OnHitComplete();
+    }
+    public void HurtComplete()
+    {
+        Debug.Log("Hurt Finished");
+        OnHurtComplete();
     }
     public void AnimationCompleteGeneric()
     { 
     
     }
-
     public void TriggerHurt()
     {
-        Debug.Log("Animation Triggered");
         _animator.SetTrigger("Hurt");
     }
-
     public void TriggerHit()
     {
         _animator.SetTrigger("Hit");
