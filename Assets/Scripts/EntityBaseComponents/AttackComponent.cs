@@ -41,7 +41,9 @@ public class AttackComponent : MonoBehaviour, IActionEffect
             case ActionState.WaitingAnimation:
                 if (!stateStarted)
                 {
+                    gridObject.GetEntity().SetIsBusy(true);
                     stateStarted = true;
+                    
                     Debug.Log("EnteringAnimationState");
                     characterAnimator.onAnimationComplete += OnLocalAnimationComplete;
                     characterAnimator.TriggerAttack();
@@ -54,6 +56,7 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                     Debug.Log("EnteringCalculousState");
                     stateStarted = true;
                     WhichAttacksSucessful();
+                    
                     if (isRangedAttack) 
                     { 
                         characterAnimator.ShootBullet();
@@ -111,7 +114,7 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                     }
                     
                 }
-
+                
                 if (pendingSignals == 0)
                 {
                     TransitionTo(ActionState.ApplyEffect);
@@ -123,9 +126,9 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                 {
                     stateStarted = true;
                     ApplyFinalDamage();
-                    WaitForSignal(); // For damage numbers
-                    WaitForSignal(); // For camera shake
-                                     // These must call SignalComplete()
+                    //WaitForSignal(); // For damage numbers
+                    //WaitForSignal(); // For camera shake
+                    // These must call SignalComplete()
                 }
 
                 if (pendingSignals == 0)
@@ -216,6 +219,14 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                 {
                     entityWasHurt.Add(entity, true);
                 }
+                else 
+                {
+                    entityWasHurt.Add(entity, false);
+                }
+            }
+            if (entity == null) 
+            {
+                Debug.LogWarning("Null Objective");
             }
         }
     }
@@ -235,7 +246,7 @@ public class AttackComponent : MonoBehaviour, IActionEffect
         }
         Debug.Log("Miss");
     }
-    public void ApplyFinalDamage()
+    public void ApplyFinalDamage() // A revisión
     {
         Entity targetEntity = targetedObjectsInGrid[0].GetEntity();
 
@@ -249,12 +260,12 @@ public class AttackComponent : MonoBehaviour, IActionEffect
 
     public void Play(Action onComplete)
     {
-        ResetAttack();
         this.onComplete = onComplete;
     }
 
     public void CompleteEffect()
     {
+        ResetAttack();
         onComplete?.Invoke();
     }
 
@@ -300,20 +311,8 @@ public class AttackComponent : MonoBehaviour, IActionEffect
         attackRoll = 0;
         damageRoll = 0;
 
-        onComplete = null;
         pendingSignals = 0;
         stateStarted = false;
         State = ActionState.NotInActionYet;
-
-        // Optional: detach any lingering animator events (for safety)
-        foreach (var entity in targetedEntities)
-        {
-            var anim = entity?.GetComponentInChildren<CharacterAnimator>();
-            if (anim != null)
-            {
-                //anim.OnHitComplete = null;
-                //anim.OnHurtComplete = null;
-            }
-        }
     }
 }

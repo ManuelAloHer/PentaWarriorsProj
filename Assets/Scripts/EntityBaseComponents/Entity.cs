@@ -50,7 +50,8 @@ public class Entity : MonoBehaviour
     public Sprite sprite;
     public CharacterAnimator characterAnimator;
 
-    private bool isBusy = false;
+    [Header("Is Busy")]
+    [SerializeField] private bool isBusy = false;
     public bool IsBusy { get { return isBusy; } }
 
     public IController Controller;

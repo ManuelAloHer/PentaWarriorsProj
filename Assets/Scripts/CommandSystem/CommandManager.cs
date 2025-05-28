@@ -59,7 +59,7 @@ public class CommandManager : MonoBehaviour
     }
     public void AddAttackCommand(Entity attacker, Vector3Int selectedGridPoint, ObjectInGrid target)// List<PathNode> path) // It could be necesary to calculate a path for the proyectile if we go that far
     {
-        currentCommand = new Command(attacker, selectedGridPoint, CommandType.Attack,null);
+        currentCommand = new Command(attacker, selectedGridPoint, CommandType.Attack, attacker.gridObject.attackComponent);
         currentCommand.target.Add(target);
         //currentCommand.path = path;
     }
@@ -123,8 +123,9 @@ public class CommandManager : MonoBehaviour
     private void ExecuteAttackCommand()
     {
         Entity caster = currentCommand.character;
+        caster.SetIsBusy(true);
         caster.gridObject.Attack(currentCommand.selectedGridPoint, currentCommand.target[0]);
-        caster.ConsumeActions(false);
+        currentCommand.effect.Play(caster.ConsumeNormalAction);
         currentCommand = null;
         clearUtility.ClearGridHighlighter(1);
 
