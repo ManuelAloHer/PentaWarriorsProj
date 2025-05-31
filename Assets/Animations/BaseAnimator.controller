@@ -87,7 +87,7 @@ AnimatorStateMachine:
     m_Position: {x: 310, y: 80, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -1507527620144127004}
-    m_Position: {x: 400, y: -180, z: 0}
+    m_Position: {x: 590, y: -240, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 8188939817928364123}
     m_Position: {x: 80, y: -310, z: 0}
@@ -103,6 +103,9 @@ AnimatorStateMachine:
   - serializedVersion: 1
     m_State: {fileID: -7776182745921346736}
     m_Position: {x: -280, y: -300, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: -1721737517773330322}
+    m_Position: {x: 431.55188, y: -335.47247, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions:
   - {fileID: 6427062340031744367}
@@ -294,6 +297,32 @@ AnimatorStateTransition:
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
+--- !u!1102 &-1721737517773330322
+AnimatorState:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ShootAtack
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions: []
+  m_StateMachineBehaviours: []
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 0
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: 7400000, guid: 78cb0b39a14ebe143a6f826b1692a87c, type: 2}
+  m_Tag: 
+  m_SpeedParameter: 
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
 --- !u!1102 &-1507527620144127004
 AnimatorState:
   serializedVersion: 6

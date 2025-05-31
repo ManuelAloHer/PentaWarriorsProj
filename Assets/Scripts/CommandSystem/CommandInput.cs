@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Unity.IO.LowLevel.Unsafe;
+using UnityEditor.Experimental.GraphView;
 using UnityEditor.Search;
 using UnityEngine;
 
@@ -24,6 +25,7 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
     public CommandInputType currentMenuCommand;
 
     public bool cursorNeeded;
+    public int activeNodeAliance = 0;
     public bool showSpecialHighlight = false;
 
     [SerializeField] LayerMask terrainLayerMask;
@@ -198,10 +200,17 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
     {
         cursorNeeded = true;
         Vector3Int gridPosition = controlChecker.targetGrid.GetGridPosition(hit.point);
+        GridNode activeNode = controlChecker.targetGrid.GetNode(gridPosition);
         showSpecialHighlight = showAdE;
-        if (gridPosition != inputCursor.PosOnGrid)
+        if (gridPosition != inputCursor.PosOnGrid && activeNode != null)
         {
             inputCursor.SetPosOnGrid = gridPosition;
+            if (activeNode.entityOcupied == false) 
+            {
+                activeNodeAliance = 0;
+                return true;
+            }
+            activeNodeAliance = (int)activeNode.objectInGrid.GetAliance();
             return true;
         }
         return false;

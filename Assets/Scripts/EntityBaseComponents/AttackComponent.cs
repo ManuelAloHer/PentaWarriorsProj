@@ -46,6 +46,12 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                     
                     Debug.Log("EnteringAnimationState");
                     characterAnimator.onAnimationComplete += OnLocalAnimationComplete;
+                    
+                    if (targetedObjectsInGrid.Count == 1)
+                    {
+                        characterAnimator.targetedObjectInGrid = targetedObjectsInGrid[0];
+                        characterAnimator.rootTargetPos = targetedObjectsInGrid[0].positionInGrid;
+                    }
                     characterAnimator.TriggerAttack();
                 }
                 break;
@@ -55,13 +61,12 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                 {
                     Debug.Log("EnteringCalculousState");
                     stateStarted = true;
-                    WhichAttacksSucessful();
-                    
-                    if (isRangedAttack) 
-                    { 
-                        characterAnimator.ShootBullet();
+                    if (targetedObjectsInGrid.Count > 1)
+                    {
+                        WhichAttacksSucessful();
+                        characterAnimator.FireBalls ();
                     }
-                    TransitionTo(ActionState.WaitForAnimationCompletion);
+                    TransitionTo(ActionState.WaitTargetAnimations);
                 }
                 break;
 
@@ -76,7 +81,7 @@ public class AttackComponent : MonoBehaviour, IActionEffect
             //        //characterAnimator.OnImpactComplete += SignalComplete;
             //        //TriggerHitVFX(); // will call SignalComplete
             //    }
-            case ActionState.WaitForAnimationCompletion:
+            case ActionState.WaitTargetAnimations:
                 if (!stateStarted)
                 {
                     stateStarted = true;
@@ -133,6 +138,7 @@ public class AttackComponent : MonoBehaviour, IActionEffect
 
                 if (pendingSignals == 0)
                 {
+                    characterAnimator.rootTargetPos = new Vector3Int(-1,-1,-1);
                     TransitionTo(ActionState.Complete);
                 }
                 break;
@@ -199,6 +205,7 @@ public class AttackComponent : MonoBehaviour, IActionEffect
     public void AttackGridTarget(ObjectInGrid target, int attackThrowValue, int damageRoll, bool rangedAttack)
     {
         RotateCharacter(target.transform.position);
+        characterAnimator.rootTargetPos= target.positionInGrid;
         State = ActionState.WaitingAnimation;
         DebugState = State;
         targetedObjectsInGrid.Add(target);
@@ -209,6 +216,7 @@ public class AttackComponent : MonoBehaviour, IActionEffect
     public void WhichAttacksSucessful()
     {
         targetedEntities.Clear();
+        Debug.Log(targetedObjectsInGrid.Count);
         foreach (ObjectInGrid target in targetedObjectsInGrid)
         {
             Entity entity = target.GetEntity();
@@ -237,8 +245,6 @@ public class AttackComponent : MonoBehaviour, IActionEffect
         if (targetedEntities[0] == null)
         {
             return;
-
-
         }
         if (attackRoll >= targetedEntities[0].GetDefenseValue())
         {
@@ -274,7 +280,8 @@ public class AttackComponent : MonoBehaviour, IActionEffect
         characterAnimator.onAnimationComplete -= OnLocalAnimationComplete;
         stateStarted = false;
         Debug.Log("StateCompleted");
-        TransitionTo(ActionState.CalculatingEffect);
+        if (targetedObjectsInGrid.Count == 1) { TransitionTo(ActionState.WaitTargetAnimations); }
+        else { TransitionTo(ActionState.CalculatingEffect); }
     }
     private void OnHurtComplete(Entity entity)
     {

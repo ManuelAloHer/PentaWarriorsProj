@@ -190,3 +190,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7554ff1d1f976c4ca95fc3aeeac91d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  trailRenderer: {fileID: 8534579952086522156}
+  bulletHitVfxPrefab: {fileID: 0}

@@ -6,10 +6,11 @@ using UnityEngine;
 public class Marker : MonoBehaviour // Añadir un posible circulo para controlar rendierizado tiene que salvar de no renderizar a entities Terrain y ¿VisibleObstacles?
 {
     [SerializeField] Transform marker;
-
+    [SerializeField] MeshRenderer markerRenderer;
     [SerializeField] CommandInput commandInput;
     [SerializeField] InputController inputControl;
     [SerializeField] GridHighlight AdEHighLighter;
+    [SerializeField] Material[] markerMaterials;
 
     Vector3Int currentPosition;
     bool activeCursor;
@@ -41,6 +42,8 @@ public class Marker : MonoBehaviour // Añadir un posible circulo para controlar 
     {
         Vector3 worldPosition = targetGrid.GetWorldPosition(currentPosition.x, currentPosition.y, currentPosition.z);
         marker.position = worldPosition;
-    
+        markerRenderer.material = markerMaterials[commandInput.activeNodeAliance];
+
+
     }
 }

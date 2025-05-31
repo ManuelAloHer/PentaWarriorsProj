@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public enum SpecialHability {None= 0,Hab1 = 1, Hab2 = 2, Hab3 = 3}
 
@@ -10,6 +12,9 @@ public class CharacterAnimator : MonoBehaviour
     public Animator _animator;
     public List<GameObject> projectiles;
     public GameObject shootingPoint;
+    public Vector3Int rootTargetPos;
+    public ObjectInGrid targetedObjectInGrid;
+
     //public Animation attackA
 
     public Action onAnimationComplete;
@@ -29,13 +34,33 @@ public class CharacterAnimator : MonoBehaviour
     }
     public void TriggerAttack()
     {
+
         _animator.SetTrigger("Attack");
     }
-    public void ShootBullet() 
+    public void TriggerShootEffect()//, ShootAction.OnShootEventArgs e)
     {
-        Instantiate(projectiles[0], shootingPoint.transform.position,Quaternion.identity);
+
+        Transform bulletProjectileTransform = Instantiate(projectiles[0], shootingPoint.transform.position, Quaternion.identity).transform;
+        
+        Projectile bulletProjectile = bulletProjectileTransform.GetComponent<Projectile>();
+
+        Vector3Int targetPos = rootTargetPos;
+        if (targetedObjectInGrid.objectDimensions.z > 1) 
+        {
+            targetPos += new Vector3Int(0, 0, 1);
+        }
+
+        Vector3 targetShootAtPosition = new Vector3(targetPos.x, targetPos.z, targetPos.y);
+
+        bulletProjectile.Setup(targetShootAtPosition);
     }
-    public void ShootFireProyectil()
+
+
+    public void ShootBullet()
+    {
+
+    }
+    public void FireBalls()
     {
 
     }
