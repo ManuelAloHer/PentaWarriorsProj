@@ -112,6 +112,14 @@ public class CharacterAnimator : MonoBehaviour
         Debug.Log("Hurt Finished");
         OnHurtComplete();
     }
+
+    public void GeneratePopUp(bool positive, string text)
+    {
+        Color colorToUse = new Color(1f, 0f, 0f, 1f); ;
+        if (positive) { colorToUse = new Color(0f, 1f, 0f, 1f); }
+        PopUpGenerator.currentIntance.CreatePopUp(transform.position, text, colorToUse);
+    }
+
     public void AnimationCompleteGeneric()
     { 
     

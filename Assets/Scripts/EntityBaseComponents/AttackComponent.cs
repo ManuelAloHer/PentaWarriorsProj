@@ -51,6 +51,7 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                     {
                         characterAnimator.targetedObjectInGrid = targetedObjectsInGrid[0];
                         characterAnimator.rootTargetPos = targetedObjectsInGrid[0].positionInGrid;
+                        WasSingleAttackSucessful();
                     }
                     characterAnimator.TriggerAttack();
                 }
@@ -64,7 +65,7 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                     if (targetedObjectsInGrid.Count > 1)
                     {
                         WhichAttacksSucessful();
-                        characterAnimator.FireBalls ();
+                        characterAnimator.FireBalls();
                     }
                     TransitionTo(ActionState.WaitTargetAnimations);
                 }
@@ -130,7 +131,32 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    ApplyFinalDamage();
+                    
+                    foreach (var entity in targetedEntities)
+                    {
+                        if (entity == null) continue;
+                        WaitForSignal();
+
+                        var animator = entity.GetComponentInChildren<CharacterAnimator>();
+                        if (animator != null)
+                        {
+                            if (entityWasHurt.TryGetValue(entity, out bool wasHurt))
+                            {
+                                if (wasHurt)
+                                {
+                                    ApplyFinalDamage(entity,animator);
+
+                                }
+                                else
+                                {
+                                    animator.GeneratePopUp(false, "Miss");
+                                    SignalComplete();
+                                    Debug.Log("Not Even a Scratck");
+                                }
+                            }
+                        }
+                    }
+                    
                     //WaitForSignal(); // For damage numbers
                     //WaitForSignal(); // For camera shake
                     // These must call SignalComplete()
@@ -250,18 +276,19 @@ public class AttackComponent : MonoBehaviour, IActionEffect
         {
             entityWasHurt.Add(targetedEntities[0], true);
         }
-        Debug.Log("Miss");
-    }
-    public void ApplyFinalDamage() // A revisión
-    {
-        Entity targetEntity = targetedObjectsInGrid[0].GetEntity();
-
-        if (targetEntity == null)
+        else 
         {
-            targetedObjectsInGrid[0].GetComponent<HealthConcentComp>().HealthLoss(damageRoll);
+            entityWasHurt.Add(targetedEntities[0], false);
+            Debug.Log("Miss");
         }
+        
+    }
+    public void ApplyFinalDamage(Entity targetEntity,CharacterAnimator animator) // A revisión
+    {
         damageRoll = targetEntity.GetFinalDmg(damageRoll, mainAttackNature);
+        animator.GeneratePopUp(false, damageRoll.ToString());
         targetEntity.healthComponent.HealthLoss(damageRoll);
+        SignalComplete();
     }
 
     public void Play(Action onComplete)

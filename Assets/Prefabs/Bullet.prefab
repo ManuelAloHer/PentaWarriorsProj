@@ -142,7 +142,7 @@ TrailRenderer:
     generateLightingData: 0
   m_MinVertexDistance: 0.01
   m_MaskInteraction: 0
-  m_Autodestruct: 0
+  m_Autodestruct: 1
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
 --- !u!1 &5470555387889476776
@@ -191,4 +191,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trailRenderer: {fileID: 8534579952086522156}
-  bulletHitVfxPrefab: {fileID: 0}
+  bulletHitVfxPrefab: {fileID: 8498646072011602157, guid: 221529b627ba2a14da0d2115a64093bf, type: 3}
