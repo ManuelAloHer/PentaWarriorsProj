@@ -16,6 +16,7 @@ public class GridMap : MonoBehaviour
     [SerializeField] LayerMask interactiveObstacleLayer;
     [SerializeField] LayerMask entityLayer;
     [SerializeField] LayerMask terrainLayer;
+    [SerializeField] bool seeGizmos = false;
 
     public int Width { get {return width; } }
     public int Lenght { get { return lenght; } }
@@ -119,6 +120,7 @@ public class GridMap : MonoBehaviour
     }
     private void OnDrawGizmos()
     {
+        if (!seeGizmos) { return; }
         if (grid == null)
         {
             for (int x = 0; x < width; x++)
@@ -135,7 +137,7 @@ public class GridMap : MonoBehaviour
             }
             //return; 
         }
-        else
+        else 
         {
             for (int x = 0; x < width; x++)
             {

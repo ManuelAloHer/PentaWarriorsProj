@@ -20,10 +20,12 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     public Entity selectedEntity;
     public Entity targetedEntity;
     public CommandType readyCommand;
+    List<PathNode> path;
 
     [SerializeField] LayerMask terrainLayerMask;
     [SerializeField] LayerMask entityLayerMask;
     [SerializeField] LayerMask obstacleLayers;
+    [SerializeField] Pathfinding pathfinding;
     [SerializeField] ClearUtility clearUtility;
 
     public void SetCommandType(CommandType commandType)
@@ -33,6 +35,8 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     public void InitCommand()
     {
         controlChecker.CheckTransitableTerrain(selectedEntity.gridObject);
+        Debug.Log("Setting Path");
+       
     }
 
     void Awake()
@@ -111,9 +115,12 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     private void MoveCommandInput()
     {
         Vector3Int PlaceToMove = targetedEntity.gridObject.positionInGrid;
+        path = controlChecker.possibleNodes;
         PlaceToMove = controlChecker.CheckForNodeNearestPointInPossibleNodes(PlaceToMove, selectedEntity.gridObject.positionInGrid);
-        List<PathNode> path = controlChecker.GetPath(PlaceToMove);
-        if (path == null) { return; }
+        path = pathfinding.FindPath(selectedEntity.gridObject.positionInGrid.x, selectedEntity.gridObject.positionInGrid.y, selectedEntity.gridObject.positionInGrid.z,
+                            PlaceToMove.x, PlaceToMove.y, PlaceToMove.z);
+        //List<PathNode> path = controlChecker.GetPath(PlaceToMove);
+        if (path == null) { Debug.Log("Not functional path"); return; }
         commandManager.AddMoveCommand(selectedEntity, PlaceToMove,  path);
         CashAction();
     }

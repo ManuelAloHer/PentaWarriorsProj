@@ -170,7 +170,7 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
 
         Vector3 casterOriginWorld = targetGrid.GetWorldPosition(controlledCharacter.positionInGrid); // Start point
         // Adjust layer mask as needed (e.g., walls, entities, environment)
-        int obstacleMask = LayerMask.GetMask("Obstacle", "VisibleObstacle", "InteractableObstacle","Entity", "EntityBase");
+        int obstacleMask = LayerMask.GetMask("Obstacle", "VisibleObstacle", "InteractableObstacle"); //, "Entity"); "EntityBase");
 
 
         foreach (Vector3Int target in targets)

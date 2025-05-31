@@ -138,17 +138,19 @@ public class Pathfinding : MonoBehaviour
     {
         if (!gridMap.CheckBounderies(startX, startY, startZ) || !gridMap.CheckBounderies(endX, endY, endZ))
         {
-            //Debug.LogError("Start or End position is out of bounds!");
+            Debug.LogError("Start or End position is out of bounds!");
             return null;
         }
         PathNode startNode = pathNodes[startX,startY,startZ];
-        //if(pathNodes.)
         PathNode endNode = pathNodes[endX,endY,endZ];
-        
+
+        HashSet<PathNode> pathOpenSet = new HashSet<PathNode>();
+
         pathOpenList.Clear();
         pathCloseList.Clear();
 
         pathOpenList.Add(startNode);
+        pathOpenSet.Add(startNode);
 
         while (pathOpenList.Count > 0) 
         {
@@ -166,6 +168,7 @@ public class Pathfinding : MonoBehaviour
                 }
             }
             pathOpenList.Remove(currentNode);
+            pathOpenSet.Remove(currentNode);
             pathCloseList.Add(currentNode);
 
             if (currentNode == endNode) 
@@ -195,7 +198,7 @@ public class Pathfinding : MonoBehaviour
 
                 float movementCost = currentNode.gValue + CalculateDistance3D(currentNode, neighbourNodes[i]);
                 
-                HashSet<PathNode> pathOpenSet = new HashSet<PathNode>();
+                //HashSet<PathNode> pathOpenSet = new HashSet<PathNode>();
 
                 if (!pathOpenSet.Contains(neighbourNodes[i])
                     || movementCost < neighbourNodes[i].gValue)
