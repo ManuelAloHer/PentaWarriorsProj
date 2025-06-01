@@ -26,7 +26,7 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
     List<PathNode> path = new List<PathNode>();
     public List<PathNode> possibleNodes = new List<PathNode>(); 
     public List<PathNode> possibleAtackNodes = new List<PathNode>();
-    List<Vector3Int> targetPos;
+    public List<Vector3Int> targetPos;
     Vector3Int origin;
 
     [SerializeField] GridHighlight highlight;
@@ -142,7 +142,7 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
         //List<LineOfSightResult> lineOfSight = FilterLineOfSightWithCover(character,targetPos);
         if (!character.characterAliance.Equals(Aliance.Player))
         {
-            targetPos = FilterOnlyPlayerTargets(targetPos);
+            //targetPos = FilterOnlyPlayerTargets(targetPos);
             return;
         }
         attackHighlight.Hide();

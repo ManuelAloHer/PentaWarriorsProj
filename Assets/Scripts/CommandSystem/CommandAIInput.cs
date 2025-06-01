@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
+using System.Linq;
 
 public class CommandAIInput : MonoBehaviour, IController // This Class functions as a 
 {
@@ -24,10 +25,14 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     public CommandType readyCommand;
     List<PathNode> path;
 
+    List<Entity> currentAlies;
+    List<Entity> currentFoes; 
+
     [SerializeField] LayerMask terrainLayerMask;
     [SerializeField] LayerMask entityLayerMask;
     [SerializeField] LayerMask obstacleLayers;
     [SerializeField] Pathfinding pathfinding;
+    [SerializeField] GridMap grid;
     [SerializeField] ClearUtility clearUtility;
 
     public void SetCommandType(CommandType commandType)
@@ -68,7 +73,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
                 if (firstExecution) 
                 {
                     controlChecker.SetPossibleNodesToNull();
-                    ChoseMoveOrAttack();
+                    ChoseTarget();
                     SetCommandType(CommandType.Move);
                     InitCommand();
                     firstExecution = false;
@@ -115,11 +120,40 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
 
     }
 
+    private void ChoseTarget()
+    {
+        throw new NotImplementedException();
+    }
+    private void GetAllEnitities()
+    {
+        currentAlies = BattleManager.Instance.GetEntitiesByAliance(Aliance.Enemy);
+        currentFoes = BattleManager.Instance.GetEntitiesByAliance(Aliance.Player);
+        
+    }
+    public List<Entity> GetAllPlayerEntities() 
+    {
+        return BattleManager.Instance.GetEntitiesByAliance(Aliance.Player);
+    }
+
     private void ChoseMoveOrAttack()
     {
 
-        controlChecker.CalculateSingleTargetArea(selectedEntity, Aliance.Player);
-        
+        targetedEntity = FindBestAttackTarget(selectedEntity);
+
+        if (targetedEntity != null)
+        {
+            SetCommandType(CommandType.Attack);
+            Debug.Log($"{selectedEntity.name} will ATTACK {targetedEntity.name}");
+        }
+        else
+        {
+            targetedEntity = FindClosestTarget(selectedEntity); // fallback
+            SetCommandType(CommandType.Move);
+            Debug.Log($"{selectedEntity.name} will MOVE toward {targetedEntity.name}");
+        }
+
+        InitCommand();
+
     }
 
     private void MoveCommandInput()
@@ -140,19 +174,71 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
         commandManager.AddFinishTurnCommand(selectedEntity);
 
     }
-    private void AttackCommandInput(Ray ray, out RaycastHit hit)
+    private void AttackCommandInput()
     {
-        if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
+        if (targetedEntity == null || selectedEntity == null)
+            return;
+
+        Vector3Int targetPos = targetedEntity.gridObject.positionInGrid;
+
+        // Verify still visible
+        controlChecker.CalculateSingleTargetArea(selectedEntity, Aliance.Player);
+        var visibleTargets = controlChecker.FilterLineOfSightTargets(selectedEntity, controlChecker.targetPos, Aliance.Player);
+
+        if (!visibleTargets.Contains(targetPos))
         {
-                    if (selectedEntity == null) { return; }
-                    //ObjectInGrid gridTarget = controlChecker.GetTarget(inputCursor.PosOnGrid);
-                    //if (gridTarget == null || gridTarget.GetAliance() == selectedEntity.gridObject.GetAliance()) { return; }
-                    //commandManager.AddAttackCommand(selectedEntity, inputCursor.PosOnGrid, gridTarget);
-                    CashAction();
+            Debug.Log($"{selectedEntity.name} lost LOS to {targetedEntity.name}.");
+            EndTurnCommandInput();
+            return;
         }
 
+        // Add the attack command
+        commandManager.AddAttackCommand(selectedEntity, targetPos, targetedEntity.gridObject);
+        CashAction();
+
+    }
+    private Entity FindBestAttackTarget(Entity attacker)
+    {
+        List<Entity> possibleTargets = currentAlies;
+        controlChecker.CalculateSingleTargetArea(attacker, Aliance.Player);
+
+        List<Vector3Int> inRange = controlChecker.targetPos;
+        List<Vector3Int> visibleTargets = controlChecker.FilterLineOfSightTargets(attacker, inRange, Aliance.Player);
+
+        Entity bestTarget = null;
+        float bestScore = float.MinValue;
+
+        foreach (Vector3Int pos in visibleTargets)
+        {
+            ObjectInGrid targetObject = grid.GetPlacedObject(pos);
+            if (targetObject == null) continue;
+
+            Entity targetEntity = targetObject.GetEntity();
+            if (targetEntity == null) continue;
+            float score = EvaluateTargetValue(attacker, targetEntity);
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestTarget = targetEntity;
+            }
+        }
+
+        return bestTarget;
     }
 
+    private float EvaluateTargetValue(Entity attacker, Entity target)
+    {
+        // Simple scoring: prioritize lowest health or distance
+        float healthScore = 1f - ((float)target.healthComponent.Health/ target.healthComponent.Health);
+        float distanceScore = 1f / (Vector3Int.Distance(attacker.gridObject.positionInGrid, target.gridObject.positionInGrid) + 1);
+
+        return healthScore + distanceScore * 0.5f;
+    }
+    private Entity FindClosestTarget(Entity entity)
+    {
+        return GetAllPlayerEntities().OrderBy(e => Vector3Int.Distance(e.gridObject.positionInGrid, entity.gridObject.positionInGrid))
+            .FirstOrDefault();
+    }
     private void CashAction()
     {
         if (readyCommand == CommandType.None) { return; }
