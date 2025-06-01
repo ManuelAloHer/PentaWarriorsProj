@@ -76,6 +76,11 @@ public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Obje
         if (entity == null) { return null; }
         return entity;
     }
+    public bool ConfirmEntity()
+    {
+        if (entity == null) { return false; }
+        return true;
+    }
     public Aliance GetAliance() // mustChange
     {
         if (entity == null) { return Aliance.None; }

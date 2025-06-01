@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public class CommandAIInput : MonoBehaviour, IController // This Class functions as a 
 {
@@ -15,6 +16,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
 
     [SerializeField] AIActionState aiExecutionState;
     CommandManager commandManager;
+    
     [SerializeField] ControlChecker controlChecker;
 
     public Entity selectedEntity;
@@ -66,6 +68,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
                 if (firstExecution) 
                 {
                     controlChecker.SetPossibleNodesToNull();
+                    ChoseMoveOrAttack();
                     SetCommandType(CommandType.Move);
                     InitCommand();
                     firstExecution = false;
@@ -110,6 +113,13 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
         //    //InitCommand();
         //}
 
+    }
+
+    private void ChoseMoveOrAttack()
+    {
+
+        controlChecker.CalculateSingleTargetArea(selectedEntity, Aliance.Player);
+        
     }
 
     private void MoveCommandInput()

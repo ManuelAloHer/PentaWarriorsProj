@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 using static UnityEngine.GraphicsBuffer;
 
 
@@ -23,7 +24,8 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
 
 
     List<PathNode> path = new List<PathNode>();
-    public List<PathNode> possibleNodes = new List<PathNode>();
+    public List<PathNode> possibleNodes = new List<PathNode>(); 
+    public List<PathNode> possibleAtackNodes = new List<PathNode>();
     List<Vector3Int> targetPos;
     Vector3Int origin;
 
@@ -100,14 +102,6 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
                         {
                             bool isTransitable = !targetGrid.GetNode(pos).onAir && !targetGrid.GetNode(pos).obstructed;
                             bool hasEntity = targetGrid.CheckEntityRootPresence(pos.x, pos.y, pos.z);
-                            if (!targetAliance.Equals(Aliance.None) && targetGrid.GetAlianceInNode(pos) != Aliance.None)
-                            {
-                                if (!targetAliance.Equals(targetGrid.GetAlianceInNode(pos)))
-                                {
-                                    hasEntity = false;
-                                    
-                                }
-                            }
 
                             if (isTransitable || hasEntity)
                             {
@@ -135,14 +129,6 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
                             bool isTransitable = !targetGrid.GetNode(pos).onAir && !targetGrid.GetNode(pos).obstructed;
                             bool hasEntity = targetGrid.CheckEntityRootPresence(pos.x, pos.y, pos.z);
 
-                            if (!targetAliance.Equals(Aliance.None) && targetGrid.GetAlianceInNode(pos) != Aliance.None)
-                            {
-                                if (!targetAliance.Equals(targetGrid.GetAlianceInNode(pos)))
-                                {
-                                    hasEntity = false;
-                                }
-                            }
-
                             if (isTransitable || hasEntity)
                             {
                                 targetPos.Add(pos);
@@ -152,67 +138,247 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
                 }
             }
         }
-        targetPos = FilterLineOfSightTargets(character, targetPos);
+        targetPos = FilterLineOfSightTargets(character, targetPos,targetAliance);
         //List<LineOfSightResult> lineOfSight = FilterLineOfSightWithCover(character,targetPos);
         if (!character.characterAliance.Equals(Aliance.Player))
         {
-            //AI possible attackPositions
+            targetPos = FilterOnlyPlayerTargets(targetPos);
             return;
         }
         attackHighlight.Hide();
         attackHighlight.Highlight(targetPos);
         highlight.Hide();
     }
-    public List<Vector3Int> FilterLineOfSightTargets(Entity character, List<Vector3Int> targets)
+
+    private List<Vector3Int> FilterOnlyPlayerTargets(List<Vector3Int> targetPos)
     {
-        List<Vector3Int> filtered = new List<Vector3Int>();
+        throw new NotImplementedException();
+    }
+
+    public List<Vector3Int> FilterLineOfSightTargets(Entity character, List<Vector3Int> targets, Aliance targetAliance)
+    {
+        List<Vector3Int> visibleTargets = new List<Vector3Int>();
         ObjectInGrid controlledCharacter = character.GetComponent<ObjectInGrid>();
 
-        Vector3 casterOriginWorld = targetGrid.GetWorldPosition(controlledCharacter.positionInGrid); // Start point
-        // Adjust layer mask as needed (e.g., walls, entities, environment)
-        int obstacleMask = LayerMask.GetMask("Obstacle", "VisibleObstacle", "InteractableObstacle"); //, "Entity"); "EntityBase");
-
-
-        foreach (Vector3Int target in targets)
+        if (controlledCharacter == null || targetGrid == null)
         {
-            Vector3 targetWorld = targetGrid.GetWorldPosition(target);
+            Debug.LogError("Character or targetGrid is null.");
+            return visibleTargets;
+        }
 
-            Vector3 direction = (targetWorld - casterOriginWorld).normalized;
-            float distance = Vector3.Distance(casterOriginWorld, targetWorld);
+        Vector3Int origin = controlledCharacter.positionInGrid;
+        Vector3 originWorld = targetGrid.GetWorldPosition(origin);
 
-            bool blocked = false;
+        int maxRange = character.AttackRange;
+        int obstacleMask = LayerMask.GetMask("Obstacle", "VisibleObstacle", "InteractableObstacle", "Entity", "EntityBase");
 
-            RaycastHit[] hits = Physics.RaycastAll(casterOriginWorld, direction, distance, obstacleMask);
-            foreach (var hit in hits)
+        Queue<(Vector3Int pos, int dist)> frontier = new Queue<(Vector3Int, int)>();
+        HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
+
+        frontier.Enqueue((origin, 0));
+        visited.Add(origin);
+
+        Vector3Int[] directions = new Vector3Int[]
+        {
+        new Vector3Int(1, 0, 0),
+        new Vector3Int(-1, 0, 0),
+        new Vector3Int(0, 1, 0),
+        new Vector3Int(0, -1, 0),
+        new Vector3Int(0, 0, 1),
+        new Vector3Int(0, 0, -1),
+        };
+
+        while (frontier.Count > 0)
+        {
+            var (current, distance) = frontier.Dequeue();
+            if (distance > maxRange)
+                continue;
+
+            if (!targetGrid.CheckBounderies(current))
+                continue;
+
+            if (current != origin)
             {
-                // Check if hit is your own character � ignore it
-                ObjectInGrid hitObject = hit.collider.GetComponentInParent<ObjectInGrid>();
-                if (hitObject != null && hitObject == controlledCharacter)
-                {
-                    continue; // ignore self
-                }
+                Vector3 currentWorld = targetGrid.GetWorldPosition(current);
+                Vector3 dir = (currentWorld - originWorld).normalized;
+                float dist = Vector3.Distance(originWorld, currentWorld);
 
-                // Hit something that blocks LOS
-                blocked = true;
-                Debug.DrawLine(casterOriginWorld, targetWorld, Color.red, 1f);
-                break;
+                // Perform raycast
+                if (Physics.Raycast(originWorld, dir, out RaycastHit hit, dist, obstacleMask))
+                {
+                    ObjectInGrid hitObject = hit.collider.GetComponentInParent<ObjectInGrid>();
+
+                    // Skip self
+                    if (hitObject != null && hitObject == controlledCharacter)
+                        continue;
+
+                    Vector3Int hitGrid = targetGrid.GetGridPosition(hit.point);
+
+                    // If we hit an entity directly on the target cell, check if it's a valid target
+                    if (hitGrid == current)
+                    {
+                        if (targetGrid.CheckEntityRootPresence(current.x, current.y, current.z))
+                        {
+                            Aliance hitAliance = targetGrid.GetAlianceInNode(current);
+                            if (targetAliance == Aliance.None || hitAliance == targetAliance)
+                            {
+                                visibleTargets.Add(current); // valid target
+                            }
+                        }
+                    }
+
+                    // Spread is blocked regardless of what was hit
+                    Debug.DrawLine(originWorld, hit.point, Color.red, 1f);
+                    continue;
+                }
             }
 
-            if (!blocked)
+            // Empty/unblocked tile — add to list
+            if (!visibleTargets.Contains(current))
             {
-                filtered.Add(target);
-                Debug.DrawLine(casterOriginWorld, targetWorld, Color.green, 1f);
+                visibleTargets.Add(current);
+            }
+
+            // Continue spread from here
+            foreach (var dir in directions)
+            {
+                Vector3Int neighbor = current + dir;
+                if (!visited.Contains(neighbor))
+                {
+                    visited.Add(neighbor);
+                    frontier.Enqueue((neighbor, distance + 1));
+                }
             }
         }
 
-        return filtered;
+        return visibleTargets;
+
+
+        //List<Vector3Int> filtered = new List<Vector3Int>();
+        //ObjectInGrid controlledCharacter = character.GetComponent<ObjectInGrid>();
+
+        //Vector3 casterOriginWorld = targetGrid.GetWorldPosition(controlledCharacter.positionInGrid); // Start point
+        //// Adjust layer mask as needed (e.g., walls, entities, environment)
+        //int obstacleMask = LayerMask.GetMask("Obstacle", "VisibleObstacle", "InteractableObstacle", "EntityBase"); //, "Entity"); );
+
+
+        //foreach (Vector3Int target in targets)
+        //{
+        //    Vector3 targetWorld = targetGrid.GetWorldPosition(target);
+        //    Vector3 direction = (targetWorld - casterOriginWorld).normalized;
+        //    float distance = Vector3.Distance(casterOriginWorld, targetWorld);
+
+        //    bool allowTarget = false;
+
+        //    // Determine if the target tile contains a valid entity
+        //    bool targetHasEntity = targetGrid.CheckEntityRootPresence(target.x, target.y, target.z);
+        //    bool isTargetValid = false;
+
+        //    if (targetHasEntity)
+        //    {
+        //        Aliance targetAlianceInGrid = targetGrid.GetAlianceInNode(target);
+        //        if (targetAliance == Aliance.None || targetAlianceInGrid == targetAliance)
+        //        {
+        //            isTargetValid = true;
+        //        }
+        //    }
+
+        //    // RaycastAll to detect any blockers
+        //    RaycastHit[] hits = Physics.RaycastAll(casterOriginWorld, direction, distance, obstacleMask);
+        //    RaycastHit? firstHit = hits.OrderBy(h => h.distance).FirstOrDefault();
+
+        //    if (firstHit.HasValue)
+        //    {
+        //        var hit = firstHit.Value;
+
+        //        ObjectInGrid hitObject = hit.collider ? hit.collider.GetComponentInParent<ObjectInGrid>() : null;
+        //        Vector3Int hitGridPos = targetGrid.GetGridPosition(hit.point);
+
+        //        if (hitObject != null && hitObject == controlledCharacter)
+        //        {
+        //            continue; // ignore self
+        //        }
+
+        //        // If the first hit is on the target cell (entity or tile), accept it
+        //        if (targetGrid.GetGridPosition(hit.point) == target)
+        //        {
+        //            allowTarget = true;
+        //            Debug.DrawLine(casterOriginWorld, targetWorld, Color.green, 1f);
+        //        }
+        //        else
+        //        {
+        //            Debug.DrawLine(casterOriginWorld, hit.point, Color.red, 1f);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        // No hit at all, target is visible
+        //        allowTarget = true;
+        //        Debug.DrawLine(casterOriginWorld, targetWorld, Color.green, 1f);
+        //    }
+
+        //    if (allowTarget || isTargetValid)
+        //    {
+        //        filtered.Add(target);
+        //    }
+        //}
+
+        //return filtered;
+
+        //foreach (Vector3Int target in targets)
+        //{
+        //    Vector3 targetWorld = targetGrid.GetWorldPosition(target);
+
+        //    Vector3 direction = (targetWorld - casterOriginWorld).normalized;
+        //    float distance = Vector3.Distance(casterOriginWorld, targetWorld);
+
+        //    bool blocked = false;
+        //    bool hasEntity = false;
+
+        //    RaycastHit[] hits = Physics.RaycastAll(casterOriginWorld, direction, distance, obstacleMask);
+        //    foreach (var hit in hits)
+        //    {
+        //        // Check if hit is your own character — ignore it
+        //        ObjectInGrid hitObject = hit.collider.GetComponentInParent<ObjectInGrid>();
+        //        if (hitObject != null)
+        //        {
+        //            hasEntity = hitObject.ConfirmEntity();
+        //            if (hitObject == controlledCharacter) 
+        //            {
+        //                continue; // ignore self
+        //            }
+        //            if (!hitObject.GetAliance().Equals(Aliance.None) && targetGrid.GetAlianceInNode(target) != Aliance.None)
+        //            {
+        //                if (!targetAliance.Equals(targetGrid.GetAlianceInNode(target)))
+        //                {
+        //                    hasEntity = false;
+        //                }
+        //            }
+
+        //        }
+
+        //        // Hit something that blocks LOS
+        //        blocked = true;
+
+        //        Debug.DrawLine(casterOriginWorld, targetWorld, Color.red, 1f);
+        //        break;
+        //    }
+
+        //    if (!blocked || hasEntity)
+        //    {
+        //        filtered.Add(target);
+        //        Debug.DrawLine(casterOriginWorld, targetWorld, Color.green, 1f);
+        //    }
+        //}
+
+        //return filtered;
     }
   
     private List<Vector3> GetTargetHitPoints(Vector3Int gridPos)
     {
         Vector3 center = targetGrid.GetWorldPosition(gridPos);
 
-        // Assuming 1x1x3 character � adjust Z offsets accordingly
+        // Assuming 1x1x3 character — adjust Z offsets accordingly
         return new List<Vector3>
         {
         center + new Vector3(0, 0, 0),     // center
@@ -527,11 +693,12 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
     public Vector3Int CheckForNodeNearestPointInPossibleNodes(Vector3Int placeToMove,Vector3Int originPoint)
     {
         List<Vector3Int> positionsToCheck = new List<Vector3Int>();
+        GridNode placeToMoveNode = targetGrid.GetNode(placeToMove);
         foreach (PathNode possible in possibleNodes)
         {
             positionsToCheck.Add(new Vector3Int(possible.pos_x, possible.pos_y, possible.pos_z));
         }
-        if (positionsToCheck.Contains(placeToMove))
+        if (positionsToCheck.Contains(placeToMove) && placeToMoveNode.obstructed)
         {
             return placeToMove;
         }
@@ -542,8 +709,12 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
             float distance = Vector3Int.Distance(placeToMove, pos);
             if (distance < minDistance)
             {
-                minDistance = distance;
-                closest = pos;
+                placeToMoveNode = targetGrid.GetNode(pos);
+                if (placeToMoveNode != null && placeToMoveNode.obstructed != true) 
+                {
+                    minDistance = distance;
+                    closest = pos;
+                }
             }
         }
         return closest;
