@@ -49,6 +49,8 @@ public class Entity : MonoBehaviour
     public Aliance characterAliance = Aliance.None;
     public Sprite sprite;
     public CharacterAnimator characterAnimator;
+    public bool showsInfoOnHovereable = true;
+
 
     [Header("Is Busy")]
     [SerializeField] private bool isBusy = false;

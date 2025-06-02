@@ -52,7 +52,10 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
         controlChecker = GetComponent<ControlChecker>();
         aiExecutionState = AIActionState.WaitingForEnemyInput;
     }
-
+    private void Start()
+    {
+        GetAllEnitities();
+    }
     private void HighlightAttackArea()
     {
         controlChecker.CalculateSingleTargetArea(selectedEntity, Aliance.Player);
@@ -73,9 +76,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
                 if (firstExecution) 
                 {
                     controlChecker.SetPossibleNodesToNull();
-                    ChoseTarget();
-                    SetCommandType(CommandType.Move);
-                    InitCommand();
+                    ChoseMoveOrAttack();
                     firstExecution = false;
                 }
                 if (controlChecker.possibleNodes!= null)
@@ -87,6 +88,11 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
             case AIActionState.TakingTurn:
                 if (firstExecution)
                 {
+                    if (readyCommand == CommandType.Attack)
+                    {
+                        AttackCommandInput();
+                        firstExecution = false;
+                    }
                     if (readyCommand == CommandType.Move)
                     {
                         MoveCommandInput();
@@ -215,6 +221,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
 
             Entity targetEntity = targetObject.GetEntity();
             if (targetEntity == null) continue;
+            if (targetEntity.characterAliance == attacker.characterAliance) { continue; }
             float score = EvaluateTargetValue(attacker, targetEntity);
             if (score > bestScore)
             {

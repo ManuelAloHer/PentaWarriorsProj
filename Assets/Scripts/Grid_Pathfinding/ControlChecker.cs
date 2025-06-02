@@ -236,6 +236,7 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
             // Empty/unblocked tile — add to list
             if (!visibleTargets.Contains(current))
             {
+                if (targetGrid.GetNode(current).onAir && !targetGrid.GetNode(current).entityOcupied) { continue; }
                 visibleTargets.Add(current);
             }
 
