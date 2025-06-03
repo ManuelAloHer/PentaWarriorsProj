@@ -189,7 +189,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
 
         // Verify still visible
         controlChecker.CalculateSingleTargetArea(selectedEntity, Aliance.Player);
-        var visibleTargets = controlChecker.FilterLineOfSightTargets(selectedEntity, controlChecker.targetPos, Aliance.Player);
+        var visibleTargets = controlChecker.FilterLineOfSightTargets(selectedEntity, controlChecker.targetPositions, Aliance.Player);
 
         if (!visibleTargets.Contains(targetPos))
         {
@@ -208,7 +208,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
         List<Entity> possibleTargets = currentAlies;
         controlChecker.CalculateSingleTargetArea(attacker, Aliance.Player);
 
-        List<Vector3Int> inRange = controlChecker.targetPos;
+        List<Vector3Int> inRange = controlChecker.targetPositions;
         List<Vector3Int> visibleTargets = controlChecker.FilterLineOfSightTargets(attacker, inRange, Aliance.Player);
 
         Entity bestTarget = null;
