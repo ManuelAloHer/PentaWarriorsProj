@@ -164,14 +164,57 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
 
     private void MoveCommandInput()
     {
-        Vector3Int PlaceToMove = targetedEntity.gridObject.positionInGrid;
-        path = controlChecker.possibleNodes;
-        PlaceToMove = controlChecker.CheckForNodeNearestPointInPossibleNodes(PlaceToMove, selectedEntity.gridObject.positionInGrid);
-        path = pathfinding.FindPath(selectedEntity.gridObject.positionInGrid.x, selectedEntity.gridObject.positionInGrid.y, selectedEntity.gridObject.positionInGrid.z,
-                            PlaceToMove.x, PlaceToMove.y, PlaceToMove.z);
-        //List<PathNode> path = controlChecker.GetPath(PlaceToMove);
-        if (path == null) { Debug.Log("Not functional path"); return; }
-        commandManager.AddMoveCommand(selectedEntity, PlaceToMove,  path);
+        //Debug.Log("In to Move Command " + selectedEntity.CharacterName);
+        //Vector3Int PlaceToMove = targetedEntity.gridObject.positionInGrid;
+        //path = controlChecker.possibleNodes;
+        //PlaceToMove = controlChecker.CheckForNodeNearestPointInPossibleNodes(PlaceToMove, selectedEntity.gridObject.positionInGrid);
+        //path = pathfinding.FindPath(selectedEntity.gridObject.positionInGrid.x, selectedEntity.gridObject.positionInGrid.y, selectedEntity.gridObject.positionInGrid.z,
+        //                    PlaceToMove.x, PlaceToMove.y, PlaceToMove.z);
+        ////List<PathNode> path = controlChecker.GetPath(PlaceToMove);
+        //if (path == null) { Debug.Log("Not functional path"); return; }
+        //commandManager.AddMoveCommand(selectedEntity, PlaceToMove,  path);
+        //CashAction();
+
+        Vector3Int targetPos = targetedEntity.gridObject.positionInGrid;
+        Vector3Int origin = selectedEntity.gridObject.positionInGrid;
+
+        // 1. Generate all possible movement nodes
+        controlChecker.CheckTransitableTerrain(selectedEntity.gridObject);
+        List<PathNode> possiblePositions = controlChecker.possibleNodes;
+
+        // 2. Find closest tile to target (as before)
+        Vector3Int destination = controlChecker.CheckForNodeNearestPointInPossibleNodes(targetPos, origin);
+
+        // 3. If a tile exists within attack range AND has LOS, prefer stopping there
+        int attackRange = selectedEntity.AttackRange;
+
+        foreach (PathNode pos in possiblePositions)
+        {
+            int dist = Mathf.Abs(pos.pos_x - targetPos.x) + Mathf.Abs(pos.pos_y - targetPos.y) + Mathf.Abs(pos.pos_z - targetPos.z);
+            if (dist <= attackRange)
+            {
+                Vector3Int possibleDestiny = new Vector3Int(pos.pos_x, pos.pos_y, pos.pos_z);
+                List<Vector3Int> visibleFromThisTile = controlChecker.CalculateSingleTargetAreaAtPosition(possibleDestiny, attackRange, selectedEntity, Aliance.Player);
+                if (visibleFromThisTile.Contains(targetPos))
+                {
+                    Debug.Log($"Stopping early at {pos} — in range & LOS to target.");
+                    destination = possibleDestiny;
+                    break;
+                }
+            }
+        }
+
+        // 4. Path to chosen destination
+        path = pathfinding.FindPath(origin.x, origin.y, origin.z, destination.x, destination.y, destination.z);
+        if (path == null)
+        {
+            Debug.LogWarning($"AI {selectedEntity.name} couldn't path to {destination}");
+            EndTurnCommandInput();
+            return;
+        }
+
+        // 5. Execute move
+        commandManager.AddMoveCommand(selectedEntity, destination, path);
         CashAction();
     }
     public void EndTurnCommandInput()

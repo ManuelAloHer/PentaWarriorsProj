@@ -37,6 +37,16 @@ public class CharacterAnimator : MonoBehaviour
 
         _animator.SetTrigger("Attack");
     }
+    public void ChangeRangedAttack(bool newRange)
+    {
+        _animator.SetBool("RangedAttack", newRange);
+    }
+    public void SetDeath(bool isDead)
+    {
+        Debug.Log("Is so Dead");
+        _animator.SetBool("Die",isDead);
+        _animator.SetTrigger("TriggerDeath");
+    }
     public void TriggerShootEffect()//, ShootAction.OnShootEventArgs e)
     {
 
@@ -134,4 +144,9 @@ public class CharacterAnimator : MonoBehaviour
     }
     public void NotifyHitComplete() => OnHitComplete?.Invoke();
     public void NotifyHurtComplete() => OnHurtComplete?.Invoke();
+
+    internal void TriggerDeath()
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -192,6 +192,7 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
 
             if (!targetGrid.CheckBounderies(current))
                 continue;
+            bool somethingDied = false;
 
             if (current != origin)
             {
@@ -207,7 +208,12 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
                     // Skip self
                     if (hitObject != null && hitObject == controlledCharacter)
                         continue;
-
+                    //SkipDead
+                    if (hitObject != null && hitObject.CheckIfSomethingDead())
+                    {
+                        somethingDied = true;
+                        continue;
+                    }
                     Vector3Int hitGrid = targetGrid.GetGridPosition(hit.point);
 
                     // If we hit an entity directly on the target cell, check if it's a valid target
@@ -216,7 +222,7 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
                         if (targetGrid.CheckEntityRootPresence(current.x, current.y, current.z))
                         {
                             Aliance hitAliance = targetGrid.GetAlianceInNode(current);
-                            if (targetAliance == Aliance.None || hitAliance == targetAliance)
+                            if (targetAliance == Aliance.None || hitAliance == targetAliance && !somethingDied)
                             {
                                 visibleTargets.Add(current); // valid target
                             }
@@ -421,6 +427,7 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
 
         Vector3 originWorld = targetGrid.GetWorldPosition(origin);
 
+        
         int maxRange = character.AttackRange;
         int obstacleMask = LayerMask.GetMask("Obstacle", "VisibleObstacle", "InteractableObstacle", "Entity", "EntityBase");
 
@@ -449,6 +456,7 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
             if (!targetGrid.CheckBounderies(current))
                 continue;
 
+            bool somethingDied = false;
             if (current != origin)
             {
                 Vector3 currentWorld = targetGrid.GetWorldPosition(current);
@@ -464,7 +472,13 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
                     // Skip self
                     if (hitObject != null && hitObject == controlledCharacter)
                         continue;
-
+                    //SkipDead
+                    if (hitObject != null && hitObject.CheckIfSomethingDead()) 
+                    {
+                        somethingDied = true;
+                        continue;
+                    }
+                        
                     Vector3Int hitGrid = targetGrid.GetGridPosition(hit.point);
 
                     // If we hit an entity directly on the target cell, check if it's a valid target
@@ -473,7 +487,7 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
                         if (targetGrid.CheckEntityRootPresence(current.x, current.y, current.z))
                         {
                             Aliance hitAliance = targetGrid.GetAlianceInNode(current);
-                            if (targetAliance == Aliance.None || hitAliance == targetAliance)
+                            if (targetAliance == Aliance.None || hitAliance == targetAliance && !somethingDied)
                             {
                                 visibleTargets.Add(current); // valid target
                             }

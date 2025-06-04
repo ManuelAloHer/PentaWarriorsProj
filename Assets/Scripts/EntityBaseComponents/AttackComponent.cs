@@ -105,6 +105,7 @@ public class AttackComponent : MonoBehaviour, IActionEffect
 
                                     animator.OnHurtComplete += handler;
                                     animator.TriggerHurt();
+                                    
                                 }
                                 else
                                 {
@@ -145,7 +146,6 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                                 if (wasHurt)
                                 {
                                     ApplyFinalDamage(entity,animator);
-
                                 }
                                 else
                                 {
@@ -288,6 +288,10 @@ public class AttackComponent : MonoBehaviour, IActionEffect
         damageRoll = targetEntity.GetFinalDmg(damageRoll, mainAttackNature);
         animator.GeneratePopUp(false, damageRoll.ToString());
         targetEntity.healthComponent.HealthLoss(damageRoll);
+        if (targetEntity.healthComponent.Health <= 0)
+        {
+            animator.SetDeath(true);
+        }
         SignalComplete();
     }
 

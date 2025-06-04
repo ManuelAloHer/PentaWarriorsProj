@@ -76,6 +76,16 @@ public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Obje
         if (entity == null) { return null; }
         return entity;
     }
+    public bool CheckIfSomethingDead() 
+    {
+        bool somethingDead = false;
+        if (entity == null) { return somethingDead; }
+        somethingDead = !entity.IsAlive();
+        Debug.Log(entity.CharacterName + ": is dead? " + somethingDead);
+        return somethingDead;
+
+    }
+
     public bool ConfirmEntity()
     {
         if (entity == null) { return false; }

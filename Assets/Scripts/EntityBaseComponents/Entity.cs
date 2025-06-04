@@ -97,7 +97,10 @@ public class Entity : MonoBehaviour
         movementPoints = 5 * (agility + modAgility);
         gridObject.movementPoints = movementPoints;
     }
-
+    private void Update()
+    {
+        characterAnimator.ChangeRangedAttack(rangedBasedAttack);
+    }
     void FixedUpdate()
     {
         UpdateMovementPoints();
@@ -114,7 +117,7 @@ public class Entity : MonoBehaviour
     }
 
     void Damaged() 
-    { 
+    {
         
     }
     void Healed()
