@@ -232,7 +232,7 @@ public class Entity : MonoBehaviour
 
     public int CheckMainDmgTrow()
     {
-        int dmg = diceLaucher.d6DiceTrow(strenght + modStrenght);
+        int dmg = diceLaucher.d6DiceThrow(strenght + modStrenght);
         return dmg; 
     }
 
