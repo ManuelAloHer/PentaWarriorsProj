@@ -550,8 +550,8 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
     {
         ObjectInGrid controlledCharacter = character.GetComponent<ObjectInGrid>();
 
-        Vector3Int origin = controlledCharacter.positionInGrid;
 
+        Vector3Int origin = controlledCharacter.positionInGrid;
         if (targetPositions == null)
         {
             targetPositions = new List<Vector3Int>();
@@ -560,6 +560,9 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
         {
             targetPositions.Clear();
         }
+
+        if (character.rangedBasedAttack)
+        {
             int attackRange = character.AttackRange;
             for (int x = -attackRange; x <= attackRange; x++)
             {
@@ -576,24 +579,22 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
                         {
                             bool isTransitable = !targetGrid.GetNode(pos).onAir && !targetGrid.GetNode(pos).obstructed;
                             bool hasEntity = targetGrid.CheckEntityRootPresence(pos.x, pos.y, pos.z);
-                        if (!targetAliance.Equals(Aliance.None) && targetGrid.GetAlianceInNode(pos) != Aliance.None)
-                        {
-                            if (!targetAliance.Equals(targetGrid.GetAlianceInNode(pos)))
-                            {
-                                hasEntity = false;
-                            }
-                        }
-                        if (isTransitable || hasEntity)
+
+                            if (isTransitable || hasEntity)
                             {
                                 targetPositions.Add(pos);
+
                             }
                         }
                     }
                 }
             }
+        }
+        targetPositions = FilterLineOfSightTargets(character, targetPositions, targetAliance);
+        //List<LineOfSightResult> lineOfSight = FilterLineOfSightWithCover(character,targetPos);
         if (!character.characterAliance.Equals(Aliance.Player))
         {
-            // AI possible attackPositions
+            //targetPos = FilterOnlyPlayerTargets(targetPos);
             return;
         }
         attackHighlight.Hide();
@@ -604,32 +605,26 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
     public List<ObjectInGrid> MultipleTargetSelected(Entity caster,Vector3Int originOfEffect, Aliance targetAliance)
     {
         List<ObjectInGrid> targets = new List<ObjectInGrid>();
-            int attackRange = caster.AttackRange;
-            for (int x = -attackRange; x <= attackRange; x++)
+            
+            for (int x = -2; x <= 2; x++)
             {
-                for (int y = -attackRange; y <= attackRange; y++)
+                for (int y = -2; y <= 2; y++)
                 {
-                    for (int z = -attackRange; z <= attackRange; z++)
+                    for (int z = -2; z <= 2; z++)
                     {
                         int distance = Mathf.Abs(x) + Mathf.Abs(y) + Mathf.Abs(z);
-                        if (distance > attackRange) { continue; }
+                        if (distance > 2) { continue; }
 
-                        Vector3Int pos = origin + new Vector3Int(x, y, z);
+                        Vector3Int pos = originOfEffect + new Vector3Int(x, y, z);
 
                         if (targetGrid.CheckBounderies(pos) == true)
                         {
-                            bool isTransitable = !targetGrid.GetNode(pos).onAir && !targetGrid.GetNode(pos).obstructed;
-                            bool hasEntity = targetGrid.CheckEntityRootPresence(pos.x, pos.y, pos.z);
-                        if (!targetAliance.Equals(Aliance.None) && targetGrid.GetAlianceInNode(pos) != Aliance.None)
-                        {
-                            if (!targetAliance.Equals(targetGrid.GetAlianceInNode(pos)))
+                            bool isTransitable = !targetGrid.GetNode(pos).onAir;
+                            bool hasEntity = targetGrid.GetNode(pos).entityOcupied;
+                        
+                            if (hasEntity && isTransitable)
                             {
-                                hasEntity = false;
-                            }
-                        }
-
-                        if (hasEntity)
-                            {
+                                Debug.Log(hasEntity + "for pos: " + pos.x + " " + pos.y + " " + pos.z);
                                 ObjectInGrid target = targetGrid.GetNode(pos).objectInGrid;
                                 targets.Add(target);
                             }

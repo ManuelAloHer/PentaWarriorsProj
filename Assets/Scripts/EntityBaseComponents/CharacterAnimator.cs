@@ -47,15 +47,32 @@ public class CharacterAnimator : MonoBehaviour
         _animator.SetBool("Die",isDead);
         _animator.SetTrigger("TriggerDeath");
     }
+
+
+
+    public void OtherEffectsSpawn(int EffectToSpawn) 
+    { 
+    
+    
+    }
+
+
     public void TriggerShootEffect()//, ShootAction.OnShootEventArgs e)
     {
+        ShootProjectile(0);
+    }
+    public void FireBalls()
+    {
+        ShootProjectile(1);
+    }
+    private void ShootProjectile(int projIndex)
+    {
+        Transform bulletProjectileTransform = Instantiate(projectiles[projIndex], shootingPoint.transform.position, Quaternion.identity).transform;
 
-        Transform bulletProjectileTransform = Instantiate(projectiles[0], shootingPoint.transform.position, Quaternion.identity).transform;
-        
         Projectile bulletProjectile = bulletProjectileTransform.GetComponent<Projectile>();
 
         Vector3Int targetPos = rootTargetPos;
-        if (targetedObjectInGrid.objectDimensions.z > 1) 
+        if (targetedObjectInGrid != null && targetedObjectInGrid.objectDimensions.z > 1)
         {
             targetPos += new Vector3Int(0, 0, 1);
         }
@@ -65,15 +82,6 @@ public class CharacterAnimator : MonoBehaviour
         bulletProjectile.Setup(targetShootAtPosition);
     }
 
-
-    public void ShootBullet()
-    {
-
-    }
-    public void FireBalls()
-    {
-
-    }
     public void TriggerSpecialHab(SpecialHability specialHab) 
     {
         _animator.SetFloat("SpecialHabSelected", (float)specialHab);

@@ -19,7 +19,7 @@ public class Command
     public Vector3Int selectedGridPoint;
     public CommandType commandType;
     public IActionEffect effect;
-    //public ICommandInputStage inputStage;
+    public SpecialHability specialHability;
 
     //Specific variables of one or more Commands
     public List<PathNode> path = null;
@@ -63,10 +63,11 @@ public class CommandManager : MonoBehaviour
         currentCommand.target.Add(target);
         //currentCommand.path = path;
     }
-    public void AddAttackOnAreaCommand(Entity attacker, Vector3Int selectedGridPoint, List<ObjectInGrid> targets)
+    public void AddAttackOnAreaCommand(Entity attacker, Vector3Int selectedGridPoint, List<ObjectInGrid> targets,SpecialHability specialHability)
     {
-        currentCommand = new Command(attacker, selectedGridPoint, CommandType.AtkOnArea, null);
+        currentCommand = new Command(attacker, selectedGridPoint, CommandType.AtkOnArea, attacker.gridObject.attackComponent);
         currentCommand.target = targets;
+        currentCommand.specialHability = specialHability;
 
     }
     public void AddFinishTurnCommand(Entity character)
@@ -132,16 +133,12 @@ public class CommandManager : MonoBehaviour
     }
     private void ExecuteAttackOnAreaCommand()
     {
-        Entity receiver = currentCommand.character;
-        foreach (ObjectInGrid target in currentCommand.target) 
-        {
-            Entity victim = target.GetEntity();
-            if (victim != null) { Debug.Log(victim.CharacterName + " is afected"); }
-
-        }
-        //receiver notifies gridObject the AdE Action
-        receiver.ConsumeActions(false);
+        Entity caster = currentCommand.character;
+        caster.SetIsBusy(true);
+        caster.gridObject.AttackOnAdE(currentCommand.selectedGridPoint, currentCommand.target, currentCommand.specialHability);
+        currentCommand.effect.Play(caster.ConsumeNormalAction);
         currentCommand = null;
+        clearUtility.ClearGridHighlighter(1);
         // clearUtility.Clear the correspondingHighlighters
 
     }

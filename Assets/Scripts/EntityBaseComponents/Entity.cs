@@ -6,6 +6,7 @@ using Random = UnityEngine.Random;
 
 
 public enum Aliance {None,Player,Enemy}
+public enum TypeOfHitter{ Light, Medium, Heavy }
 
 [RequireComponent(typeof(ObjectInGrid), typeof(HealthConcentComp), typeof(EntityTurn))]
 public class Entity : MonoBehaviour
@@ -44,11 +45,15 @@ public class Entity : MonoBehaviour
     [SerializeField] GameObject turnMarker;
 
     public bool rangedBasedAttack = false;
+    public bool isMagicAttack = false;
+    public TypeOfHitter hitter = TypeOfHitter.Light;
+
 
     public int maxHp = 100;
     public HealthConcentComp healthComponent;
 
     public Aliance characterAliance = Aliance.None;
+    
     public Sprite sprite;
     public CharacterAnimator characterAnimator;
     public bool showsInfoOnHovereable = true;
@@ -88,6 +93,7 @@ public class Entity : MonoBehaviour
         healthComponent.healthGained += Healed;
         healthComponent.hasDied += Dying;
         healthComponent.SetMaxHealth(maxHp);
+        healthComponent.SetMaxConcentration(50);
     }
     private void Start()
     {
@@ -128,10 +134,6 @@ public class Entity : MonoBehaviour
     }
     void Dying() 
     {
-    
-    }
-    virtual public void SetSpecialHabilities() 
-    { 
     
     }
 
@@ -219,7 +221,7 @@ public class Entity : MonoBehaviour
     }
     public int CheckAttackTrow() // Uses 0.5 to divide by 2 since I need more perfonce than precision and multiplication is cheaper
     { 
-        float baseModifier = rangedBasedAttack ? dexterity + modDexterity :  strenght + modStrenght;
+        float baseModifier = !rangedBasedAttack ? strenght + modStrenght : isMagicAttack ? instict + modInstict :  dexterity + modDexterity;
         int atkModifiers = (int)Mathf.Floor((baseModifier) * 0.5f);
         int result = diceLaucher.BaseDiceLaunch();
         if (result == 16) { healthComponent.ConcentrationGain(1); }
@@ -236,7 +238,20 @@ public class Entity : MonoBehaviour
 
     public int CheckMainDmgTrow()
     {
-        int dmg = diceLaucher.d6DiceThrow(strenght + modStrenght);
+        int dmg = 0;
+        int modifiers = !rangedBasedAttack ? strenght + modStrenght : isMagicAttack ? instict + modInstict : dexterity + modDexterity;
+        if (hitter == TypeOfHitter.Light) 
+        {
+            dmg = diceLaucher.d6DiceThrow(modifiers);
+        }
+        else if(hitter == TypeOfHitter.Medium)
+        {
+            dmg = diceLaucher.d8DiceThrow(modifiers);
+        }
+        else 
+        {
+            dmg = diceLaucher.d10DiceThrow(modifiers);
+        }
         return dmg; 
     }
 

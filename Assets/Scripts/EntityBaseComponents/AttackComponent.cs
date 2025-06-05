@@ -20,7 +20,9 @@ public class AttackComponent : MonoBehaviour, IActionEffect
     public ActionState State { get; set; } = ActionState.NotInActionYet;
     public ActionState DebugState;
     public bool isRangedAttack = false;
+    public bool isMultipleAtk = false;
     bool stateStarted = false;
+    SpecialHability specialHab;
 
     [SerializeField] private int pendingSignals = 0;
     protected Action onComplete;
@@ -46,14 +48,19 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                     
                     Debug.Log("EnteringAnimationState");
                     characterAnimator.onAnimationComplete += OnLocalAnimationComplete;
-                    
-                    if (targetedObjectsInGrid.Count == 1)
+
+                    if (isMultipleAtk == false)
                     {
                         characterAnimator.targetedObjectInGrid = targetedObjectsInGrid[0];
                         characterAnimator.rootTargetPos = targetedObjectsInGrid[0].positionInGrid;
                         WasSingleAttackSucessful();
+                        characterAnimator.TriggerAttack();
                     }
-                    characterAnimator.TriggerAttack();
+                    else 
+                    {
+                        Debug.Log("My targetPos"+characterAnimator.rootTargetPos);
+                        characterAnimator.TriggerSpecialHab(specialHab);
+                    }
                 }
                 break;
 
@@ -62,12 +69,11 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                 {
                     Debug.Log("EnteringCalculousState");
                     stateStarted = true;
-                    if (targetedObjectsInGrid.Count > 1)
+                    if (isMultipleAtk == true)
                     {
                         WhichAttacksSucessful();
-                        characterAnimator.FireBalls();
                     }
-                    TransitionTo(ActionState.WaitTargetAnimations);
+                    
                 }
                 break;
 
@@ -231,24 +237,43 @@ public class AttackComponent : MonoBehaviour, IActionEffect
     public void AttackGridTarget(ObjectInGrid target, int attackThrowValue, int damageRoll, bool rangedAttack)
     {
         RotateCharacter(target.transform.position);
-        characterAnimator.rootTargetPos= target.positionInGrid;
+        characterAnimator.rootTargetPos = target.positionInGrid;
         State = ActionState.WaitingAnimation;
         DebugState = State;
         targetedObjectsInGrid.Add(target);
+        isMultipleAtk = false;
         isRangedAttack = rangedAttack;
         attackRoll = attackThrowValue;
         this.damageRoll = damageRoll;
     }
+    public void AttackOnArea(Vector3Int attackinGridPosition, List<ObjectInGrid> targets, int attackThrowValue, int dmgThrowValue, SpecialHability SpecialHab)
+    {
+        Vector3 onWorldAttack = new Vector3(attackinGridPosition.x, attackinGridPosition.z, attackinGridPosition.y);
+        RotateCharacter(onWorldAttack);
+        characterAnimator.rootTargetPos = attackinGridPosition;
+        targetedObjectsInGrid = targets;
+        isRangedAttack = true;
+        attackRoll = attackThrowValue;
+        isMultipleAtk = true;
+        this.specialHab = SpecialHab;
+        this.damageRoll = dmgThrowValue;
+        State = ActionState.WaitingAnimation;
+        DebugState = State;
+    }
     public void WhichAttacksSucessful()
     {
         targetedEntities.Clear();
-        Debug.Log(targetedObjectsInGrid.Count);
         foreach (ObjectInGrid target in targetedObjectsInGrid)
         {
+            if (target == null)
+            {
+                Debug.LogWarning("Null Objective");
+            }
             Entity entity = target.GetEntity();
             if (entity != null)
             {
                 targetedEntities.Add(entity);
+                Debug.LogWarning("Added Entity");
                 if (attackRoll >= entity.GetDefenseValue())
                 {
                     entityWasHurt.Add(entity, true);
@@ -263,6 +288,7 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                 Debug.LogWarning("Null Objective");
             }
         }
+        TransitionTo(ActionState.WaitTargetAnimations);
     }
     public void WasSingleAttackSucessful()
     {
@@ -311,7 +337,7 @@ public class AttackComponent : MonoBehaviour, IActionEffect
         characterAnimator.onAnimationComplete -= OnLocalAnimationComplete;
         stateStarted = false;
         Debug.Log("StateCompleted");
-        if (targetedObjectsInGrid.Count == 1) { TransitionTo(ActionState.WaitTargetAnimations); }
+        if (isMultipleAtk == false) { TransitionTo(ActionState.WaitTargetAnimations); }
         else { TransitionTo(ActionState.CalculatingEffect); }
     }
     private void OnHurtComplete(Entity entity)
@@ -348,9 +374,13 @@ public class AttackComponent : MonoBehaviour, IActionEffect
         hitHandlers.Clear();
         attackRoll = 0;
         damageRoll = 0;
+        specialHab = SpecialHability.None;
 
         pendingSignals = 0;
         stateStarted = false;
+        isMultipleAtk = false;
         State = ActionState.NotInActionYet;
     }
+
+
 }

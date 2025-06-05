@@ -5,8 +5,10 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     [SerializeField] private TrailRenderer trailRenderer;
+    [SerializeField] private ParticleSystem particleSystem;
     [SerializeField] private Transform bulletHitVfxPrefab;
-    
+    [SerializeField] float moveSpeed = 200f;
+
     private Vector3 targetPosition;
     public void Setup(Vector3 targetPosition)
     {
@@ -20,7 +22,6 @@ public class Projectile : MonoBehaviour
 
         float distanceBeforeMoving = Vector3.Distance(transform.position, targetPosition);
 
-        float moveSpeed = 200f;
         transform.position += moveDir * moveSpeed * Time.deltaTime;
 
         float distanceAfterMoving = Vector3.Distance(transform.position, targetPosition);
@@ -29,11 +30,20 @@ public class Projectile : MonoBehaviour
         {
             transform.position = targetPosition;
 
-            trailRenderer.transform.parent = null;
+            if (trailRenderer != null)
+            {
+                trailRenderer.transform.parent = null;
+            }
+            else if (particleSystem != null)
+            {
+                Instantiate(bulletHitVfxPrefab, targetPosition, Quaternion.identity);
+                Destroy(this.gameObject);
+            }
 
-            Destroy(gameObject);
 
             Instantiate(bulletHitVfxPrefab, targetPosition, Quaternion.identity);
+
+            Destroy(this.gameObject);
         }
     }
 }

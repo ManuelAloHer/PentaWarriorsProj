@@ -132,6 +132,7 @@ public class CommandMenu : MonoBehaviour
         {
             commandInput.readyCommand = CommandType.None;
             commandInput.currentMenuCommand = CommandInputType.None;
+            commandInput.showSpecialHighlight = false;
             clearUtility.ClearAllHighLighters();
             EnablePanelButtons(); // Re-enable all buttons
             return;

@@ -141,7 +141,7 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
         if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
         {
             cursorNeeded = true;
-            ChangePositionOnGridMonitor(hit, true);
+            ChangePositionOnGridMonitor(hit, false);
             if (inputCursor.IsConfirmPressed() && characterSelector.selectedEntity != null)
             {
                 if (controlChecker.CheckPosibleAttack(inputCursor.PosOnGrid))
@@ -171,27 +171,49 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
                 if (controlChecker.CheckPosibleAttack(inputCursor.PosOnGrid))
                 {
                     if (characterSelector.selectedEntity == null) { return; }
-                    GridNode gridTarget = controlChecker.GetTargetNode(inputCursor.PosOnGrid);
-                   
-                    if (gridTarget == null || gridTarget.objectInGrid.GetAliance() == characterSelector.selectedEntity.gridObject.GetAliance()) { return; }
-                    Debug.Log("Has Entered");
 
                     //Get all Entities in x Range
-                    List<ObjectInGrid> targets = controlChecker.MultipleTargetSelected(characterSelector.selectedEntity, 
-                                                 inputCursor.PosOnGrid, 
+                    List<ObjectInGrid> targets = controlChecker.MultipleTargetSelected(characterSelector.selectedEntity,
+                                                 inputCursor.PosOnGrid,
                                                  characterSelector.selectedEntity.characterAliance);
-
-                    //
-                    commandManager.AddAttackOnAreaCommand(characterSelector.selectedEntity, inputCursor.PosOnGrid, targets);
-                    CashAction();
+                    if (targets != null && targets.Count > 0)
+                    {
+                        SpecialHability specialHability = TranslateMenuCommandToSpecialHab();
+                        commandManager.AddAttackOnAreaCommand(characterSelector.selectedEntity, inputCursor.PosOnGrid, targets, specialHability);
+                        showSpecialHighlight = false;
+                        CashAction();
+                        return;
+                    }
+                    else
+                    {
+                        showSpecialHighlight = false;
+                        Debug.Log("No Valid Targets");
+                    }
                 }
             }
         }
         else
         {
+            showSpecialHighlight = false;
             cursorNeeded = false;
+            
         }
     }
+
+    private SpecialHability TranslateMenuCommandToSpecialHab()
+    {
+        //public enum SpecialHability { None = 0, Hab1 = 1, Hab2 = 2, Hab3 = 3 }
+        //public enum CommandInputType { None = -1, Move = 0, Attack = 1, SpeHab1 = 2, SpeHab2 = 3, SpeHab3 = 4, EndTurn = 5, CardAction = 6 }
+        
+        int index = (int)currentMenuCommand;
+        SpecialHability specialHab = SpecialHability.None;
+        if (index >= 2 && index <= 4)
+        {
+            specialHab = index == 2 ? SpecialHability.Hab1 : index == 3 ? SpecialHability.Hab2 : SpecialHability.Hab3;    
+        }
+        return specialHab;
+    }
+
     public void EndTurnCommandInput()
     {
         

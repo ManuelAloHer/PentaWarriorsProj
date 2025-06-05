@@ -70,6 +70,13 @@ public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Obje
         //Debug.LogFormat("AtK done by {0} Atk: {1} Dmg Base: {2}",entity.CharacterName, atkThrowValue,dmgThrowValue);
         attackComponent.AttackGridTarget(target, atkThrowValue,dmgThrowValue, entity.rangedBasedAttack);
     }
+    public void AttackOnAdE(Vector3Int attackinGridPosition, List<ObjectInGrid>targets, SpecialHability specialHability)
+    {
+        int atkThrowValue = entity.CheckAttackTrow();
+        int dmgThrowValue = entity.CheckMainDmgTrow();
+        Debug.LogFormat("AtK done by {0} Atk: {1} Dmg Base: {2} to: {3}",entity.CharacterName, atkThrowValue,dmgThrowValue, targets.Count);
+        attackComponent.AttackOnArea (attackinGridPosition, targets, atkThrowValue, dmgThrowValue, specialHability);
+    }
 
     public Entity GetEntity() 
     {
