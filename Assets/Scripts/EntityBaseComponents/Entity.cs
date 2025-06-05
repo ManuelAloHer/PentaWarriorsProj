@@ -12,6 +12,7 @@ public class Entity : MonoBehaviour
 {
     public InputToCommandMap[] InputToCommand;
     [SerializeField] string characterName = "Adam";
+    
     public string CharacterName { get {return characterName; } }
 
     [Header("CHARACTERISTICS")]
@@ -40,6 +41,7 @@ public class Entity : MonoBehaviour
 
     public ObjectInGrid gridObject;
     public EntityTurn entityTurn;
+    [SerializeField] GameObject turnMarker;
 
     public bool rangedBasedAttack = false;
 
@@ -195,6 +197,7 @@ public class Entity : MonoBehaviour
             Debug.Log(characterName + "  has not a controller now " + Controller);
             return;
         }
+        turnMarker.SetActive(true);
         Controller.BeginTurn(this);
     }
 
@@ -209,7 +212,8 @@ public class Entity : MonoBehaviour
         entityTurn.turnEnded = true;
         Debug.LogFormat("{0} EndTurn() called. TurnEnded: {1} | Current Actions: {2}, Card Actions: {3}",CharacterName, TurnEnded(), entityTurn.currentTurnActions, entityTurn.currentCardTurnActions);
         Debug.LogFormat("{0} is ending their turn. Event has {1}.", CharacterName, (OnTurnEnded != null ? "subscribers" : "no subscribers"));
-       
+        
+        turnMarker.SetActive(false);
         Controller.EndTurn(this);
         OnTurnEnded.Invoke(this);
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Presets;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
@@ -83,7 +84,15 @@ public class CommandMenu : MonoBehaviour
             InputToCommandMap newInputCommand = characterSelector.selectedEntity.GetInputToCommand(i - 2);
             if (newInputCommand != null)
             {
+                Debug.Log(characterSelector.selectedEntity.name);
                 currentImpToCommand[i] = newInputCommand;
+                buttons[i].GetComponent<Image>().sprite = currentImpToCommand[i].standard;
+                SpriteState state = buttons[i].spriteState;
+
+                state.pressedSprite = currentImpToCommand[i].pressed;
+                state.disabledSprite = currentImpToCommand[i].deactivated; 
+                buttons[i].spriteState = state;
+               
             }
 
         }

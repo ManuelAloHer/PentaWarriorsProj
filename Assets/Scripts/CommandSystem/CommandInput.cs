@@ -12,6 +12,8 @@ public class InputToCommandMap
 {
     public CommandInputType inputType;
     public CommandType commandType;
+    public Sprite standard, pressed, deactivated;
+    public string description;
 }
 public class CommandInput : MonoBehaviour,IController // This Class functions as a 
 {
