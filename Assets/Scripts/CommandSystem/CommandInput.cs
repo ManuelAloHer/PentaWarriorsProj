@@ -6,6 +6,7 @@ using Unity.IO.LowLevel.Unsafe;
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.Search;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 [System.Serializable]
 public class InputToCommandMap
@@ -61,7 +62,8 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
         {
             { CommandType.Move, () => HighlightWalkableTerrain() },
             { CommandType.Attack, () => HighlightAttackArea()},
-            { CommandType.AtkOnArea, () => HighlightAtkOnArea()}
+            { CommandType.AtkOnArea, () => HighlightAtkOnArea()},
+            { CommandType.Heal, () => HighlightHeal()},
         };
     }
 
@@ -70,6 +72,10 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
         controlChecker.CalculateSingleTargetArea(characterSelector.selectedEntity, Aliance.Enemy);
     }
 
+    private void HighlightHeal()
+    {
+        controlChecker.CalculateSingleHeal(characterSelector.selectedEntity, Aliance.Player);
+    }
     private void HighlightAtkOnArea()
     {
         controlChecker.CalculateMultipleTargetArea(characterSelector.selectedEntity, Aliance.None);
@@ -99,6 +105,10 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
         else if (readyCommand == CommandType.AtkOnArea) 
         {
             AttackOnAreaCommandInput(ray, out hit);
+        }
+        else if (readyCommand == CommandType.Heal)
+        {
+            HealCommandInput(ray, out hit);
         }
         else
         {
@@ -152,6 +162,38 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
                     if (gridTarget == null || gridTarget.GetAliance() == characterSelector.selectedEntity.gridObject.GetAliance()) { return; }
                     commandManager.AddAttackCommand(characterSelector.selectedEntity, inputCursor.PosOnGrid, gridTarget);
                     CashAction();
+                }
+            }
+        }
+        else
+        {
+            cursorNeeded = false;
+        }
+    }
+    private void HealCommandInput(Ray ray, out RaycastHit hit)
+    {
+        if (Physics.Raycast(ray, out hit, float.MaxValue, entityLayerMask) || Physics.Raycast(ray, out hit, float.MaxValue, terrainLayerMask))
+        {
+            cursorNeeded = true;
+            ChangePositionOnGridMonitor(hit, false);
+            if (inputCursor.IsConfirmPressed() && characterSelector.selectedEntity != null)
+            {
+                if (controlChecker.CheckPosibleAttack(inputCursor.PosOnGrid))
+                {
+                    
+                    if (characterSelector.selectedEntity == null) { return; }
+                    ObjectInGrid gridTarget = controlChecker.GetTarget(inputCursor.PosOnGrid);
+                    if (gridTarget != null && gridTarget.GetAliance() == characterSelector.selectedEntity.gridObject.GetAliance()) 
+                    {
+                        
+                        SpecialHability specialHability = TranslateMenuCommandToSpecialHab();
+                        commandManager.AddHealCommand(characterSelector.selectedEntity, inputCursor.PosOnGrid, gridTarget, specialHability);
+                        CashAction();
+                        return;
+                    }
+
+                    Debug.Log("Algo falla"); 
+                    return;
                 }
             }
         }

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.InputSystem.LowLevel;
 
@@ -48,7 +50,7 @@ public class CommandManager : MonoBehaviour
     {
         if (currentCommand != null)
         {
-            ExecuteCommand();
+            ExecuteCommand(currentCommand.commandType);
         }
     }
 
@@ -70,6 +72,14 @@ public class CommandManager : MonoBehaviour
         currentCommand.specialHability = specialHability;
 
     }
+    public void AddHealCommand(Entity healer, Vector3Int selectedGridPoint, ObjectInGrid target, SpecialHability specialHability)
+    {
+        
+        currentCommand = new Command(healer, selectedGridPoint, CommandType.Heal, healer.gridObject.healComponent);
+        currentCommand.target.Add(target);
+        currentCommand.specialHability = specialHability;
+
+    }
     public void AddFinishTurnCommand(Entity character)
     {
         Vector3Int charactPos = character.gridObject.positionInGrid;
@@ -83,7 +93,7 @@ public class CommandManager : MonoBehaviour
     {
         return currentCommand.commandType;
     }
-    public void ExecuteCommand()
+    public void ExecuteCommand(CommandType commandType)
     {
         if (currentCommand.commandType == CommandType.Move)
         {
@@ -96,6 +106,10 @@ public class CommandManager : MonoBehaviour
         else if (currentCommand.commandType == CommandType.AtkOnArea)
         {
             ExecuteAttackOnAreaCommand();
+        }
+        else if (currentCommand.commandType == CommandType.Heal)
+        {
+            ExecuteHealCommand();
         }
         else if (currentCommand.commandType == CommandType.EndTurn)
         {
@@ -118,7 +132,6 @@ public class CommandManager : MonoBehaviour
         currentCommand = null;
         clearUtility.ClearPathfinding();
         clearUtility.ClearGridHighlighter(0);
-
     }
 
     private void ExecuteAttackCommand()
@@ -140,6 +153,18 @@ public class CommandManager : MonoBehaviour
         currentCommand = null;
         clearUtility.ClearGridHighlighter(1);
         // clearUtility.Clear the correspondingHighlighters
+
+    }
+
+    private void ExecuteHealCommand()
+    {
+        Entity caster = currentCommand.character;
+        caster.SetIsBusy(true);
+        caster.gridObject.Heal(currentCommand.selectedGridPoint, currentCommand.target[0], currentCommand.specialHability);
+        currentCommand.effect.Play(caster.ConsumeNormalAction);
+        currentCommand = null;
+        clearUtility.ClearPathfinding();
+        clearUtility.ClearGridHighlighter(2);
 
     }
     private void ExecuteAddStatusCommand()

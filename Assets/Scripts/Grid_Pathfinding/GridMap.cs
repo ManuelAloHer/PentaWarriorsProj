@@ -330,6 +330,14 @@ public class GridMap : MonoBehaviour
         isEntity = gridToTry.entityOcupied && gridToTry.isObjectRoot;
         return isEntity;
     }
+    public bool CheckDeadEntity(int pos_x, int pos_y, int pos_z)
+    {
+        bool isDead = false;
+        GridNode gridToTry = grid[pos_x, pos_y, pos_z];
+        if (gridToTry == null) { return isDead; }
+        isDead = !gridToTry.objectInGrid.GetEntity().IsAlive();
+        return isDead;
+    }
 
     public List<Vector3> ConvertPathNodesToWorldPositions(List<PathNode> path)
     {

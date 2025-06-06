@@ -4936,7 +4936,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trailRenderer: {fileID: 0}
   particleSystem: {fileID: 2835962844160341672}
-  bulletHitVfxPrefab: {fileID: 2302457091092795123, guid: 2e02eeebdfce38743a7332909211d0ca, type: 3}
+  bulletHitVfxPrefab: {fileID: 2302457091092795123, guid: c7c632626572df4488253ef97cbd1bc0, type: 3}
   moveSpeed: 15
 --- !u!1 &8520615947364263540
 GameObject:

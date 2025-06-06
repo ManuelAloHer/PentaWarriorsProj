@@ -31,7 +31,8 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
 
     [SerializeField] GridHighlight highlight;
     [SerializeField] GridHighlight attackHighlight;
-    
+    [SerializeField] GridHighlight healHighlight;
+
 
     private void Awake()
     {
@@ -58,6 +59,7 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
         highlight.Hide();
         highlight.Highlight(transitableNodes); 
         attackHighlight.Hide();
+        healHighlight.Hide();
     }
     public List<PathNode> GetPath(Vector3Int from) 
     {
@@ -68,6 +70,65 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
             return null;
         }
         return path;
+    }
+    public void CalculateSingleHeal(Entity character, Aliance targetAliance)
+    {
+        ObjectInGrid controlledCharacter = character.GetComponent<ObjectInGrid>();
+
+        Vector3Int origin = controlledCharacter.positionInGrid;
+        if (targetPositions == null)
+        {
+            targetPositions = new List<Vector3Int>();
+        }
+        else
+        {
+            targetPositions.Clear();
+        }
+
+        int healRange = 4;
+        for (int x = -healRange; x <= healRange; x++)
+        {
+                for (int y = -healRange; y <= healRange; y++)
+                {
+                    for (int z = -healRange; z <= healRange; z++)
+                    {
+                        int distance = Mathf.Abs(x) + Mathf.Abs(y) + Mathf.Abs(z);
+                        if (distance > healRange) { continue; }
+
+                        Vector3Int pos = origin + new Vector3Int(x, y, z);
+                        bool isAlive = true;
+                        if (targetGrid.CheckBounderies(pos) == true)
+                        {
+                            bool isTransitable = !targetGrid.GetNode(pos).onAir && !targetGrid.GetNode(pos).obstructed;
+                            bool hasEntity = targetGrid.CheckEntityRootPresence(pos.x, pos.y, pos.z) && targetGrid.GetAlianceInNode(pos) == targetAliance;
+
+                        if (hasEntity)
+                        {
+                            Aliance alianceInNode = targetGrid.GetAlianceInNode(pos);
+                            bool isAlly = (targetAliance == Aliance.None || alianceInNode == targetAliance);
+                            isAlive = !targetGrid.CheckDeadEntity(pos.x, pos.y, pos.z);
+
+                            hasEntity = isAlly && isAlive;
+                            isTransitable = false; // Entity blocks further spread
+                        }
+                        if (isTransitable && isAlive || hasEntity && isAlive)
+                            {
+                                targetPositions.Add(pos);
+
+                            }
+                        }
+                    }
+          }
+        }
+        if (!character.characterAliance.Equals(Aliance.Player))
+        {
+           
+            return;
+        }
+        healHighlight.Hide();
+        healHighlight.Highlight(targetPositions);
+        highlight.Hide();
+        attackHighlight.Hide();
     }
 
     public void CalculateSingleTargetArea(Entity character, Aliance targetAliance)
@@ -149,6 +210,7 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
         attackHighlight.Hide();
         attackHighlight.Highlight(targetPositions);
         highlight.Hide();
+        healHighlight.Hide();
     }
 
     public List<Vector3Int> FilterLineOfSightTargets(Entity character, List<Vector3Int> targets, Aliance targetAliance)
@@ -600,6 +662,7 @@ public class ControlChecker : MonoBehaviour // Conbines Character Atack and Move
         attackHighlight.Hide();
         attackHighlight.Highlight(targetPositions);
         highlight.Hide();
+        healHighlight.Hide();
     }
     
     public List<ObjectInGrid> MultipleTargetSelected(Entity caster,Vector3Int originOfEffect, Aliance targetAliance)

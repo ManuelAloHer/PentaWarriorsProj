@@ -33,6 +33,9 @@ public class Projectile : MonoBehaviour
             if (trailRenderer != null)
             {
                 trailRenderer.transform.parent = null;
+
+                Instantiate(bulletHitVfxPrefab, targetPosition, Quaternion.identity);
+                Destroy(this.gameObject);
             }
             else if (particleSystem != null)
             {
@@ -41,9 +44,6 @@ public class Projectile : MonoBehaviour
             }
 
 
-            Instantiate(bulletHitVfxPrefab, targetPosition, Quaternion.identity);
-
-            Destroy(this.gameObject);
         }
     }
 }

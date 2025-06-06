@@ -11,15 +11,18 @@ public class CharacterAnimator : MonoBehaviour
 {
     public Animator _animator;
     public List<GameObject> projectiles;
+    public List<GameObject> effects;
     public GameObject shootingPoint;
+    public GameObject auraSpawner;
     public Vector3Int rootTargetPos;
     public ObjectInGrid targetedObjectInGrid;
 
     //public Animation attackA
 
     public Action onAnimationComplete;
-    public event Action OnHitComplete;
-    public event Action OnHurtComplete;
+    public event Action OnHitComplete, OnHurtComplete, OnHealComplete, 
+                        OnBuffedComplete, OnDebuffedComplete;
+
     public bool isDead = false;
 
     private void Awake()
@@ -27,7 +30,12 @@ public class CharacterAnimator : MonoBehaviour
         onAnimationComplete += AnimationCompleteGeneric;
         OnHitComplete += AnimationCompleteGeneric;
         OnHurtComplete += AnimationCompleteGeneric;
+        OnHealComplete += AnimationCompleteGeneric;
+        OnBuffedComplete += AnimationCompleteGeneric;
+        OnDebuffedComplete += AnimationCompleteGeneric;
     }
+
+
     public void UpdateMovement(float velocity)
     {
         _animator.SetFloat("Speed",velocity);
@@ -51,9 +59,9 @@ public class CharacterAnimator : MonoBehaviour
 
 
     public void OtherEffectsSpawn(int EffectToSpawn) 
-    { 
-    
-    
+    {
+        Transform bulletProjectileTransform = Instantiate(effects[EffectToSpawn], auraSpawner.transform.position, Quaternion.identity).transform;
+
     }
 
 
@@ -150,11 +158,22 @@ public class CharacterAnimator : MonoBehaviour
     {
         _animator.SetTrigger("Hit");
     }
+    public void TriggerHealed()
+    {
+        _animator.SetTrigger("Healed");
+    }
+    public void TriggerBuffed()
+    {
+        _animator.SetTrigger("Buffed");
+    }
+    public void TriggerDebuffed()
+    {
+        _animator.SetTrigger("Debuffed");
+    }
     public void NotifyHitComplete() => OnHitComplete?.Invoke();
     public void NotifyHurtComplete() => OnHurtComplete?.Invoke();
+    public void NotifyHealComplete() => OnHealComplete?.Invoke();
+    public void NotifyBuffedComplete() => OnBuffedComplete?.Invoke();
+    public void NotifyDebuffedComplete() => OnDebuffedComplete?.Invoke();
 
-    internal void TriggerDeath()
-    {
-        throw new NotImplementedException();
-    }
 }

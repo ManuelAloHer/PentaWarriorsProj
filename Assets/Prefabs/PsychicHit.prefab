@@ -273,7 +273,7 @@ Animator:
   m_GameObject: {fileID: 1588317674181625392}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: a60c82b07e398184697c3d652f9b51fb, type: 3}
-  m_Controller: {fileID: 9100000, guid: e5f08bd9f9521bb44b92700f81e33c5e, type: 2}
+  m_Controller: {fileID: 9100000, guid: de819caff0c294c4bb54af133cf86683, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -298,8 +298,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _animator: {fileID: 8338911811146453191}
   projectiles:
-  - {fileID: 5470555387889476776, guid: 0da8751ee42dae04c80494916f284034, type: 3}
+  - {fileID: 5470555387889476776, guid: bc4d37b63003f0d499919782770c36ce, type: 3}
+  - {fileID: 5470555387889476776, guid: 633b13ff1dcb10f46acc4c45aa83f8d7, type: 3}
+  effects:
+  - {fileID: 9017484664307500583, guid: 1245b8d2997d5b34fb1637be70a7eb05, type: 3}
+  - {fileID: 7155335147208632822, guid: 97c43495f80a3244fad1301dfafbe252, type: 3}
+  - {fileID: 6126188424833946103, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
+  - {fileID: 4157633540175486653, guid: f7ad59a99999e1e4c81fa3ffd5ad3eb2, type: 3}
   shootingPoint: {fileID: 0}
+  auraSpawner: {fileID: 0}
   rootTargetPos: {x: 0, y: 0, z: 0}
   targetedObjectInGrid: {fileID: 0}
   isDead: 0

@@ -35,14 +35,14 @@ public class HealthConcentComp : MonoBehaviour
     public void HealthGain(int healthToGain)
     {
         int newHealth = health + healthToGain;
-        health = newHealth >= 100 ? 100 : newHealth;
+        health = newHealth >= maxHealth ? maxHealth : newHealth;
         Debug.Log("Current Health: " + health + " " + maxHealth);
         healthGained();
     }
     public void ConcentrationGain(int concentToGain)
     {
         int newConcentration = concentration + concentToGain;
-        concentration = newConcentration >= 50 ? 50 : newConcentration;
+        concentration = newConcentration >= maxConcentration ? maxConcentration : newConcentration;
         Debug.Log("Current Concentration: " + concentration + " " + maxConcentration);
         healthGained();
     }

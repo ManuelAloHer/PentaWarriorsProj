@@ -15,12 +15,14 @@ public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Obje
     private Entity entity;
 
     public Vector3Int objectDimensions;
+    public HealComponent healComponent;
 
     private void Awake()
     {
         movement = GetComponent<MovementInGrid>();
         entity= GetComponent<Entity>();
         attackComponent = GetComponent<AttackComponent>();
+        healComponent = GetComponent<HealComponent>();
         
 
     }
@@ -65,19 +67,24 @@ public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Obje
 
     public void Attack(Vector3Int attackinGridPosition, ObjectInGrid target) 
     {
-        int atkThrowValue = entity.CheckAttackTrow();
-        int dmgThrowValue = entity.CheckMainDmgTrow();
+        int atkThrowValue = entity.CheckAttackThrow();
+        int dmgThrowValue = entity.CheckMainDmgThrow();
         //Debug.LogFormat("AtK done by {0} Atk: {1} Dmg Base: {2}",entity.CharacterName, atkThrowValue,dmgThrowValue);
         attackComponent.AttackGridTarget(target, atkThrowValue,dmgThrowValue, entity.rangedBasedAttack);
     }
     public void AttackOnAdE(Vector3Int attackinGridPosition, List<ObjectInGrid>targets, SpecialHability specialHability)
     {
-        int atkThrowValue = entity.CheckAttackTrow();
-        int dmgThrowValue = entity.CheckMainDmgTrow();
+        int atkThrowValue = entity.CheckAttackThrow();
+        int dmgThrowValue = entity.CheckMainDmgThrow();
         Debug.LogFormat("AtK done by {0} Atk: {1} Dmg Base: {2} to: {3}",entity.CharacterName, atkThrowValue,dmgThrowValue, targets.Count);
         attackComponent.AttackOnArea (attackinGridPosition, targets, atkThrowValue, dmgThrowValue, specialHability);
     }
 
+    public void Heal(object selectedGridPoint, ObjectInGrid objectInGrid, SpecialHability specialHability)
+    {
+        int healValue = entity.CheckHealThrow();
+        healComponent.HealTarget(objectInGrid, healValue, specialHability); 
+    }
     public Entity GetEntity() 
     {
         if (entity == null) { return null; }
@@ -119,4 +126,6 @@ public class ObjectInGrid : MonoBehaviour // Component Necesary to allow an Obje
         }
         return false;
     }
+
+
 }

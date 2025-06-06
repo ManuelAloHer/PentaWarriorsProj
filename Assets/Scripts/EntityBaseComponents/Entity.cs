@@ -93,7 +93,7 @@ public class Entity : MonoBehaviour
         healthComponent.healthGained += Healed;
         healthComponent.hasDied += Dying;
         healthComponent.SetMaxHealth(maxHp);
-        healthComponent.SetMaxConcentration(50);
+        
     }
     private void Start()
     {
@@ -219,7 +219,7 @@ public class Entity : MonoBehaviour
         Controller.EndTurn(this);
         OnTurnEnded.Invoke(this);
     }
-    public int CheckAttackTrow() // Uses 0.5 to divide by 2 since I need more perfonce than precision and multiplication is cheaper
+    public int CheckAttackThrow() // Uses 0.5 to divide by 2 since I need more perfonce than precision and multiplication is cheaper
     { 
         float baseModifier = !rangedBasedAttack ? strenght + modStrenght : isMagicAttack ? instict + modInstict :  dexterity + modDexterity;
         int atkModifiers = (int)Mathf.Floor((baseModifier) * 0.5f);
@@ -236,7 +236,7 @@ public class Entity : MonoBehaviour
         return baseDefValue + defModifiers;
     }
 
-    public int CheckMainDmgTrow()
+    public int CheckMainDmgThrow()
     {
         int dmg = 0;
         int modifiers = !rangedBasedAttack ? strenght + modStrenght : isMagicAttack ? instict + modInstict : dexterity + modDexterity;
@@ -253,6 +253,13 @@ public class Entity : MonoBehaviour
             dmg = diceLaucher.d10DiceThrow(modifiers);
         }
         return dmg; 
+    }
+    public int CheckHealThrow()
+    {
+        int dmg = 0;
+        int modifiers = conviction + modConviction;
+        dmg = diceLaucher.d8DiceThrow(modifiers);
+        return dmg;
     }
 
     public int GetResistance(AttackNature attacknature) // Uses 0.5 to divide by 2 since I need more perfonce than precision and multiplication is cheaper

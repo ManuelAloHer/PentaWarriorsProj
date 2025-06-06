@@ -77,17 +77,6 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                 }
                 break;
 
-            //case ActionState.WaitForAnimationCompletion:
-            //    if (!stateStarted)
-            //    {
-            //        stateStarted = true;
-            //        WaitForSignal();
-            //        characterAnimator.ShootBullet();
-            //        WaitForSignal(); // Hit animation
-            //        targetedEnities[0].characterAnimator.TriggerHurtAndDeath(atkSuccesful, false);
-            //        //characterAnimator.OnImpactComplete += SignalComplete;
-            //        //TriggerHitVFX(); // will call SignalComplete
-            //    }
             case ActionState.WaitTargetAnimations:
                 if (!stateStarted)
                 {
