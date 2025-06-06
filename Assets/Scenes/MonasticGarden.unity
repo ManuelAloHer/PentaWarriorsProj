@@ -924,6 +924,10 @@ PrefabInstance:
       propertyPath: InputToCommand.Array.data[2].description
       value: Movement
       objectReference: {fileID: 0}
+    - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
+      propertyPath: InputToCommand.Array.data[0].concentrationCost
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 377128061297234482, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: m_Size.x
       value: 0.8
@@ -4642,7 +4646,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 0074769ef50c85540882bda02338bb4a, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.426
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -10514,6 +10518,10 @@ PrefabInstance:
       propertyPath: InputToCommand.Array.data[2].description
       value: Attack
       objectReference: {fileID: 0}
+    - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
+      propertyPath: InputToCommand.Array.data[0].concentrationCost
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 377128061297234482, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: m_Size.x
       value: 0.8
@@ -10628,7 +10636,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6956266049069853151, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: concentration
-      value: 16
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6956266049069853151, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: maxConcentration
@@ -10638,6 +10646,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: bfcd70dbf9a576f4bba384c7d842e95c, type: 2}
+    - target: {fileID: 7920553533296541812, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
+      propertyPath: characterAudios.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8403031779507580536, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: m_UseGravity
       value: 0

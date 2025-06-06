@@ -13,6 +13,7 @@ public class InputToCommandMap
 {
     public CommandInputType inputType;
     public CommandType commandType;
+    public int concentrationCost;
     public Sprite standard, pressed, deactivated;
     public string description;
 }
@@ -187,6 +188,7 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
                     {
                         
                         SpecialHability specialHability = TranslateMenuCommandToSpecialHab();
+                        characterSelector.selectedEntity.SubstractConcentrationFromUse((int)specialHability);
                         commandManager.AddHealCommand(characterSelector.selectedEntity, inputCursor.PosOnGrid, gridTarget, specialHability);
                         CashAction();
                         return;
@@ -221,6 +223,7 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
                     if (targets != null && targets.Count > 0)
                     {
                         SpecialHability specialHability = TranslateMenuCommandToSpecialHab();
+                        characterSelector.selectedEntity.SubstractConcentrationFromUse((int)specialHability);
                         commandManager.AddAttackOnAreaCommand(characterSelector.selectedEntity, inputCursor.PosOnGrid, targets, specialHability);
                         showSpecialHighlight = false;
                         CashAction();

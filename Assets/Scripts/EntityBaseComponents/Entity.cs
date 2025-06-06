@@ -156,6 +156,10 @@ public class Entity : MonoBehaviour
         Debug.Log("Action Consumed");
         CheckAndMaybeEndTurn();
     }
+    public int GetConcentration() 
+    {
+        return healthComponent.Concentration;
+    }
     public void ConsumeActions(bool isCardAction) 
     {
         if (!isCardAction)
@@ -288,5 +292,12 @@ public class Entity : MonoBehaviour
     {
         int finalDamage = damageRoll-GetResistance(attackNature);
         return finalDamage = finalDamage <= 0 ? 1 : finalDamage;
+    }
+
+    public void SubstractConcentrationFromUse(int specialHability)
+    {
+        Debug.LogWarning("El gasto: " + specialHability);
+        int concentrationToLose = InputToCommand[specialHability-1].concentrationCost;
+        healthComponent.ConcentrationLoss(concentrationToLose);
     }
 }

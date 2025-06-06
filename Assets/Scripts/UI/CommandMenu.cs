@@ -92,6 +92,10 @@ public class CommandMenu : MonoBehaviour
                 state.pressedSprite = currentImpToCommand[i].pressed;
                 state.disabledSprite = currentImpToCommand[i].deactivated; 
                 buttons[i].spriteState = state;
+                if (characterSelector.selectedEntity.GetConcentration() < newInputCommand.concentrationCost)
+                {
+                    buttons[i].interactable = false;
+                }
                
             }
 
@@ -161,6 +165,10 @@ public class CommandMenu : MonoBehaviour
             for (int i = 0; i < buttons.Length; i++)
             {
                 buttons[i].interactable = true;
+                if ( i>=2 && i<=4 && characterSelector.selectedEntity.GetConcentration() < currentImpToCommand[i].concentrationCost)
+                {
+                     buttons[i].interactable = false;
+                }
             }
         }
         else

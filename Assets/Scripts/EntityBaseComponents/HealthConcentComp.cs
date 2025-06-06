@@ -39,12 +39,19 @@ public class HealthConcentComp : MonoBehaviour
         Debug.Log("Current Health: " + health + " " + maxHealth);
         healthGained();
     }
+    public void ConcentrationLoss(int concentToLose)
+    {
+        int newConcentration = concentration - concentToLose;
+        concentration = newConcentration <= 0 ? 0 : newConcentration;
+        Debug.Log("Current Concentration: " + concentration + " " + maxConcentration);
+
+    }
     public void ConcentrationGain(int concentToGain)
     {
         int newConcentration = concentration + concentToGain;
         concentration = newConcentration >= maxConcentration ? maxConcentration : newConcentration;
         Debug.Log("Current Concentration: " + concentration + " " + maxConcentration);
-        healthGained();
+        
     }
     private void DyingBehaviour()
     {
