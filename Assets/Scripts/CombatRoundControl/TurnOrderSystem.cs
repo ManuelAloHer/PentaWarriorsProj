@@ -17,6 +17,7 @@ public static class TurnOrderSystem
 
         return entities
             .OrderByDescending(e => e.initiative)
+            .ThenBy(e => e.gameObject.name)
             .ToList();
     }
 }

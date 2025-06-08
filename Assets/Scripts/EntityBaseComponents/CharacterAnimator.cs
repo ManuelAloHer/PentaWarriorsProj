@@ -60,10 +60,14 @@ public class CharacterAnimator : MonoBehaviour
 
     public void OtherEffectsSpawn(int EffectToSpawn) 
     {
+        if (EffectToSpawn == 4) 
+        {
+            Transform EffectTransform = Instantiate(effects[EffectToSpawn], shootingPoint.transform.position, shootingPoint.transform.rotation).transform;
+            return;
+        }
         Transform bulletProjectileTransform = Instantiate(effects[EffectToSpawn], auraSpawner.transform.position, Quaternion.identity).transform;
 
     }
-
 
     public void TriggerShootEffect()//, ShootAction.OnShootEventArgs e)
     {

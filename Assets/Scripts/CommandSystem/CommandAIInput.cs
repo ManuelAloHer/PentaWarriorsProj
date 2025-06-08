@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 using System.Linq;
+using static UnityEngine.GraphicsBuffer;
 
 public class CommandAIInput : MonoBehaviour, IController // This Class functions as a 
 {
@@ -15,6 +16,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     bool firstExecution = true;
     private float executionTimer = 1f;
 
+    [SerializeField] BattleManager batlleManager;
     [SerializeField] AIActionState aiExecutionState;
     CommandManager commandManager;
     
@@ -50,6 +52,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     {
         commandManager = GetComponent<CommandManager>();
         controlChecker = GetComponent<ControlChecker>();
+        batlleManager = GetComponent<BattleManager>();
         aiExecutionState = AIActionState.WaitingForEnemyInput;
     }
     private void Start()
@@ -69,6 +72,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     // Update is called once per frame
     void Update()
     {
+        if (!batlleManager.timeForBatlle) { selectedEntity = null; }
         if (selectedEntity == null) { return; }
         switch (aiExecutionState)
         {
@@ -126,10 +130,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
 
     }
 
-    private void ChoseTarget()
-    {
-        throw new NotImplementedException();
-    }
+  
     private void GetAllEnitities()
     {
         currentAlies = BattleManager.Instance.GetEntitiesByAliance(Aliance.Enemy);
@@ -248,7 +249,7 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     }
     private Entity FindBestAttackTarget(Entity attacker)
     {
-        List<Entity> possibleTargets = currentAlies;
+        List<Entity> possibleTargets = currentFoes;
         controlChecker.CalculateSingleTargetArea(attacker, Aliance.Player);
 
         List<Vector3Int> inRange = controlChecker.targetPositions;
@@ -279,15 +280,22 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     private float EvaluateTargetValue(Entity attacker, Entity target)
     {
         // Simple scoring: prioritize lowest health or distance
-        float healthScore = 1f - ((float)target.healthComponent.Health/ target.healthComponent.Health);
+        float healthScore = 1f - (target.healthComponent.GetHealthProportion());
         float distanceScore = 1f / (Vector3Int.Distance(attacker.gridObject.positionInGrid, target.gridObject.positionInGrid) + 1);
 
-        return healthScore + distanceScore * 0.5f;
+        float targetValue = target.healthComponent.Health <= 0 ? 0f : healthScore + distanceScore * 0.5f;
+        Debug.LogFormat("{0} has a Value of {1}",target.name, targetValue);
+
+        return targetValue;
     }
     private Entity FindClosestTarget(Entity entity)
     {
+
         return GetAllPlayerEntities().OrderBy(e => Vector3Int.Distance(e.gridObject.positionInGrid, entity.gridObject.positionInGrid))
-            .FirstOrDefault();
+               .Where(e => e.healthComponent.Health > 0) // Filter out dead entities
+               .OrderBy(e => e.healthComponent.GetHealthProportion())
+               .OrderBy(e => Vector3Int.Distance(e.gridObject.positionInGrid, entity.gridObject.positionInGrid))
+               .FirstOrDefault();
     }
     private void CashAction()
     {
@@ -297,8 +305,8 @@ public class CommandAIInput : MonoBehaviour, IController // This Class functions
     }
     public void BeginTurn(Entity entity)
     {
+        
         selectedEntity = entity;
-        Debug.Log($"{entity.CharacterName} is now AI_controlled.");
         // Enable input, show UI, etc.
     }
 

@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class HealthConcentComp : MonoBehaviour
 {
@@ -88,6 +89,11 @@ public class HealthConcentComp : MonoBehaviour
     {
         float percentage = (concentration * 100) / maxConcentration;
         return percentage / 100;
+    }
+
+    public float GetHealthProportion()
+    {
+        return (float)Health / MaxHealth;
     }
 }
 

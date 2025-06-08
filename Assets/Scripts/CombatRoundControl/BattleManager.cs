@@ -10,39 +10,44 @@ public class BattleManager : MonoBehaviour
 {
     public enum BattleState
     {
+        BattleIntro,      // New
         BattleStart,
         RoundStart,
         TurnStart,
-        BattleEnd
+        BattleEnd,
+        BattleConclusion  // New
     }
 
     public static BattleManager Instance;
+    public bool timeForBatlle = false;
+    [SerializeField] BatlleUIManager uIManager;
+    [SerializeField] Entity[] upcoming;
 
-    public BattleState currentState = BattleState.BattleStart;
+    public BattleState currentState = BattleState.BattleIntro;
 
     public List<Entity> allEntities = new List<Entity>();
     public List<Entity> playerEntities = new List<Entity>();
     public List<Entity> AIEntities = new List<Entity>();
 
-    private Queue<Entity> turnQueue = new Queue<Entity>();
+    public Queue<Entity> turnQueue = new Queue<Entity>();
     public CommandInput playerInputController;
     public CommandAIInput enemyInputController;
     public Entity currentEntity;
-    public Image charImage;
+    public Image[] charImages;
     public TMP_Text roundText;
     private int roundNumber = 1;
+
+    private bool roundInProgress = false;
+
 
 
     private void Awake()
     {
-        Instance = this;    
-    }
-    private void Start()
-    {
+        Instance = this;
         foreach (Entity entity in allEntities)
         {
             //Debug.Log(entity.CharacterName + "  " + entity.characterAliance);
-            if (entity.characterAliance.Equals(Aliance.Player)) 
+            if (entity.characterAliance.Equals(Aliance.Player))
             {
                 entity.AssignController(playerInputController);
                 playerEntities.Add(entity);
@@ -55,10 +60,18 @@ public class BattleManager : MonoBehaviour
 
         }
     }
+    private void Start()
+    {
+        uIManager.HideBatlleRelevantUI();
+        currentState = BattleState.BattleIntro;
+    }
     void Update()
     {
         switch (currentState)
         {
+            case BattleState.BattleIntro:
+                StartCoroutine(HandleBattleIntro());
+                break;
             case BattleState.BattleStart:
                 StartBattle();
                 break;
@@ -72,12 +85,45 @@ public class BattleManager : MonoBehaviour
                 break;
 
             case BattleState.BattleEnd:
-                Debug.Log("Battle ended.");
-                SceneManager.LoadScene(0);
+                uIManager.HideBatlleRelevantUI();
+                StartCoroutine(HandleBattleConclusion());
+                currentState = BattleState.BattleConclusion;
+                break;
+
+            case BattleState.BattleConclusion:
+                // Wait for coroutine to handle it
                 break;
         }
     }
+    private IEnumerator HandleBattleIntro()
+    {
+        uIManager.SetBatlleStartText();
+        // Possible delay or cinematic step
+        yield return new WaitForSeconds(0.5f);
+        uIManager.ShowBatlleRelevantUI();
+        currentState = BattleState.BattleStart;
+    }
+    private IEnumerator HandleBattleConclusion()
+    {
+        bool playerWon = playerEntities.Any(e => e.IsAlive());
+        bool enemiesWon = AIEntities.Any(e => e.IsAlive());
+        timeForBatlle = false;
+        if (playerWon)
+        {
+            uIManager.SetBatlleEndText(playerWon);
+            // Show victory screen
+        }
+        else if (enemiesWon)
+        {
+            uIManager.SetBatlleEndText(!enemiesWon);
+            // Show defeat screen
+        }
 
+        // Example wait or screen fade
+        yield return new WaitForSeconds(2f);
+
+        SceneManager.LoadScene(0); // Or a win/lose scene
+    }
     private void StartBattle()
     {
         roundNumber = 0;
@@ -87,18 +133,31 @@ public class BattleManager : MonoBehaviour
 
     private void StartRound()
     {
+        Debug.Log(" BeginTurn Queue Peek:");
+        if (turnQueue.Count > 0)
+            Debug.Log($" - Next: {turnQueue.Peek().CharacterName} (Init: {turnQueue.Peek().initiative})");
         //Debug.Log($"-- ROUND {roundNumber} --");
-        roundNumber++;
+        if (roundInProgress) return; // Prevent multiple calls in same frame
+        roundInProgress = true;
         roundText.text = "Round " + roundNumber;
         // Only include alive entities
-        var ordered = TurnOrderSystem.CalculateTurnOrder(
-            allEntities.Where(e => e.IsAlive()).ToList()
-        );
+            var ordered = TurnOrderSystem.CalculateTurnOrder(
+            allEntities.Where(e => e.IsAlive()).ToList());
+            turnQueue = new Queue<Entity>(ordered);
+        roundNumber++;
 
-        turnQueue = new Queue<Entity>(ordered);
-        currentState = BattleState.TurnStart;
+        StartCoroutine(DelayFirstTurn());
     }
 
+    private IEnumerator DelayFirstTurn()
+    {
+        yield return new WaitForSeconds(1.5f);
+        timeForBatlle = true;
+        roundInProgress = false;
+        uIManager.HideBatlleText();
+        upcoming = turnQueue.ToArray();
+        currentState = BattleState.TurnStart;
+    }
     private void BeginTurn()
     {
         bool itsOver = IsBattleOver();
@@ -110,10 +169,30 @@ public class BattleManager : MonoBehaviour
             return;
         }
         if (currentEntity != null && currentEntity.TurnEnded() == false) { return; }
+        Debug.Log($"BEGIN TURN: Queue Count = {turnQueue.Count}");
+
+        if (turnQueue.Count > 0)
+        {
+            Debug.Log($" - Next: {turnQueue.Peek().CharacterName} (Init: {turnQueue.Peek().initiative})");
+            Debug.Log($"Next Entity: {turnQueue.Peek().CharacterName} (Init: {turnQueue.Peek().initiative})");
+        }
+        upcoming = turnQueue.ToArray();
+        for (int i = 0; i < charImages.Length; i++)
+        {
+            if (i < upcoming.Length)
+            {
+                charImages[i].sprite = upcoming[i].sprite;
+            }
+            else
+            {
+                charImages[i].sprite = uIManager.defaultCharSprite; // Hide empty slots
+            }
+        }
+
         currentEntity = turnQueue.Dequeue();
         currentEntity.OnTurnEnded += HandleEntityEndTurn;
         //Debug.Log($"{currentEntity.CharacterName}'s turn starts. Has a controller? {currentEntity.Controller != null}");
-        charImage.sprite = currentEntity.sprite;
+        
 
         //Set UI Turn
         currentEntity.StartTurn();

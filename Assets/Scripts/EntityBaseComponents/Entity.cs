@@ -103,6 +103,7 @@ public class Entity : MonoBehaviour
     private void UpdateMovementPoints()
     {
         movementPoints = 5 * (agility + modAgility);
+        movementPoints = movementPoints <= 15 ? 15 : movementPoints;    
         gridObject.movementPoints = movementPoints;
     }
     private void Update()
@@ -139,6 +140,7 @@ public class Entity : MonoBehaviour
 
     public virtual void CalculateInitiative()
     {
+        Debug.Log($"[{CharacterName}] DEX: {dexterity}, Mod: {modDexterity}");
         initiative = Random.Range(2, 16) + dexterity + modDexterity;
     }
     public void CheckAndMaybeEndTurn()
@@ -296,8 +298,9 @@ public class Entity : MonoBehaviour
 
     public void SubstractConcentrationFromUse(int specialHability)
     {
-        Debug.LogWarning("El gasto: " + specialHability);
+        
         int concentrationToLose = InputToCommand[specialHability-1].concentrationCost;
+        Debug.LogWarning("El gasto: " + concentrationToLose);
         healthComponent.ConcentrationLoss(concentrationToLose);
     }
 }

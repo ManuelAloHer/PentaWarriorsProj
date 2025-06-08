@@ -20,6 +20,7 @@ public class InputToCommandMap
 public class CommandInput : MonoBehaviour,IController // This Class functions as a 
 {
     CommandManager commandManager;
+    BattleManager battleManager;
     InputController inputCursor;
     [SerializeField] ControlChecker controlChecker;
 
@@ -55,6 +56,7 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
         characterSelector = GetComponent<CharacterSelector>();
         inputCursor = GetComponent<InputController>();
         controlChecker = GetComponent<ControlChecker>();
+        battleManager = GetComponent<BattleManager>();
     }
 
     private void Start()
@@ -90,7 +92,7 @@ public class CommandInput : MonoBehaviour,IController // This Class functions as
     // Update is called once per frame
     void Update()
     {
-        
+        if (!battleManager.timeForBatlle) { characterSelector.selectedEntity = null;  }
         Ray ray = Camera.main.ScreenPointToRay(inputCursor.GetCursorPosition());
         RaycastHit hit;
         if (InputController.IsPointerOverUI()) { return; }
