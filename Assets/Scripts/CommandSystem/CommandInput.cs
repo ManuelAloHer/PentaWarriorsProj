@@ -1,12 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using Unity.IO.LowLevel.Unsafe;
-using UnityEditor.Experimental.GraphView;
-using UnityEditor.Search;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 [System.Serializable]
 public class InputToCommandMap
