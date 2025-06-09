@@ -139,19 +139,19 @@ public class BattleManager : MonoBehaviour
         //Debug.Log($"-- ROUND {roundNumber} --");
         if (roundInProgress) return; // Prevent multiple calls in same frame
         roundInProgress = true;
-        roundText.text = "Round " + roundNumber;
-        // Only include alive entities
-            var ordered = TurnOrderSystem.CalculateTurnOrder(
-            allEntities.Where(e => e.IsAlive()).ToList());
-            turnQueue = new Queue<Entity>(ordered);
-        roundNumber++;
-
         StartCoroutine(DelayFirstTurn());
     }
 
     private IEnumerator DelayFirstTurn()
     {
+        
+        // Only include alive entities
+        var ordered = TurnOrderSystem.CalculateTurnOrder(
+        allEntities.Where(e => e.IsAlive()).ToList());
+        turnQueue = new Queue<Entity>(ordered);
         yield return new WaitForSeconds(1.5f);
+        roundNumber++;
+        roundText.text = "Round " + roundNumber;
         timeForBatlle = true;
         roundInProgress = false;
         uIManager.HideBatlleText();
@@ -161,14 +161,18 @@ public class BattleManager : MonoBehaviour
     private void BeginTurn()
     {
         bool itsOver = IsBattleOver();
-
         if (turnQueue.Count == 0 || itsOver)
         {
             Debug.Log("Turn ended");
+            roundInProgress = false;
             currentState = IsBattleOver() ? BattleState.BattleEnd : BattleState.RoundStart;
             return;
         }
-        if (currentEntity != null && currentEntity.TurnEnded() == false) { return; }
+        if (currentEntity != null && currentEntity.TurnEnded() == false) 
+        {
+            return; 
+        
+        }
         Debug.Log($"BEGIN TURN: Queue Count = {turnQueue.Count}");
 
         if (turnQueue.Count > 0)

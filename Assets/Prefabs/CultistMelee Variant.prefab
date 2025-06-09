@@ -63,14 +63,44 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 460028234517144820, guid: c120448ffbcc86346a973d72a81aefa0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4918636899234521024}
   m_SourcePrefab: {fileID: 100100000, guid: c120448ffbcc86346a973d72a81aefa0, type: 3}
+--- !u!1 &2354443499873870619 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 460028234517144820, guid: c120448ffbcc86346a973d72a81aefa0, type: 3}
+  m_PrefabInstance: {fileID: 2796437256875722735}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4918636899234521024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2354443499873870619}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d09251c776d20b64294002232916edec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterComunAudios:
+  - {fileID: 8300000, guid: 6c4c8e4ee73802f4b8d066dd7cdbf753, type: 3}
+  - {fileID: 8300000, guid: 793b2843602c5cb47a2a44293ded27b8, type: 3}
+  - {fileID: 8300000, guid: 56d176135168e4788b212b0059fee63b, type: 3}
+  - {fileID: 8300000, guid: d0d362457143bf34190e5f7333105b60, type: 3}
+  characterSpecificAudios:
+  - {fileID: 8300000, guid: 126009b90bf58374fb5d5e7df5d5be1f, type: 3}
+  - {fileID: 8300000, guid: 0addcc409a57b4a43b86a3d2310ac5b4, type: 3}
+  - {fileID: 8300000, guid: 94a993fa1a1cac744b375c1623bb3e49, type: 3}
+  - {fileID: 8300000, guid: d0d362457143bf34190e5f7333105b60, type: 3}
 --- !u!114 &2483101159276441797 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 340953639524153130, guid: c120448ffbcc86346a973d72a81aefa0, type: 3}
   m_PrefabInstance: {fileID: 2796437256875722735}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 2354443499873870619}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c408ef352c002da4f9ac38863ee1ad2a, type: 3}

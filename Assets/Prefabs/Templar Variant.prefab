@@ -388,11 +388,11 @@ PrefabInstance:
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[1].pressed
       value: 
-      objectReference: {fileID: 21300000, guid: 6cb39a73c2b10e94bb31b6f3a60c8c41, type: 3}
+      objectReference: {fileID: 21300000, guid: cfe9a66be6fa1754ca6549e0805ba730, type: 3}
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[2].pressed
       value: 
-      objectReference: {fileID: 21300000, guid: 6cb39a73c2b10e94bb31b6f3a60c8c41, type: 3}
+      objectReference: {fileID: 21300000, guid: cfe9a66be6fa1754ca6549e0805ba730, type: 3}
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[0].standard
       value: 
@@ -400,11 +400,11 @@ PrefabInstance:
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[1].standard
       value: 
-      objectReference: {fileID: 21300000, guid: d6980dcedf2085c4395445b01112d00d, type: 3}
+      objectReference: {fileID: 21300000, guid: 4801c3aa40030794785f0818e5c8c5db, type: 3}
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[2].standard
       value: 
-      objectReference: {fileID: 21300000, guid: d6980dcedf2085c4395445b01112d00d, type: 3}
+      objectReference: {fileID: 21300000, guid: 4801c3aa40030794785f0818e5c8c5db, type: 3}
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[2].inputType
       value: 4
@@ -423,30 +423,38 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[1].commandType
-      value: 1
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[1].deactivated
       value: 
-      objectReference: {fileID: 21300000, guid: 72062240a7200c145b02c72c58d0cd7a, type: 3}
+      objectReference: {fileID: 21300000, guid: 901b8260a3a57394b98850b56df665c1, type: 3}
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[1].description
-      value: Movement
+      value: Heal
       objectReference: {fileID: 0}
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[2].commandType
-      value: 1
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[2].deactivated
       value: 
-      objectReference: {fileID: 21300000, guid: 72062240a7200c145b02c72c58d0cd7a, type: 3}
+      objectReference: {fileID: 21300000, guid: 901b8260a3a57394b98850b56df665c1, type: 3}
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[2].description
-      value: Movement
+      value: Heal
       objectReference: {fileID: 0}
     - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
       propertyPath: InputToCommand.Array.data[0].concentrationCost
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
+      propertyPath: InputToCommand.Array.data[1].concentrationCost
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 259753301736217168, guid: 628150c23c799ff4db748aeab2969c66, type: 3}
+      propertyPath: InputToCommand.Array.data[2].concentrationCost
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 377128061297234482, guid: 628150c23c799ff4db748aeab2969c66, type: 3}

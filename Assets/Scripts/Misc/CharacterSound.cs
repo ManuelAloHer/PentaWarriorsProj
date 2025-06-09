@@ -4,13 +4,22 @@ using UnityEngine;
 
 public class CharacterSound : MonoBehaviour
 {
-    [SerializeField] AudioClip[] characterAudios; 
+    [SerializeField] AudioClip[] characterComunAudios; 
     AudioSource characterAudioSource;
+    [SerializeField] AudioClip[] characterSpecificAudios;
 
-    public void PlayAudio(int index) 
+    private void Awake()
+    {
+        characterAudioSource = GetComponentInParent<AudioSource>();
+    }
+    public void PlayCommunAudio(int index) 
     { 
-       characterAudioSource.clip = characterAudios[index];
-        characterAudioSource.Play();    
-    
+       characterAudioSource.clip = characterComunAudios[index];
+       characterAudioSource.Play();    
+    }
+    public void PlaySpecificAudio(int index)
+    {
+        characterAudioSource.clip = characterSpecificAudios[index];
+        characterAudioSource.Play();
     }
 }

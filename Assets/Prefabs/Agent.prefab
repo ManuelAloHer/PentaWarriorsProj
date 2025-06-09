@@ -184,7 +184,6 @@ GameObject:
   - component: {fileID: 8916653193622555691}
   - component: {fileID: 3715074194647902763}
   - component: {fileID: 9152630401416511428}
-  - component: {fileID: 4275249568866500007}
   - component: {fileID: 4383682240906907268}
   m_Layer: 6
   m_Name: Agent
@@ -248,10 +247,10 @@ MonoBehaviour:
     deactivated: {fileID: 21300000, guid: 72062240a7200c145b02c72c58d0cd7a, type: 3}
     description: Movement
   characterName: Diane Scully
-  strenght: 8
-  agility: 6
-  dexterity: 4
-  conviction: 8
+  strenght: 6
+  agility: 8
+  dexterity: 8
+  conviction: 4
   instict: 4
   modStrenght: 0
   modAgility: 0
@@ -353,7 +352,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d5a425d7ad22354d883ae493e926d9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainAttackNature: 2
+  mainAttackNature: 0
   targetedObjectsInGrid: []
   targetedEntities: []
   attackRoll: 0
@@ -374,10 +373,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc8357e746a7d6a4e94cd6c0884b68d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 26
-  maxHealth: 26
-  concentration: 12
-  maxConcentration: 12
+  health: 22
+  maxHealth: 22
+  concentration: 8
+  maxConcentration: 8
 --- !u!114 &3715074194647902763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -491,19 +490,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &4275249568866500007
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7580303304244168391}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d09251c776d20b64294002232916edec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  characterAudios: []
 --- !u!114 &4383682240906907268
 MonoBehaviour:
   m_ObjectHideFlags: 0

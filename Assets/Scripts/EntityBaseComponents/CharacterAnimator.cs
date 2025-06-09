@@ -10,6 +10,7 @@ public enum SpecialHability {None= 0,Hab1 = 1, Hab2 = 2, Hab3 = 3}
 public class CharacterAnimator : MonoBehaviour
 {
     public Animator _animator;
+    public CharacterSound _characterSound;  
     public List<GameObject> projectiles;
     public List<GameObject> effects;
     public GameObject shootingPoint;
@@ -27,6 +28,7 @@ public class CharacterAnimator : MonoBehaviour
 
     private void Awake()
     {
+        _characterSound = GetComponent<CharacterSound>();
         onAnimationComplete += AnimationCompleteGeneric;
         OnHitComplete += AnimationCompleteGeneric;
         OnHurtComplete += AnimationCompleteGeneric;
@@ -63,9 +65,11 @@ public class CharacterAnimator : MonoBehaviour
         if (EffectToSpawn == 4) 
         {
             Transform EffectTransform = Instantiate(effects[EffectToSpawn], shootingPoint.transform.position, shootingPoint.transform.rotation).transform;
+            _characterSound.PlaySpecificAudio(0);
             return;
         }
         Transform bulletProjectileTransform = Instantiate(effects[EffectToSpawn], auraSpawner.transform.position, Quaternion.identity).transform;
+        _characterSound.PlayCommunAudio(EffectToSpawn);
 
     }
 
@@ -92,6 +96,7 @@ public class CharacterAnimator : MonoBehaviour
         Vector3 targetShootAtPosition = new Vector3(targetPos.x, targetPos.z, targetPos.y);
 
         bulletProjectile.Setup(targetShootAtPosition);
+        _characterSound.PlaySpecificAudio(projIndex+1);
     }
 
     public void TriggerSpecialHab(SpecialHability specialHab) 

@@ -101,7 +101,6 @@ GameObject:
   - component: {fileID: 6956266049069853151}
   - component: {fileID: 2414647051888568954}
   - component: {fileID: 1612570961201056352}
-  - component: {fileID: 7920553533296541812}
   - component: {fileID: 2643365928957188861}
   m_Layer: 6
   m_Name: Character
@@ -144,18 +143,21 @@ MonoBehaviour:
   InputToCommand:
   - inputType: 2
     commandType: 0
+    concentrationCost: 0
     standard: {fileID: 21300000, guid: b866ac447905489418aea15d7906f51c, type: 3}
     pressed: {fileID: 21300000, guid: 3a223de00101e4c4cb6c1170af03bb40, type: 3}
     deactivated: {fileID: 21300000, guid: 4bdc0ad90b579af4da33c5c631c3630a, type: 3}
     description: aaaaa
   - inputType: 3
     commandType: 0
+    concentrationCost: 0
     standard: {fileID: 21300000, guid: b866ac447905489418aea15d7906f51c, type: 3}
     pressed: {fileID: 21300000, guid: 3a223de00101e4c4cb6c1170af03bb40, type: 3}
     deactivated: {fileID: 21300000, guid: 4bdc0ad90b579af4da33c5c631c3630a, type: 3}
     description: fafsffsafs
   - inputType: 4
     commandType: 0
+    concentrationCost: 0
     standard: {fileID: 21300000, guid: b866ac447905489418aea15d7906f51c, type: 3}
     pressed: {fileID: 21300000, guid: 3a223de00101e4c4cb6c1170af03bb40, type: 3}
     deactivated: {fileID: 21300000, guid: 4bdc0ad90b579af4da33c5c631c3630a, type: 3}
@@ -211,6 +213,7 @@ MonoBehaviour:
   movement: {fileID: 8863440126038678756}
   attackComponent: {fileID: 1074597102438998203}
   objectDimensions: {x: 0, y: 0, z: 0}
+  healComponent: {fileID: 0}
 --- !u!54 &8403031779507580536
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -403,19 +406,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &7920553533296541812
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4207929114571298979}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d09251c776d20b64294002232916edec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  characterAudios: []
 --- !u!114 &2643365928957188861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -428,7 +418,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0effa03420b0c64ea7babefc1793a8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainAttackNature: 2
   targetedObject: {fileID: 0}
   targetedEntity: {fileID: 0}
   healingRoll: 0
