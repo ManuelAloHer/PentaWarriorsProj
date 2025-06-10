@@ -18,19 +18,28 @@ public class AnimatorVariables : MonoBehaviour
     [SerializeField] AnimationCurve opacityCurve;
     [SerializeField] GameObject Panel;
     private float timer = 0;
+    bool firstTimeExecution = true;
+
     // Start is called before the first frame update
     void Start()
     {
         tmp.alpha = 0f;
         Panel.SetActive(false);
+        firstTimeExecution = true;
+
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (timer >= 1f) 
+        if (timer >= 1f ) 
         {
-            Panel.SetActive(true);
+            if (firstTimeExecution) 
+            {
+                Panel.SetActive(true);
+                firstTimeExecution = false;
+            }
+
             return; 
         }
         title.localScale = Vector3.one * zoomAnimationCurve.Evaluate(timer);

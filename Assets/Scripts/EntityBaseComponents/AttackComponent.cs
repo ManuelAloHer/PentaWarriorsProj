@@ -83,8 +83,12 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                     stateStarted = true;
                     foreach (var entity in targetedEntities)
                     {
-                        if (entity == null) continue;
 
+                        if (entity == null) continue;
+                        if (!entity.IsAlive()) 
+                        {
+                            continue;
+                        }
                         var animator = entity.GetComponentInChildren<CharacterAnimator>();
                         if (animator != null)
                         {
@@ -131,6 +135,10 @@ public class AttackComponent : MonoBehaviour, IActionEffect
                     foreach (var entity in targetedEntities)
                     {
                         if (entity == null) continue;
+                        if (!entity.IsAlive())
+                        {
+                            continue;
+                        }
                         WaitForSignal();
 
                         var animator = entity.GetComponentInChildren<CharacterAnimator>();
