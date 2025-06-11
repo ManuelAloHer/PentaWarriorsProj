@@ -113,9 +113,9 @@ public class BattleManager : MonoBehaviour
             uIManager.SetBatlleEndText(playerWon);
             // Show victory screen
         }
-        else if (enemiesWon)
+        else if(!playerWon && enemiesWon || !playerWon && !enemiesWon)
         {
-            uIManager.SetBatlleEndText(!enemiesWon);
+            uIManager.SetBatlleEndText(playerWon);
             // Show defeat screen
         }
 
