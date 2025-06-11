@@ -20,8 +20,10 @@ public class HealthAndConcenUI : MonoBehaviour
         {
             healthConcentComp.healthGained += ActualizeCurrentBars;
             healthConcentComp.healthLost += ActualizeCurrentBars;
+            healthConcentComp.hasConcetrationChanged += ActualizeCurrentBars;
         }
     }
+
     private void Start()
     {
         if (healthConcentComp != null) 
@@ -47,6 +49,7 @@ public class HealthAndConcenUI : MonoBehaviour
             healthConcentComp = characterSelector.selectedEntity.GetComponent<HealthConcentComp>();
             healthConcentComp.healthGained += ActualizeCurrentBars;
             healthConcentComp.healthLost += ActualizeCurrentBars;
+            healthConcentComp.hasConcetrationChanged += ActualizeCurrentBars;
             ActualizeCurrentBars();
             checkedEntity = characterSelector.selectedEntity;
 
@@ -56,6 +59,7 @@ public class HealthAndConcenUI : MonoBehaviour
             healthConcentComp = characterSelector.hoveredEntity.GetComponent<HealthConcentComp>();
             healthConcentComp.healthGained += ActualizeCurrentBars;
             healthConcentComp.healthLost += ActualizeCurrentBars;
+            healthConcentComp.hasConcetrationChanged += ActualizeCurrentBars;
             ActualizeCurrentBars();
             checkedEntity = characterSelector.hoveredEntity;
         }

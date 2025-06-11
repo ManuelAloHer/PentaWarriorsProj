@@ -23,6 +23,7 @@ public class HealthConcentComp : MonoBehaviour
     public event Action healthLost;
     public event Action healthGained;
     public event Action hasDied;
+    public event Action hasConcetrationChanged;
 
     public void HealthLoss(int healthToLoss)
     {
@@ -45,6 +46,7 @@ public class HealthConcentComp : MonoBehaviour
         int newConcentration = concentration - concentToLose;
         concentration = newConcentration <= 0 ? 0 : newConcentration;
         Debug.Log("Current Concentration: " + concentration + " " + maxConcentration);
+        hasConcetrationChanged();
 
     }
     public void ConcentrationGain(int concentToGain)
@@ -52,7 +54,8 @@ public class HealthConcentComp : MonoBehaviour
         int newConcentration = concentration + concentToGain;
         concentration = newConcentration >= maxConcentration ? maxConcentration : newConcentration;
         Debug.Log("Current Concentration: " + concentration + " " + maxConcentration);
-        
+        hasConcetrationChanged();
+
     }
     private void DyingBehaviour()
     {

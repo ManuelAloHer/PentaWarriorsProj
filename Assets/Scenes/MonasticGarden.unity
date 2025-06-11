@@ -10615,7 +10615,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 45.45
+  m_fontSize: 45.4
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -11318,6 +11318,10 @@ PrefabInstance:
     - target: {fileID: 3879507694794088757, guid: 49de079b0c3893c428836bc3719763f2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9061660286550000459, guid: 49de079b0c3893c428836bc3719763f2, type: 3}
+      propertyPath: concentration
+      value: 16
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12207,6 +12211,10 @@ PrefabInstance:
     - target: {fileID: 1350480453448909323, guid: 683accd528b6f8547903786fbe070790, type: 3}
       propertyPath: mainAttackNature
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1680846948660357879, guid: 683accd528b6f8547903786fbe070790, type: 3}
+      propertyPath: maxHp
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 1680846948660357879, guid: 683accd528b6f8547903786fbe070790, type: 3}
       propertyPath: diceLaucher

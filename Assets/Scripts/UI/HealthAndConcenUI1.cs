@@ -63,6 +63,7 @@ public class HealthAndConcenUI1: MonoBehaviour
             healthConcentComp = characterSelector.hoveredEntity.GetComponent<HealthConcentComp>();
             healthConcentComp.healthGained += ActualizeCurrentBars;
             healthConcentComp.healthLost += ActualizeCurrentBars;
+            healthConcentComp.hasConcetrationChanged += ActualizeCurrentBars;
             ActualizeCurrentBars();
             checkedEntity = characterSelector.hoveredEntity;
             selectedCharPortrait.sprite = checkedEntity.sprite;
