@@ -1053,7 +1053,7 @@ Light:
   m_Lightmapping: 1
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
+  m_BounceIntensity: 1.1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
@@ -2898,7 +2898,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.804, y: 0.051697433}
   m_AnchorMax: {x: 0.95000005, y: 0.32500002}
-  m_AnchoredPosition: {x: 0, y: -0.000061035156}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: -0.00018311}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &559759792
@@ -11407,7 +11407,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2726998439744378668, guid: a6f8148751ab71644a042a99c26791bb, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.522007
+      value: -0.5220032
       objectReference: {fileID: 0}
     - target: {fileID: 4933831209392246674, guid: a6f8148751ab71644a042a99c26791bb, type: 3}
       propertyPath: m_Pivot.x
