@@ -41,6 +41,9 @@ public class HealthAndConcenUI1: MonoBehaviour
     {
         if (characterSelector == null)
         {
+            UnknownCurrentBarsValues();
+            selectedCharPortrait.sprite = portraitDefaultImage;
+            selectedCharText.text = "Not Selected";
             return;
         }
         if (checkedEntity != null && (characterSelector.hoveredEntity == null)) 
